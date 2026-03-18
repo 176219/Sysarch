@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
+    <script src="register.js"></script>
 </head>
 <body>
 
@@ -19,22 +20,22 @@
                         <h1 class="align-left">Registration</h1>
                     </div>
 
-                    <form action="#" method="POST">
+                    <form id="registerForm">
 
                         <div class="reg-input-group">
-                            <input type="text" placeholder="🪪 ID Number" required>
+                            <input type="text" name="idNumber" placeholder="🪪 ID Number" required>
                         </div>
 
                         <div class="reg-input-group">
-                            <input type="text" placeholder="👤 Last Name" required>
+                            <input type="text" name="lastName" placeholder="👤 Last Name" required>
                         </div>
 
                         <div class="reg-input-group">
-                            <input type="text" placeholder="👤 First Name" required>
+                            <input type="text" name="firstName" placeholder="👤 First Name" required>
                         </div>
 
                         <div class="reg-input-group">
-                            <input type="text" placeholder="👤 Middle Name" required>
+                            <input type="text" name="middleName" placeholder="👤 Middle Name" required>
                         </div>
 
                         <div class="reg-input-group">
@@ -48,17 +49,17 @@
                         </div>
 
                         <div class="reg-input-group">
-                            <input type="password" id="pass1" placeholder="🔒 Password" required>
+                            <input type="password" id="pass1" name="password" placeholder="🔒 Password" required>
                             <span class="password-toggle" onclick="togglePass('pass1')">🧿</span>
                         </div>
 
                         <div class="reg-input-group">
-                            <input type="password" id="pass2" placeholder="🔐 Confirm Password" required>
+                            <input type="password" id="pass2" name="confirmPassword" placeholder="🔐 Confirm Password" required>
                             <span class="password-toggle" onclick="togglePass('pass2')">🧿</span>
                         </div>
 
                         <div class="reg-input-group">
-                            <input type="email" placeholder="✉️ Email" required>
+                            <input type="email" name="email" placeholder="✉️ Email" required>
                         </div>
 
                         <div class="reg-input-group">
@@ -72,7 +73,7 @@
                         </div>
 
                         <div class="reg-input-group">
-                            <input type="text" placeholder="🏠 Address" required>
+                            <input type="text" name="address" placeholder="🏠 Address" required>
                         </div>
 
                         <div class="btn-center">
@@ -92,18 +93,4 @@
     </div>
 
 </body>
-<script>
-    function togglePass(id) {
-        const input = document.getElementById(id);
-        const icon = input.nextElementSibling;
-        
-        if (input.type === "password") {
-            input.type = "text";
-            icon.textContent = "🚫";
-        } else {
-            input.type = "password";
-            icon.textContent = "🧿";
-        }
-    }
-</script>
 </html>

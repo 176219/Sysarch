@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo=text"><b>College of Computer Studies Sit-in Monitoring System</b></div>
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Community</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="register.html">Register</a></li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="left-logo-section">
+            <img src="images/ccs.png" alt="CCS Logo">
+        </div>
+
+        <div class="right-form-section">
+            <div class="login-card">
+                <h4>Have an account?</h4>
+                <h1>Sign In</h1>
+                <form id="loginForm">
+                    <div class="input-group">
+                        <input type="text" name="idNumber" placeholder="🪪 Enter a Valid ID Number" required>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password" name="password" id="passwordField" placeholder="🔏 Enter Password" required>
+                        <span class="password-toggle" onclick="toggleVisibility()">🧿</span>
+                    </div>
+
+                    <button type="submit" class="login-button">Log in</button>
+                    <p class="register-text">Don't have an account? <a href="register.html">Sign Up</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script src="login.js"></script>
+<script>
+        function toggleVisibility() {
+            const passwordInput = document.getElementById("passwordField");
+            const toggleIcon = document.querySelector(".password-toggle");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.textContent = "🚫";
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.textContent = "🧿";
+            }
+        }
+</script>
+</body>
+</html>
