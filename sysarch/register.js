@@ -36,7 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
             middleName: form.middleName.value,
             email: form.email.value,
             password: password,
-            address: form.address.value
+            address: form.address.value,
+            course: form.course.value,
+            yearLevel: form.yearLevel.value
         };
 
         try {

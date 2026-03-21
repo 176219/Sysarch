@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert(data.message);
-                window.location.href = "placeholder.html";
+                localStorage.setItem("user", JSON.stringify(data.user));
+                window.location.href = "dashboard.html";
             } else {
                 alert("Error: " + data.error);
             }
@@ -30,3 +30,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+
+function toggleVisibility() {
+    const passwordInput = document.getElementById("passwordField");
+    const toggleIcon = document.querySelector(".password-toggle");
+
+        if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.textContent = "🚫";
+        } else {
+                passwordInput.type = "password";
+                toggleIcon.textContent = "🧿";
+        }
+    }

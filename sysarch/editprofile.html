@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - CCS Portal</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <div class="register-wrapper"> 
+        <div class="register-container">
+            <div class="register-content">
+                
+                <div class="form-column">
+                    <div class="reg-header">
+                        <img src="images/ccs.png" alt="Profile Icon">
+                        <h1 class="align-left">Edit Profile</h1>
+                    </div>
+
+                    <form id="editProfileForm" style="margin-top: 20px;">
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-id" placeholder="🪪 ID Number" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-lastName" placeholder="👤 Last Name" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-firstName" placeholder="👤 First Name" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-middleName" placeholder="👤 Middle Name">
+                        </div>
+
+                        <div class="row-group">
+                            <div class="reg-input-group">
+                                <input id="edit-yearLevel" list="course-levels" placeholder="🧑‍🎓 Year Level" required>
+                                <datalist id="course-levels">
+                                    <option value="1st year">
+                                    <option value="2nd year">
+                                    <option value="3rd year">
+                                    <option value="4th year">
+                                </datalist>
+                            </div>
+
+                            <div class="reg-input-group">
+                                <input id="edit-course" list="courses" placeholder="📚 Course" required>
+                                <datalist id="courses">
+                                    <option value="BSIT">
+                                    <option value="BSCS">
+                                    <option value="BSCE">
+                                    <option value="ACT">
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="email" id="edit-email" placeholder="✉️ Email" required>
+                        </div>
+
+                        <div class="reg-input-group">
+                            <input type="text" id="edit-address" placeholder="🏠 Address" required>
+                        </div>
+
+                        <div class="btn-center">
+                            <button type="submit" class="reg-submit-btn">Save</button>
+                            <div class="cancel-center">
+                                <a href="dashboard.html" class="cancel-btn">Back</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="image-column">
+                    <img src="images/uc.png" alt="Edit Illustration">
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+<script src="editprofile.js"></script>
+</body>
+</html>

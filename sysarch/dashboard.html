@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo-text"><b>Dashboard</b></div>
+        <ul class="nav-links">
+            <li><a href="#">✉ Notification 🔻</a></li>
+            <li><a href="dashboard.html" class="active">🏠︎ Dashboard</a></li>
+            <li><a href="editprofile.html" >✎ Edit Profile</a></li>
+            <li><a href="history.html">🕮 History</a></li>
+            <li><a href="reservation.html">🗒 Reservation</a></li>
+            <li><a href="login.html">⏻ Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="dashboard-container">
+        
+        <div class="dash-card">
+            <div class="card-header">📋 Student Information</div>
+            <div class="card-body">
+                <img src="images/avatar.png" alt="Student Photo" class="profile-img">
+                <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
+                <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
+                <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
+                <div class="info-row"><b>✉️ Email:</b> <span id="display-email">Loading...</span></div>
+                <div class="info-row"><b>📈 Year:</b> <span id="display-yearLevel">Loading...</span></div>
+                <div class="info-row"><b>🏠 Address:</b> <span id="display-address">Loading...</span></div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="card-header">📢 Announcement</div>
+            <div class="card-body">
+                <div class="announcement-item">
+                    <div class="announcement-date">CCS Admin 2025 - 2026</div>
+                    <p style="font-size: 17px; margin-top: 10px;"><b>Welcome to the New Semester, College of Computer Studies‼️</b></p>
+                    <p style="font-size: 15px; margin-top: 10px;">We’re excited to begin a new academic journey filled with learning, innovation, and success.🚀📚</p>
+                </div>
+                <div class="announcement-item">
+                    <div class="announcement-date">CCS Admin</div>
+                    <p style="font-size: 20px; margin-top: 10px;"><b>📢 Important Announcement‼️</b></p>
+                    <p style="font-size: 15px; margin-top: 10px;">We are excited to announce the launch of our new website 🎉 Explore our latest features, services, and updates designed to give you a better and more efficient experience. 🚀💻</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="card-header">📖 Rules and Regulation</div>
+            <div class="card-body">
+                <div class="rules-text">
+                    <center><b style="font-size: 30px; color: #da0ca6;">University of Cebu</b><br><b>COLLEGE OF INFORMATION & COMPUTER STUDIES</b></center><br>
+
+                    <b>LABORATORY RULES AND REGULATIONS</b>
+
+                    <p style="margin-bottom: 15px; margin-top: 15px; font-size: 15px;">To avoid embarrassment and maintain camaraderie with your friends and superiors at our laboratories, please observe the following:</p>
+
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                    <li style="margin-bottom: 15px;">Maintain silence, proper decorum, and discipline inside the laboratory. Mobile phones, walkmans and other personal pieces of equipment must be switched off.</li>
+                    <li style="margin-bottom: 15px;">Games are not allowed inside the lab. This includes computer-related games, card games and other games that may disturb the operation of the lab.</li>
+                    <li style="margin-bottom: 15px;">Surfing the Internet is allowed only with the permission of the instructor. Downloading and installing of software are strictly prohibited.</li>
+                    <li style="margin-bottom: 15px;">Getting access to other websites not related to the course (especially pornographic and illicit sites) is strictly prohibited.</li>
+                    <li style="margin-bottom: 15px;">Deleting computer files and changing the set-up of the computer is a major offense.</li>
+                    <li style="margin-bottom: 15px;">Observe computer time usage carefully. A fifteen-minute allowance is given for each use. Otherwise, the unit will be given to those who wish to "sit-in".</li>
+                    <li style="margin-bottom: 15px;">Observe proper decorum while inside the laboratory.</li>
+                    <li style="margin-bottom: 15px;">Chewing gum, eating, drinking, smoking, and other forms of vandalism are prohibited inside the lab.</li>
+                    <li style="margin-bottom: 15px;">Anyone causing a continual disturbance will be asked to leave the lab. Acts or gestures offensive to the members of the community, including public display of physical intimacy, are not tolerated.</li>
+                    <li style="margin-bottom: 15px;">Persons exhibiting hostile or threatening behavior such as yelling, swearing, or disregarding requests made by lab personnel will be asked to leave the lab.</li>
+                    <li style="margin-bottom: 15px;">For serious offense, the lab personnel may call the Civil Security Office (CSU) for assistance.</li>
+                    <li style="margin-bottom: 15px;">Any technical problem or difficulty must be addressed to the laboratory supervisor, student assistant or instructor immediately.</li>
+                    
+                    <p style="margin-top: 20px;"><b>DISCIPLINARY ACTION</b></p> 
+                    <p style="margin-top: 20px;"><b>First Offense - </b>The Head or the Dean or OIC recommends to the Guidance Center for a suspension from classes for each offender.</p>
+                    <p style="margin-top: 20px;"><b>Second and Subsequent Offenses - </b>A recommendation for a heavier sanction will be endorsed to the Guidance Center.</p>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+<script src="dashboard.js"></script>
+</body>
+</html>

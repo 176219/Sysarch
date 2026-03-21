@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS users (
     middleName TEXT,
     email TEXT,
     password TEXT,
-    address TEXT
+    address TEXT,
+    course TEXT,
+    yearLevel TEXT
 )
 `);
 
@@ -40,15 +42,17 @@ app.post("/register", (req, res) => {
         middleName,
         email,
         password,
-        address
+        address,
+        course,
+        yearLevel
     } = req.body;
 
     const sql = `
-    INSERT INTO users (idNumber, lastName, firstName, middleName, email, password, address)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO users (idNumber, lastName, firstName, middleName, email, password, address, course, yearLevel)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.run(sql, [idNumber, lastName, firstName, middleName, email, password, address], function(err) {
+    db.run(sql, [idNumber, lastName, firstName, middleName, email, password, address, course, yearLevel], function(err) {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
@@ -76,9 +80,56 @@ app.post("/login", (req, res) => {
             return res.status(400).json({ error: "Incorrect password" });
         }
 
-        
-        res.json({ message: "Login successful!" });
+        res.json({
+            success: true,
+            user: row,
+        });
     });
+});
+
+app.post("/update-profile", (req, res) => {
+    const {
+        oldIdNumber,
+        idNumber,
+        lastName,
+        firstName,
+        middleName,
+        yearLevel,
+        course,
+        email,
+        address
+    } = req.body;
+
+    
+    const sql = `
+        UPDATE users
+        SET idNumber = ?,
+            lastName = ?,
+            firstName = ?,
+            middleName = ?,
+            yearLevel = ?,
+            course = ?,
+            email = ?,
+            address = ?
+        WHERE idNumber = ?
+    `;
+
+    db.run(
+        sql,
+        [idNumber, lastName, firstName, middleName, yearLevel, course, email, address, oldIdNumber],
+        function (err) {
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ error: "Database error" });
+            }
+
+            if (this.changes === 0) {
+                return res.status(400).json({ error: "No user found with that ID" });
+            }
+
+            res.json({ success: true, message: "Profile updated successfully!" });
+        }
+    );
 });
 
 app.listen(PORT, () => {

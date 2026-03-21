@@ -314,3 +314,94 @@ body {
 .cancel-btn:hover {
     background-color: #f44336;
 }
+
+
+/*dashboard*/
+.logo-text:hover {
+    color: #ffcc00;
+    transition: width 0.2s ease;
+    transform: scale(1.05);
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1.5fr;
+    gap: 20px;
+    padding: 20px;
+    margin-top: 20px;
+    align-items: start;
+}
+
+.dash-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.card-header {
+    background-color: #0056b3;
+    color: white;
+    padding: 12px 15px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto 15px;
+    border: 2px solid #da0ca6;
+    object-fit: cover;
+}
+
+.info-row {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.announcement-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.announcement-date {
+    font-size: 25px;
+    font-weight: bold;
+    color: #da0ca6;
+}
+
+.rules-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #444;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+
+/* edit profile */
+
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+input[readonly] {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    color: #777;
+}
