@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College of Computer Studies Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">College of Computer Studies Admin</span>
+  <div class="nav-links">
+    <a href="#" class="active" onclick="showPage('home',this)">Home</a>
+    <a href="#" onclick="showPage('home',this)">Search</a>
+    <a href="#" onclick="showPage('students',this)">Students</a>
+    <a href="#" onclick="openSitInModal()">Sit-in</a>
+    <a href="#" onclick="showPage('sitin-records',this)">View Sit-in Records</a>
+    <a href="#" onclick="showPage('home',this)">Sit-in Reports</a>
+    <a href="#" onclick="showPage('home',this)">Feedback Reports</a>
+    <a href="#" onclick="showPage('home',this)">Reservation</a>
+  </div>
+  <button class="btn-logout" onclick="showToast('Logged out successfully.')">Log out</button>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+<!-- MAIN -->
+<main>
+
+  <!-- STATISTICS CARD -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">📊</span> Statistics
+    </div>
+    <div class="card-body">
+      <div class="stat-row">
+        <span class="stat-label">Students Registered</span>
+        <span class="stat-value" id="stat-registered">38</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Currently Sit-in</span>
+        <span class="stat-value" id="stat-current">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Total Sit-in</span>
+        <span class="stat-value" id="stat-total">15</span>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="langChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANNOUNCEMENT CARD -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">📣</span> Announcement
+    </div>
+    <div class="card-body">
+      <div class="announcement-form">
+        <label class="form-label" for="ann-input">New Announcement</label>
+        <textarea id="ann-input" placeholder="Type your announcement here…"></textarea>
+        <button class="btn-submit" onclick="submitAnnouncement()">Submit</button>
+      </div>
+
+      <p class="posted-title">Posted Announcement</p>
+      <div id="ann-list">
+        <div class="announcement-item">
+          <div class="ann-meta"><span class="dot"></span>CCS Admin &nbsp;|&nbsp; 2026-Feb-11</div>
+          <div class="ann-text ann-empty">(No message provided)</div>
+        </div>
+        <div class="announcement-item">
+          <div class="ann-meta"><span class="dot"></span>CCS Admin &nbsp;|&nbsp; 2024-May-08</div>
+          <div class="ann-text">Important Announcement — We are excited to announce the launch of our new website! 🎉 Explore our latest products and services now!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- STUDENTS PAGE -->
+<div id="page-students" class="page">
+<div class="page-students">
+  <h1 class="page-title">Students Information</h1>
+
+  <div class="student-toolbar">
+    <button class="btn-add-student" onclick="openAddStudent()">Add Students</button>
+    <button class="btn-reset-session" onclick="resetAllSessions()">Reset All Session</button>
+    <div class="entries-select">
+      <select id="entries-per-page" onchange="renderTable()">
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+      </select>
+      entries per page
+    </div>
+    <div class="toolbar-right">
+      <div class="search-box">
+        <label>Search:</label>
+        <input type="text" id="student-search" placeholder="Search…" oninput="renderTable()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="student-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('id')">ID Number <span class="sort-icon" id="sort-id">▲</span></th>
+          <th onclick="sortBy('name')">Name <span class="sort-icon" id="sort-name">⇅</span></th>
+          <th onclick="sortBy('year')">Year Level <span class="sort-icon" id="sort-year">⇅</span></th>
+          <th onclick="sortBy('course')">Course <span class="sort-icon" id="sort-course">⇅</span></th>
+          <th onclick="sortBy('session')">Remaining Session <span class="sort-icon" id="sort-session">⇅</span></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="student-tbody"></tbody>
+    </table>
+    <div class="table-footer">
+      <span id="table-info"></span>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<div id="page-sitin-records" class="page">
+<div class="page-students">
+  <h1 class="page-title">Current Sit in</h1>
+
+  <div class="student-toolbar">
+    <div class="entries-select">
+      <select>
+        <option>10</option>
+        <option>25</option>
+        <option>50</option>
+      </select>
+      entries per page
+    </div>
+
+    <div class="toolbar-right">
+      <div class="search-box">
+        <label>Search:</label>
+        <input type="text" placeholder="Search…" />
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Sit ID Number</th>
+          <th>ID Number</th>
+          <th>Name</th>
+          <th>Purpose</th>
+          <th>Sit Lab</th>
+          <th>Session</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody id="sitin-records-body">
+        <tr>
+          <td colspan="8" style="text-align:center;padding:20px;color:#888">
+            No data available
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="table-footer">
+      <span>Showing 1 to 1 of 1 entry</span>
+      <div class="pagination">
+        <button class="pg-btn">«</button>
+        <button class="pg-btn active">1</button>
+        <button class="pg-btn">»</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+
+<div class="modal-overlay" id="studentModal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <span id="studentModalTitle">Add Student</span>
+      <button class="modal-close" onclick="closeStudentModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-index" value="" />
+      <div class="modal-grid">
+        <div class="modal-field-v">
+          <label>ID Number</label>
+          <input type="text" id="st-id" placeholder="e.g. 3677897" />
+        </div>
+        <div class="modal-field-v">
+          <label>Year Level</label>
+          <select id="st-year">
+            <option value="">Select…</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
+        </div>
+        <div class="modal-field-v full">
+          <label>Full Name</label>
+          <input type="text" id="st-name" placeholder="Last, First Middle" />
+        </div>
+        <div class="modal-field-v">
+          <label>Course</label>
+          <select id="st-course">
+            <option value="">Select…</option>
+            <option>BSIT</option>
+            <option>BSCS</option>
+            <option>BSIS</option>
+            <option>ACT</option>
+          </select>
+        </div>
+        <div class="modal-field-v">
+          <label>Remaining Session</label>
+          <input type="number" id="st-session" placeholder="e.g. 30" min="0" />
+        </div>
+        <div class="modal-field-v full">
+          <label>Email</label>
+          <input type="email" id="st-email" placeholder="student@email.com" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeStudentModal()">Cancel</button>
+      <button class="btn-sitin-confirm" onclick="saveStudent()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:360px">
+    <div class="modal-header" style="background:var(--red)">
+      <span>Confirm Delete</span>
+      <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px 10px">
+      <p style="font-size:14px;color:var(--text);line-height:1.6">Are you sure you want to delete <strong id="delete-name"></strong>? This cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-delete" id="confirm-delete-btn" style="padding:8px 18px;font-size:13.5px">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay" id="sitInModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Sit In Form</span>
+      <button class="modal-close" onclick="closeSitInModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label for="si-id">ID Number:</label>
+        <input type="text" id="si-id" placeholder="e.g. 3677897" oninput="lookupStudent()" />
+      </div>
+      <div class="modal-field">
+        <label for="si-name">Student Name:</label>
+        <input type="text" id="si-name" placeholder="Auto-filled or enter name" />
+      </div>
+      <div class="modal-field">
+        <label for="si-purpose">Purpose:</label>
+        <select id="si-purpose">
+          <option value="">Select purpose…</option>
+          <option>C Programming</option>
+          <option>Java Programming</option>
+          <option>C# Programming</option>
+          <option>PHP Programming</option>
+          <option>ASP.Net Programming</option>
+          <option>Database</option>
+          <option>Research / Thesis</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label for="si-lab">Lab:</label>
+        <select id="si-lab">
+          <option value="">Select lab…</option>
+          <option>524</option>
+          <option>526</option>
+          <option>528</option>
+          <option>530</option>
+          <option>542</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label for="si-session">Remaining Session:</label>
+        <input type="number" id="si-session" placeholder="e.g. 27" min="0" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeSitInModal()">Close</button>
+      <button class="btn-sitin-confirm" onclick="confirmSitIn()">Sit In</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+<script src="admin-login.js"></script>
+</body>
+</html>

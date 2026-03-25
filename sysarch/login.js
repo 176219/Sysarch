@@ -19,9 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem("user", JSON.stringify(data.user));
-                localStorage.setItem("loginTime", Date.now().toString());
-                window.location.href = "dashboard.html";
+                if(data.role === "admin") {
+                    localStorage.setItem("admin", JSON.stringify(data.user));
+                    window.location.href = "admin-dashboard.html";
+                } else {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    localStorage.setItem("loginTime", Date.now().toString());
+                    window.location.href = "dashboard.html";
+                }
             } else {
                 alert("Error: " + data.error);
             }

@@ -9,6 +9,11 @@ const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+const adminAccount = {
+    username: "admin",
+    password: "admin123"
+}
+
 const db = new sqlite3.Database("users.db", (err) => {
     if (err) {
         console.error(err.message);
@@ -31,6 +36,8 @@ CREATE TABLE IF NOT EXISTS users (
     yearLevel TEXT
 )
 `);
+
+
 
 
 app.post("/register", (req, res) => {
@@ -61,9 +68,22 @@ app.post("/register", (req, res) => {
     });
 });
 
+
+
+
 app.post("/login", (req, res) => {
     const { idNumber, password } = req.body;
 
+    if(idNumber === adminAccount.username) {
+        if(password !== adminAccount.password) {
+            return res.status(400).json({ error: "Incorrect password" })
+        }
+
+        return res.json({
+            role: "admin",
+            user: adminAccount
+        });
+    }
     const sql = `SELECT * FROM users WHERE idNumber = ?`;
     db.get(sql, [idNumber], (err, row) => {
         if (err) {
@@ -81,7 +101,7 @@ app.post("/login", (req, res) => {
         }
 
         res.json({
-            success: true,
+            role: "user",
             user: row,
         });
     });
