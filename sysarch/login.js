@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 localStorage.setItem("user", JSON.stringify(data.user));
+                localStorage.setItem("loginTime", Date.now().toString());
                 window.location.href = "dashboard.html";
             } else {
                 alert("Error: " + data.error);

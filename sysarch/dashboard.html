@@ -25,13 +25,21 @@
         <div class="dash-card">
             <div class="card-header">📋 Student Information</div>
             <div class="card-body">
-                <img src="images/avatar.png" alt="Student Photo" class="profile-img">
+                <img src="images/avatar.png" class="profile-img">
                 <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
                 <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
                 <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
                 <div class="info-row"><b>✉️ Email:</b> <span id="display-email">Loading...</span></div>
                 <div class="info-row"><b>📈 Year:</b> <span id="display-yearLevel">Loading...</span></div>
                 <div class="info-row"><b>🏠 Address:</b> <span id="display-address">Loading...</span></div>
+                <div id="session-timer-wrapper" class="session-timer-wrapper timer-normal">
+                    <div class="timer-icon"><span>⏱️ Session Duration</span></div>
+                    <div class="timer-content">
+                        <div id="session-timer">00:00:00</div>
+                        <div class="timer-status" id="timer-status">Session active</div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
