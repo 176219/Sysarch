@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS users (
 `);
 
 
-
+// register route
 
 app.post("/register", (req, res) => {
     console.log("DATA RECEIVED", req.body);
@@ -69,7 +69,7 @@ app.post("/register", (req, res) => {
 });
 
 
-
+//login route
 
 app.post("/login", (req, res) => {
     const { idNumber, password } = req.body;
@@ -107,6 +107,8 @@ app.post("/login", (req, res) => {
     });
 });
 
+
+//update profile route
 app.post("/update-profile", (req, res) => {
     const {
         oldIdNumber,

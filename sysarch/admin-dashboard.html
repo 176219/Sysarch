@@ -1,323 +1,370 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>College of Computer Studies Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CCS Portal</title>
+    <link rel="stylesheet" href="admin-dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .admin-container {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            max-width: 1400px;
+            margin: auto;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .stats-grid {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stat-item h3 { color: #0056b3; 
+            font-size: 2.5em; 
+            margin: 5px 0; 
+        }
+        .stat-item p  { color: #444; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            font-size: 12px; 
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white;
+            padding: 0;
+            border-radius: 10px;
+            width: 450px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideDown 0.3s ease-out;
+        }
+        .modal-header {
+            background: #0056b3;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { 
+            font-size: 20px; 
+            color: white; 
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .modal-body { 
+            padding: 25px; 
+        }
+
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .form-row label { 
+            width: 150px; 
+            font-weight: bold; 
+            color: #333; 
+            font-size: 14px; 
+        }
+        .form-row input, .form-row select {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[readonly] { 
+            background: #eee; 
+            cursor: not-allowed; 
+        }
+        .modal-footer {
+            padding: 12px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-footer button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 1s;
+        }
+
+        .modal-footer button:hover {
+            background-color: #da0ca6;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .announcement-item {
+            background: white;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <span class="nav-brand">College of Computer Studies Admin</span>
-  <div class="nav-links">
-    <a href="#" class="active" onclick="showPage('home',this)">Home</a>
-    <a href="#" onclick="showPage('home',this)">Search</a>
-    <a href="#" onclick="showPage('students',this)">Students</a>
-    <a href="#" onclick="openSitInModal()">Sit-in</a>
-    <a href="#" onclick="showPage('sitin-records',this)">View Sit-in Records</a>
-    <a href="#" onclick="showPage('home',this)">Sit-in Reports</a>
-    <a href="#" onclick="showPage('home',this)">Feedback Reports</a>
-    <a href="#" onclick="showPage('home',this)">Reservation</a>
-  </div>
-  <button class="btn-logout" onclick="showToast('Logged out successfully.')">Log out</button>
-</nav>
+    <nav class="navbar">
+        <div class="logo-text">College of Computer Studies Admin</div>
+        <ul class="nav-links">
+            <li><a href="admin-dashboard.html" class="active">🏠︎ Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
+            <li><a href="studentlist.html">👤 Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openSitInModal()">🧑‍💻 Sit-in</a></li>
+            <li><a href="viewsitin.html">📄 View Sit-in Records</a></li>
+            <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
+            <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Log out</a></li>
+        </ul>
+    </nav>
 
-<!-- HOME PAGE -->
-<div id="page-home" class="page active">
-<!-- MAIN -->
-<main>
-
-  <!-- STATISTICS CARD -->
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">📊</span> Statistics
-    </div>
-    <div class="card-body">
-      <div class="stat-row">
-        <span class="stat-label">Students Registered</span>
-        <span class="stat-value" id="stat-registered">38</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Currently Sit-in</span>
-        <span class="stat-value" id="stat-current">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Total Sit-in</span>
-        <span class="stat-value" id="stat-total">15</span>
-      </div>
-
-      <div class="chart-wrap">
-        <canvas id="langChart"></canvas>
-      </div>
-    </div>
-  </div>
-
-  <!-- ANNOUNCEMENT CARD -->
-  <div class="card">
-    <div class="card-header">
-      <span class="icon">📣</span> Announcement
-    </div>
-    <div class="card-body">
-      <div class="announcement-form">
-        <label class="form-label" for="ann-input">New Announcement</label>
-        <textarea id="ann-input" placeholder="Type your announcement here…"></textarea>
-        <button class="btn-submit" onclick="submitAnnouncement()">Submit</button>
-      </div>
-
-      <p class="posted-title">Posted Announcement</p>
-      <div id="ann-list">
-        <div class="announcement-item">
-          <div class="ann-meta"><span class="dot"></span>CCS Admin &nbsp;|&nbsp; 2026-Feb-11</div>
-          <div class="ann-text ann-empty">(No message provided)</div>
+    <div class="admin-container">
+        <div class="left-pane">
+            <div class="card">
+                <h2>Laboratory Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-item"><h3>38</h3><p>Students</p></div>
+                    <div class="stat-item"><h3 id="currentSitIn">0</h3><p>Active</p></div>
+                    <div class="stat-item"><h3>15</h3><p>Today</p></div>
+                </div>
+                <div style="height: 250px;"><canvas id="statsChart"></canvas></div>
+            </div>
         </div>
-        <div class="announcement-item">
-          <div class="ann-meta"><span class="dot"></span>CCS Admin &nbsp;|&nbsp; 2024-May-08</div>
-          <div class="ann-text">Important Announcement — We are excited to announce the launch of our new website! 🎉 Explore our latest products and services now!</div>
+
+        <div class="right-pane">
+            <div class="card">
+                <h2>📢 Create Announcement</h2>
+                <textarea id="announcementText" class="reg-input-group" style="width:100%; height:100px; padding:10px; margin-top:10px;" placeholder="What's happening in the lab?"></textarea>
+                <button class="reg-submit-btn" style="margin-top:15px; width:100%;" onclick="postAnnouncement()">Broadcast Announcement</button>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2>Recent Updates</h2>
+                <div id="announcementList" class="posted-announcements" style="margin-top:15px;">
+                    <div class="announcement-item">
+                        <small>CCS Admin | 2026-Feb-11</small>
+                        <p>Welcome to the CCS Sit-in Monitoring System.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-</main>
-</div>
-
-<!-- STUDENTS PAGE -->
-<div id="page-students" class="page">
-<div class="page-students">
-  <h1 class="page-title">Students Information</h1>
-
-  <div class="student-toolbar">
-    <button class="btn-add-student" onclick="openAddStudent()">Add Students</button>
-    <button class="btn-reset-session" onclick="resetAllSessions()">Reset All Session</button>
-    <div class="entries-select">
-      <select id="entries-per-page" onchange="renderTable()">
-        <option value="10" selected>10</option>
-        <option value="25">25</option>
-        <option value="50">50</option>
-      </select>
-      entries per page
-    </div>
-    <div class="toolbar-right">
-      <div class="search-box">
-        <label>Search:</label>
-        <input type="text" id="student-search" placeholder="Search…" oninput="renderTable()" />
-      </div>
-    </div>
-  </div>
-
-  <div class="table-wrap">
-    <table id="student-table">
-      <thead>
-        <tr>
-          <th onclick="sortBy('id')">ID Number <span class="sort-icon" id="sort-id">▲</span></th>
-          <th onclick="sortBy('name')">Name <span class="sort-icon" id="sort-name">⇅</span></th>
-          <th onclick="sortBy('year')">Year Level <span class="sort-icon" id="sort-year">⇅</span></th>
-          <th onclick="sortBy('course')">Course <span class="sort-icon" id="sort-course">⇅</span></th>
-          <th onclick="sortBy('session')">Remaining Session <span class="sort-icon" id="sort-session">⇅</span></th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="student-tbody"></tbody>
-    </table>
-    <div class="table-footer">
-      <span id="table-info"></span>
-      <div class="pagination" id="pagination"></div>
-    </div>
-  </div>
-</div>
-</div>
-
-
-
-<div id="page-sitin-records" class="page">
-<div class="page-students">
-  <h1 class="page-title">Current Sit in</h1>
-
-  <div class="student-toolbar">
-    <div class="entries-select">
-      <select>
-        <option>10</option>
-        <option>25</option>
-        <option>50</option>
-      </select>
-      entries per page
     </div>
 
-    <div class="toolbar-right">
-      <div class="search-box">
-        <label>Search:</label>
-        <input type="text" placeholder="Search…" />
-      </div>
-    </div>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Sit ID Number</th>
-          <th>ID Number</th>
-          <th>Name</th>
-          <th>Purpose</th>
-          <th>Sit Lab</th>
-          <th>Session</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-
-      <tbody id="sitin-records-body">
-        <tr>
-          <td colspan="8" style="text-align:center;padding:20px;color:#888">
-            No data available
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="table-footer">
-      <span>Showing 1 to 1 of 1 entry</span>
-      <div class="pagination">
-        <button class="pg-btn">«</button>
-        <button class="pg-btn active">1</button>
-        <button class="pg-btn">»</button>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-
-
-
-<div class="modal-overlay" id="studentModal">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <span id="studentModalTitle">Add Student</span>
-      <button class="modal-close" onclick="closeStudentModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="edit-index" value="" />
-      <div class="modal-grid">
-        <div class="modal-field-v">
-          <label>ID Number</label>
-          <input type="text" id="st-id" placeholder="e.g. 3677897" />
+    <div id="searchModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'searchModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Search Student</h2>
+                <button class="close-btn" onclick="closeSearchModal()">❌</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sit-in" onclick="executeSearch()">Check ID</button>
+            </div>
         </div>
-        <div class="modal-field-v">
-          <label>Year Level</label>
-          <select id="st-year">
-            <option value="">Select…</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-          </select>
+    </div>
+
+    <div id="sitInModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'sitInModal')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sit-In Entry Form</h2>
+                <button class="close-btn" onclick="closeSitInModal()">❌</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row"><label>ID Number:</label><input type="text" id="sitIdNumber" readonly></div>
+                <div class="form-row"><label>Full Name:</label><input type="text" id="sitStudentName" readonly></div>
+                <div class="form-row">
+                    <label>Purpose:</label>
+                    <select id="sitPurpose">
+                        <option>C Programming</option>
+                        <option>Java Projects</option>
+                        <option>Python/Data Science</option>
+                        <option>Web Development</option>
+                    </select>
+                </div>
+                <div class="form-row"><label>Laboratory:</label><input type="text" id="sitLab" placeholder="e.g. 524"></div>
+                <div class="form-row"><label>Sessions Left:</label><input type="text" id="sitRemaining" readonly></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close-modal" onclick="closeSitInModal()">Cancel</button>
+                <button class="btn-sit-in" onclick="submitSitIn()">Confirm Sit-In</button>
+            </div>
         </div>
-        <div class="modal-field-v full">
-          <label>Full Name</label>
-          <input type="text" id="st-name" placeholder="Last, First Middle" />
-        </div>
-        <div class="modal-field-v">
-          <label>Course</label>
-          <select id="st-course">
-            <option value="">Select…</option>
-            <option>BSIT</option>
-            <option>BSCS</option>
-            <option>BSIS</option>
-            <option>ACT</option>
-          </select>
-        </div>
-        <div class="modal-field-v">
-          <label>Remaining Session</label>
-          <input type="number" id="st-session" placeholder="e.g. 30" min="0" />
-        </div>
-        <div class="modal-field-v full">
-          <label>Email</label>
-          <input type="email" id="st-email" placeholder="student@email.com" />
-        </div>
-      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-modal-close" onclick="closeStudentModal()">Cancel</button>
-      <button class="btn-sitin-confirm" onclick="saveStudent()">Save</button>
-    </div>
-  </div>
-</div>
 
+<script>
+    function closeModalOnOutsideClick(event, modalId) {
+        const modal = document.getElementById(modalId);
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
 
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal" style="width:360px">
-    <div class="modal-header" style="background:var(--red)">
-      <span>Confirm Delete</span>
-      <button class="modal-close" onclick="closeDeleteModal()">✕</button>
-    </div>
-    <div class="modal-body" style="padding:20px 24px 10px">
-      <p style="font-size:14px;color:var(--text);line-height:1.6">Are you sure you want to delete <strong id="delete-name"></strong>? This cannot be undone.</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-modal-close" onclick="closeDeleteModal()">Cancel</button>
-      <button class="btn-delete" id="confirm-delete-btn" style="padding:8px 18px;font-size:13.5px">Delete</button>
-    </div>
-  </div>
-</div>
+    function openSearchModal() {
+        document.getElementById('searchModal').style.display = 'flex';
+        document.getElementById('modalSearchInput').focus();
+    }
 
+    function closeSearchModal() {
+        document.getElementById('searchModal').style.display = 'none';
+    }
 
-<div class="modal-overlay" id="sitInModal">
-  <div class="modal">
-    <div class="modal-header">
-      <span>Sit In Form</span>
-      <button class="modal-close" onclick="closeSitInModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-field">
-        <label for="si-id">ID Number:</label>
-        <input type="text" id="si-id" placeholder="e.g. 3677897" oninput="lookupStudent()" />
-      </div>
-      <div class="modal-field">
-        <label for="si-name">Student Name:</label>
-        <input type="text" id="si-name" placeholder="Auto-filled or enter name" />
-      </div>
-      <div class="modal-field">
-        <label for="si-purpose">Purpose:</label>
-        <select id="si-purpose">
-          <option value="">Select purpose…</option>
-          <option>C Programming</option>
-          <option>Java Programming</option>
-          <option>C# Programming</option>
-          <option>PHP Programming</option>
-          <option>ASP.Net Programming</option>
-          <option>Database</option>
-          <option>Research / Thesis</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="modal-field">
-        <label for="si-lab">Lab:</label>
-        <select id="si-lab">
-          <option value="">Select lab…</option>
-          <option>524</option>
-          <option>526</option>
-          <option>528</option>
-          <option>530</option>
-          <option>542</option>
-        </select>
-      </div>
-      <div class="modal-field">
-        <label for="si-session">Remaining Session:</label>
-        <input type="number" id="si-session" placeholder="e.g. 27" min="0" />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-modal-close" onclick="closeSitInModal()">Close</button>
-      <button class="btn-sitin-confirm" onclick="confirmSitIn()">Sit In</button>
-    </div>
-  </div>
-</div>
+    function openSitInModal() {
+        document.getElementById('sitInModal').style.display = 'flex';
+    }
 
+    function closeSitInModal() {
+        document.getElementById('sitInModal').style.display = 'none';
+    }
 
-<div class="toast" id="toast"></div>
+    async function executeSearch() {
+        const id = document.getElementById('modalSearchInput').value.trim();
+        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
 
-<script src="admin-login.js"></script>
+        try {
+            const res = await fetch(`http://localhost:3000/get-student/${id}`);
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById('sitIdNumber').value = data.idNumber;
+
+                const fullName = `${data.firstName || data.firstname || ''} ${data.lastName || data.lastname || ''}`.trim();
+                document.getElementById('sitStudentName').value = fullName || "N/A";
+
+                document.getElementById('sitRemaining').value = data.remainingSession || 30;
+
+                closeSearchModal();
+                document.getElementById('sitInModal').style.display = 'flex';
+            } else {
+                Swal.fire('Oops!', 'Student not found in database.', 'warning');
+            }
+        } catch (e) {
+            console.error(e);
+            Swal.fire('Connection Error', 'Is your server running?', 'error');
+        }
+    }
+
+    async function submitSitIn() {
+        const payload = {
+            idNumber: document.getElementById('sitIdNumber').value,
+            purpose: document.getElementById('sitPurpose').value,
+            lab: document.getElementById('sitLab').value
+        };
+
+        if (!payload.lab) {
+            return Swal.fire('Warning', 'Please assign a Lab Room', 'warning');
+        }
+
+        try {
+            const res = await fetch('http://localhost:3000/sit-in', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                Swal.fire('Success', 'Student is now sitting-in!', 'success');
+                closeSitInModal();
+
+                const count = document.getElementById('currentSitIn');
+                count.innerText = parseInt(count.innerText) + 1;
+            } else {
+                const err = await res.text();
+                Swal.fire('Error', err || 'Failed to submit sit-in', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            Swal.fire('Error', 'Could not process sit-in.', 'error');
+        }
+    }
+
+    window.onload = function() {
+        const hasShownWelcome = sessionStorage.getItem("adminWelcomeShown");
+
+        if (hasShownWelcome === "false") {
+            Swal.fire({
+                title: 'Welcome back, Admin!',
+                text: 'You have successfully logged into the CCS Monitoring System.',
+                icon: 'success',
+                confirmButtonColor: '#0056b3',
+                timerProgressBar: true
+            });
+
+            sessionStorage.setItem("adminWelcomeShown", "true");
+        }
+    };
+
+    function logout() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out.",
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#dd3333',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, logout'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "login.html";
+            }
+        });
+    }
+
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['BSIT', 'BSCS', 'BSIS'],
+            datasets: [{
+                data: [65, 25, 10],
+                backgroundColor: ['#0056b3', '#ffc107', '#28a745']
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+</script>
 </body>
 </html>
