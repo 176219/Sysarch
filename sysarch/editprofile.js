@@ -1,60 +1,94 @@
 document.addEventListener("DOMContentLoaded", () => {
     const userData = localStorage.getItem("user");
-    let originalID = ""; 
+    let originalID = "";
 
-    if (userData && userData !== "undefined") {
-        try {
-            const user = JSON.parse(userData);
-            originalID = user.idNumber; 
+    const profileInput = document.getElementById("edit-profileImage");
+    const preview = document.getElementById("profilePreview");
 
-
-            document.getElementById("edit-id").value = originalID || "";
-            document.getElementById("edit-lastName").value = user.lastName || "";
-            document.getElementById("edit-firstName").value = user.firstName || "";
-            document.getElementById("edit-middleName").value = user.middleName || "";
-            document.getElementById("edit-yearLevel").value = user.yearLevel || "";
-            document.getElementById("edit-course").value = user.course || "";
-            document.getElementById("edit-email").value = user.email || "";
-            document.getElementById("edit-address").value = user.address || "";
-        } catch (error) {
-            console.error("Error parsing user data:", error);
-        }
-    } else {
-        window.location.href = "index.html"; 
+    if (!userData || userData === "undefined") {
+        window.location.href = "index.html";
+        return;
     }
 
+    const user = JSON.parse(userData);
+    originalID = user.idNumber;
+
+    // Fill in form fields
+    document.getElementById("edit-id").value = user.idNumber || "";
+    document.getElementById("edit-lastName").value = user.lastName || "";
+    document.getElementById("edit-firstName").value = user.firstName || "";
+    document.getElementById("edit-middleName").value = user.middleName || "";
+    document.getElementById("edit-yearLevel").value = user.yearLevel || "";
+    document.getElementById("edit-course").value = user.course || "";
+    document.getElementById("edit-email").value = user.email || "";
+    document.getElementById("edit-address").value = user.address || "";
+
+    // Load profile image
+    preview.src = user.profileImage
+        ? `http://localhost:3000/images/${user.profileImage}`
+        : "images/default.png";
+
+    // Preview selected image
+    profileInput.addEventListener("change", () => {
+        const file = profileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Submit form
     document.getElementById("editProfileForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        
-        const updatedUser = {
-            oldIdNumber: originalID,
-            idNumber: document.getElementById("edit-id").value,
-            lastName: document.getElementById("edit-lastName").value,
-            firstName: document.getElementById("edit-firstName").value,
-            middleName: document.getElementById("edit-middleName").value,
-            yearLevel: document.getElementById("edit-yearLevel").value,
-            course: document.getElementById("edit-course").value,
-            email: document.getElementById("edit-email").value,
-            address: document.getElementById("edit-address").value
-        };
+
+        const formData = new FormData();
+        formData.append("oldIdNumber", originalID);
+        formData.append("idNumber", document.getElementById("edit-id").value);
+        formData.append("lastName", document.getElementById("edit-lastName").value);
+        formData.append("firstName", document.getElementById("edit-firstName").value);
+        formData.append("middleName", document.getElementById("edit-middleName").value);
+        formData.append("yearLevel", document.getElementById("edit-yearLevel").value);
+        formData.append("course", document.getElementById("edit-course").value);
+        formData.append("email", document.getElementById("edit-email").value);
+        formData.append("address", document.getElementById("edit-address").value);
+
+        if (profileInput.files[0]) {
+            formData.append("profileImage", profileInput.files[0]);
+        }
 
         try {
             const response = await fetch("http://localhost:3000/update-profile", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedUser)
+                body: formData
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-  
-                localStorage.setItem("user", JSON.stringify(updatedUser));
-                alert("Profile and ID updated successfully!");
+                // update localStorage
+                user.idNumber = document.getElementById("edit-id").value;
+                user.lastName = document.getElementById("edit-lastName").value;
+                user.firstName = document.getElementById("edit-firstName").value;
+                user.middleName = document.getElementById("edit-middleName").value;
+                user.yearLevel = document.getElementById("edit-yearLevel").value;
+                user.course = document.getElementById("edit-course").value;
+                user.email = document.getElementById("edit-email").value;
+                user.address = document.getElementById("edit-address").value;
+                if (data.image) user.profileImage = data.image;
+
+                localStorage.setItem("user", JSON.stringify(user));
+
+                alert("Profile updated successfully!");
                 window.location.href = "dashboard.html";
             } else {
-                alert("Update failed. Check if the new ID already exists.");
+                alert(data.error || "Update failed!");
             }
         } catch (error) {
-            alert("Connection error! Is your 'node server.js' running?");
+            console.error(error);
+            alert("Connection error! Is your server running?");
         }
     });
 });

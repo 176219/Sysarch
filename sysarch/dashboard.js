@@ -9,9 +9,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const user = JSON.parse(sessionData);
 
+    // 🖼️ PROFILE IMAGE (NEW)
+    const profileImg = document.getElementById("profile-img");
+    if (profileImg) {
+        if (user.profileImage) {
+            profileImg.src = `http://localhost:3000/images/${user.profileImage}`;
+        } else {
+            profileImg.src = "images/avatar.png"; // fallback
+        }
+    }
+
     // 👤 Display user info
     document.getElementById("display-name").textContent =
-        user.firstName + " " + user.middleName + " " + user.lastName;
+        `${user.firstName} ${user.middleName || ""} ${user.lastName}`;
     document.getElementById("display-email").textContent = user.email;
     document.getElementById("display-address").textContent = user.address;
     document.getElementById("display-course").textContent = user.course;
@@ -115,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 🔴 GLOBAL LOGOUT FUNCTION
 function logout(event) {
-    if (event) event.preventDefault(); // prevent instant redirect
+    if (event) event.preventDefault();
 
     Swal.fire({
         title: 'Are you sure?',

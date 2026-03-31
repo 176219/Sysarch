@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Sit-in - CCS Admin</title>
+    <link rel="stylesheet" href="viewsitin(admin).css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo-text">College of Computer Studies Admin</div>
+    <ul class="nav-links">
+        <li><a href="admin-dashboard.html">🏠︎ Home</a></li>
+        <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
+        <li><a href="students(admin).html">👤 Students</a></li>
+        <li><a href="javascript:void(0)" onclick="openGenericSitInForm()">🧑‍💻 Sit-in</a></li>
+        <li><a href="viewsitin(admin).html" class="active">📄 View Sit-in Records</a></li>
+        <li><a href="sitinreports.html">📁 Sit-in Reports</a></li>
+        <li><a href="feedbackreports.html">📝 Feedback Reports</a></li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Log out</a></li>
+    </ul>
+</nav>
+
+    <div id="searchModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Search Student</h2>
+                <button class="close-btn" onclick="closeModal('searchModal')">❌</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-confirm" onclick="executeSearch()">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="studentInfoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Student Information</h2>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')">❌</button>
+            </div>
+            <div class="modal-body" id="infoBody">
+                </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="genericSitInModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sit-In Entry Form</h2>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
+                <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
+                <div class="form-row">
+                    <label>Purpose:</label>
+                    <select id="genPurpose">
+                        <option>C Programming</option>
+                        <option>Java Projects</option>
+                        <option>Python/Data Science</option>
+                        <option>Web Development</option>
+                    </select>
+                </div>
+                <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
+                <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitGenericSitIn()">Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
+
+<div class="page-wrapper">
+    <h1 class="page-title">Current Sit-in Sessions</h1>
+
+    <div class="table-card">
+        <div class="table-controls">
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="entries-control">
+                    Show <select id="entriesSelect" onchange="changeEntries()">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                    </select> entries
+                </div>
+                <button class="btn-refresh" onclick="fetchSitIns()">🔄 Refresh</button>
+            </div>
+            <div class="search-control">
+                Search: <input type="text" id="searchInput" oninput="applySearch()">
+            </div>
+        </div>
+
+        <table id="sitInTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Sit ID <span class="sort-icon">▲</span></th>
+                    <th onclick="sortTable(1)">ID Number <span class="sort-icon">⇅</span></th>
+                    <th onclick="sortTable(2)">Name <span class="sort-icon">⇅</span></th>
+                    <th onclick="sortTable(3)">Purpose <span class="sort-icon">⇅</span></th>
+                    <th onclick="sortTable(4)">Lab <span class="sort-icon">⇅</span></th>
+                    <th onclick="sortTable(5)">Session <span class="sort-icon">⇅</span></th>
+                    <th onclick="sortTable(6)">Status <span class="sort-icon">⇅</span></th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="sitInTableBody">
+                <tr class="empty-row"><td colspan="8">Loading sit-in records...</td></tr>
+            </tbody>
+        </table>
+
+        <div class="pagination-row" style="display:flex; justify-content:space-between; margin-top:20px; font-size:13px;">
+            <div id="paginationInfo"></div>
+            <div id="paginationBtns" class="pagination-btns"></div>
+        </div>
+    </div>
+</div>
+<script src="viewsitin(admin).js"></script>
+</body>
+</html>

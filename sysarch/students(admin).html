@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List - CCS Admin</title>
+    <link rel="stylesheet" href="students(admin).css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo-text">College of Computer Studies Admin</div>
+        <ul class="nav-links">
+            <li><a href="admin-dashboard.html">🏠︎ Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
+            <li><a href="students(admin).html" class="active">👤 Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()">🧑‍💻 Sit-in</a></li>
+            <li><a href="viewsitin(admin).html">📄 View Sit-in Records</a></li>
+            <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
+            <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Log out</a></li>
+        </ul>
+    </nav>
+
+    <!-- Search Modal -->
+    <div id="searchModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Search Student</h2>
+                <button class="close-btn" onclick="closeModal('searchModal')">❌</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-confirm" onclick="executeSearch()">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Info Modal -->
+    <div id="studentInfoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Student Information</h2>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')">❌</button>
+            </div>
+            <div class="modal-body" id="infoBody"></div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sit-In Modal -->
+    <div id="genericSitInModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sit-In Entry Form</h2>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')">❌</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
+                <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
+                <div class="form-row">
+                    <label>Purpose:</label>
+                    <select id="genPurpose">
+                        <option>C Programming</option>
+                        <option>Java Projects</option>
+                        <option>Python/Data Science</option>
+                        <option>Web Development</option>
+                    </select>
+                </div>
+                <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
+                <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitGenericSitIn()">Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Student</h2>
+                <button class="close-btn" onclick="closeModal('addStudentModal')">❌</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row"><label>ID Number:</label><input type="text" id="add-idNumber" placeholder="e.g. 2021-00123"></div>
+                <div class="form-row"><label>Last Name:</label><input type="text" id="add-lastName" placeholder="Last Name"></div>
+                <div class="form-row"><label>First Name:</label><input type="text" id="add-firstName" placeholder="First Name"></div>
+                <div class="form-row"><label>Middle Name:</label><input type="text" id="add-middleName" placeholder="Middle Name"></div>
+                <div class="form-row">
+                    <label>Year Level:</label>
+                    <input list="add-course-levels" id="add-yearLevel" placeholder="e.g. 1st year">
+                    <datalist id="add-course-levels">
+                        <option value="1st year">
+                        <option value="2nd year">
+                        <option value="3rd year">
+                        <option value="4th year">
+                    </datalist>
+                </div>
+                <div class="form-row">
+                    <label>Course:</label>
+                    <input list="add-courses" id="add-course" placeholder="e.g. BSIT">
+                    <datalist id="add-courses">
+                        <option value="BSIT">
+                        <option value="BSCS">
+                        <option value="BSCE">
+                        <option value="BSBA">
+                    </datalist>
+                </div>
+                <div class="form-row"><label>Email:</label><input type="email" id="add-email" placeholder="Email"></div>
+                <div class="form-row"><label>Address:</label><input type="text" id="add-address" placeholder="Address"></div>
+                <div class="form-row">
+                    <label>Password:</label>
+                    <div style="flex:1; position:relative;">
+                        <input type="password" id="add-password" placeholder="Password" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+                        <span onclick="toggleAddPass()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">🧿</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('addStudentModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitAddStudent()">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-table-container">
+        <h1>Students Information</h1>
+        <div style="margin-bottom: 20px;">
+            <button class="btn-add" onclick="addStudent()">Add Student</button>
+            <button class="btn-reset" onclick="resetAllSessions()">Reset All Sessions</button>
+            <input type="text" class="search-box" id="tableSearch" placeholder="Filter table..." onkeyup="filterTable()">
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Number</th>
+                    <th>Name</th>
+                    <th>Year Level</th>
+                    <th>Course</th>
+                    <th>Remaining</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+        </table>
+    </div>
+
+<script src="students(admin).js"></script>
+</body>
+</html>

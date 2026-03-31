@@ -1,50 +1,23 @@
-function logout(event) {
-    if (event) event.preventDefault();
-
-    Swal.fire({
-        title: 'Logout?',
-        text: "Are you sure you want to end your session?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, Logout!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-    });
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
-
     const sessionData = localStorage.getItem("user");
-
-    if (!sessionData) {
-        window.location.href = "login.html";
-        return;
-    }
+    if (!sessionData) return window.location.href = "login.html";
 
     const user = JSON.parse(sessionData);
 
-    // ✅ AUTO FILL FORM (NO FETCH NEEDED)
+    // Auto-fill
     document.getElementById("res-id").value = user.idNumber;
-    document.getElementById("res-name").value =
-        `${user.firstName} ${user.lastName}`;
-    document.getElementById("res-sessions").value =
-        user.sessions || "30";
+    document.getElementById("res-name").value = `${user.firstName} ${user.lastName}`;
+    document.getElementById("res-sessions").value = user.remainingSession || "30";
 
-    // LOCK FIELDS
-    document.getElementById("res-id").readOnly = true;
-    document.getElementById("res-name").readOnly = true;
-    document.getElementById("res-sessions").readOnly = true;
+    // Lock fields
+    ["res-id","res-name","res-sessions"].forEach(id => document.getElementById(id).readOnly = true);
 
-    // SUBMIT
+    // Submit
     document.getElementById("reservationForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const reservationData = {
             idNumber: user.idNumber,
-            name: `${user.firstName} ${user.lastName}`,
             purpose: document.getElementById("res-purpose").value,
             lab: document.getElementById("res-lab").value,
             timeIn: document.getElementById("res-time").value,
@@ -58,20 +31,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                 body: JSON.stringify(reservationData)
             });
 
+            const result = await response.json();
             if (response.ok) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success!',
-                    text: 'Reservation submitted!',
-                    timer: 1500,
+                    text: result.message,
+                    timer: 3000,
                     showConfirmButton: false
-                }).then(() => {
-                    window.location.href = "history.html";
-                });
+                }).then(() => window.location.href = "history.html");
             } else {
-                Swal.fire('Failed', 'Submission failed.', 'error');
+                Swal.fire('Failed', result.message || 'Submission failed.', 'error');
             }
-
         } catch (error) {
             Swal.fire('Error', 'Server not running!', 'error');
         }

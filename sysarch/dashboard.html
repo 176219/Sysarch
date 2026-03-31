@@ -4,8 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard - CCS Sit-in Monitoring</title>
-        <link rel="stylesheet" href="style.css">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="dashboard.css">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
     <body>
@@ -18,7 +17,7 @@
                 <li><a href="editprofile.html" >✎ Edit Profile</a></li>
                 <li><a href="history.html">🕮 History</a></li>
                 <li><a href="reservation.html">🗒 Reservation</a></li>
-                <li><a href="login.html" onclick="logout(event)">⏻ Logout</a></li>
+                <li><a href="#" class="logout">➜] Logout</a></li>
             </ul>
         </nav>
 
@@ -27,8 +26,8 @@
             <div class="dash-card">
                 <div class="card-header">📋 Student Information</div>
                 <div class="card-body">
-                    <img src="images/avatar.png" class="profile-img">
-                    <div class="info-row"><b>🪪 ID Number:</b> <span id="display-id">Loading...</span></div>
+                    <img id="profile-img" src="images/avatar.png" class="profile-img">
+                    <div class="info-row"><b>ⵌ ID Number:</b> <span id="display-id">Loading...</span></div>
                     <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
                     <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
                     <div class="info-row"><b>✉️ Email:</b> <span id="display-email">Loading...</span></div>
@@ -95,5 +94,6 @@
 
         </div>
     <script src="dashboard.js"></script>
+    <script src="logout.js"></script>
     </body>
     </html>

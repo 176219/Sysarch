@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (response.ok) {
                 alert(data.message);
-                window.location.href = "index.html";
+                window.location.href = "login.html";
             } else {
                 alert("Error: " + data.error);
             }

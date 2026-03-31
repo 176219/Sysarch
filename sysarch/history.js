@@ -1,27 +1,6 @@
-function logout(event) {
-    if (event) event.preventDefault();
-
-    Swal.fire({
-        title: 'Logout?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            localStorage.clear();
-            window.location.href = "login.html";
-        }
-    });
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
-
     const sessionData = localStorage.getItem("user");
-
-    if (!sessionData) {
-        window.location.href = "login.html";
-        return;
-    }
+    if (!sessionData) return window.location.href = "login.html";
 
     const user = JSON.parse(sessionData);
 
@@ -48,9 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             table.innerHTML += row;
         });
 
-        document.getElementById("entryInfo").textContent =
-            `Showing ${data.length} entries`;
-
+        document.getElementById("entryInfo").textContent = `Showing ${data.length} entries`;
     } catch (err) {
         Swal.fire('Error', 'Failed to load history', 'error');
     }

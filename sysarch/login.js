@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (response.ok) {
                 if(data.role === "admin") {
                     localStorage.setItem("admin", JSON.stringify(data.user));
+                    sessionStorage.setItem("adminWelcomeShown", "false");
                     window.location.href = "admin-dashboard.html";
                 } else {
                     localStorage.setItem("user", JSON.stringify(data.user));
