@@ -8,18 +8,18 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-
     <nav class="navbar">
-        <div class="logo-text">College of Computer Studies Admin</div>
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
-            <li><a href="admin-dashboard.html">🏠︎ Home</a></li>
-            <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
-            <li><a href="students(admin).html" class="active">👤 Students</a></li>
-            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()">🧑‍💻 Sit-in</a></li>
-            <li><a href="viewsitin(admin).html">📄 View Sit-in Records</a></li>
-            <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
-            <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Log out</a></li>
+            <li><a href="admin-dashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="students(admin).html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin(admin).html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports(admin).html" class="active"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedbackreports(admin).html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation(admin).html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
         </ul>
     </nav>
 
@@ -119,7 +119,7 @@
                 <div class="form-row">
                     <label>Password:</label>
                     <div style="flex:1; position:relative;">
-                        <input type="password" id="add-password" placeholder="Password" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+                        <input type="password" id="add-password" placeholder="Password" style="width:91%; padding:10px; border:1px solid #ccc; border-radius:5px;">
                         <span onclick="toggleAddPass()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">🧿</span>
                     </div>
                 </div>

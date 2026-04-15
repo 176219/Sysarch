@@ -1,8 +1,4 @@
-window.onload = function() {
 
-    document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-    fetchSitIns();
-}
 
 function closeModalOnOutsideClick(event, modalId) {
     const modal = document.getElementById(modalId);
@@ -11,8 +7,10 @@ function closeModalOnOutsideClick(event, modalId) {
     }
 }
 
+
 function openSearchModal() {
-    document.getElementById('searchModal').style.display = 'flex';
+    const modal = document.getElementById('searchModal');
+    modal.style.display = 'flex'; 
     document.getElementById('modalSearchInput').focus();
 }
 

@@ -58,9 +58,11 @@ db.run(`CREATE TABLE IF NOT EXISTS reservations (
     idNumber TEXT,
     purpose TEXT,
     lab TEXT,
+    pcNumber TEXT,
     timeIn TEXT,
     timeOut TEXT,
-    date TEXT
+    date TEXT,
+    status TEXT default 'Pending'
 )`);
 
 db.run(`
@@ -221,23 +223,17 @@ app.post("/update-profile", upload.single("profileImage"), (req, res) => {
 });
 
 app.post("/make-reservation", (req, res) => {
-    const { idNumber, purpose, lab, timeIn, date } = req.body;
+    const { idNumber, purpose, lab, timeIn, date, pcNumber } = req.body;
 
-    db.get(`SELECT remainingSession FROM users WHERE idNumber = ?`, [idNumber], (err, user) => {
-        if (err) return res.status(500).json({ message: "Database error" });
-        if (!user) return res.status(404).json({ message: "Student ID not found!" });
-        if (user.remainingSession <= 0) return res.status(400).json({ message: "No sessions left!" });
+    const sql = `
+        INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, pcNumber, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'Pending')
+    `;
 
-        // 2. Insert the reservation
-        const sql = `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date) VALUES (?, ?, ?, ?, ?)`;
-        db.run(sql, [idNumber, purpose, lab, timeIn, date], function(err) {
-            if (err) return res.status(500).json({ message: err.message });
+    db.run(sql, [idNumber, purpose, lab, timeIn, date, pcNumber], function(err) {
+        if (err) return res.status(500).json({ message: err.message });
 
-            db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [idNumber], (err) => {
-                if (err) return res.status(500).json({ message: "Failed to deduct session" });
-                res.json({ message: "Reservation successful!" });
-            });
-        });
+        res.json({ message: "Reservation submitted and pending approval!" });
     });
 });
 
@@ -365,6 +361,53 @@ app.post("/reset-sessions", (req, res) => {
     db.run(`UPDATE users SET remainingSession = 30`, function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Sessions reset" });
+    });
+});
+
+// admin reservation routes
+app.post("/admin/update-reservation", (req, res) => {
+    const { id, status } = req.body;
+
+    db.get(`SELECT * FROM reservations WHERE id = ?`, [id], (err, reservation) => {
+        if (err) return res.status(500).json({ message: err.message });
+        if (!reservation) return res.status(404).json({ message: "Reservation not found" });
+
+        db.run(
+            `UPDATE reservations SET status = ? WHERE id = ?`,
+            [status, id],
+            function (err) {
+                if (err) return res.status(500).json({ message: err.message });
+
+                res.json({ message: `Reservation ${status}` });
+            }
+        );
+    });
+});
+
+app.post("/admin/update-reservation", (req, res) => {
+    const { id, status } = req.body;
+
+    db.get(`SELECT * FROM reservations WHERE id = ?`, [id], (err, reservation) => {
+        if (err) return res.status(500).json({ message: err.message });
+        if (!reservation) return res.status(404).json({ message: "Reservation not found" });
+
+        db.run(
+            `UPDATE reservations SET status = ? WHERE id = ?`,
+            [status, id],
+            function (err) {
+                if (err) return res.status(500).json({ message: err.message });
+
+                // If accepted → deduct session
+                if (status === "Accepted") {
+                    db.run(
+                        `UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`,
+                        [reservation.idNumber]
+                    );
+                }
+
+                res.json({ message: `Reservation ${status}` });
+            }
+        );
     });
 });
 

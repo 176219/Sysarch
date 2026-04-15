@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Reservations - CCS Admin</title>
+    <link rel="stylesheet" href="adminreservation(admin).css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"> 
+    <style>
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 450px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .modal-header {
+            background: #2c3e70;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 { font-size: 20px; color: white; margin: 0; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
+        .modal-body { padding: 25px; }
+
+        .form-row { display: flex; margin-bottom: 15px; align-items: center; }
+        .form-row label { width: 150px; font-weight: bold; color: #333; font-size: 14px; }
+        .form-row input, .form-row select { 
+            flex: 1; padding: 10px; border: 1px solid #ccc; 
+            border-radius: 5px; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        input[readonly] { background: #eee; cursor: not-allowed; }
+
+        .modal-footer {
+            padding: 12px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .modal-footer button {
+            padding: 10px 20px; border: none; border-radius: 5px;
+            font-size: 13px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+        }
+
+        .btn-confirm { background-color: #2c3e70; color: #fff; }
+        .btn-confirm:hover { background: #2d2d4e; transform: translateY(-1px); }
+        .btn-cancel { background-color: #6c757d; color: white; }
+        .btn-cancel:hover { background: #5a6268; transform: translateY(-1px); }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #infoBody p { 
+            margin: 10px 0; font-size: 14px; 
+            border-bottom: 1px solid #eee; padding-bottom: 5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        #infoBody b { color: #0056b3; width: 120px; display: inline-block; }
+
+        /* ── Main Layout ── */
+        .reservation-grid {
+            display: grid;
+            grid-template-columns: 220px 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+            max-width: 1400px;
+            margin: auto;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+
+        .panel-header {
+            background: #2c3e70;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .panel-body { padding: 15px; overflow-y: auto; flex-grow: 1; }
+
+        /* Computer Control */
+        .control-group { margin-bottom: 15px; }
+        .control-group label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: 600; }
+        .control-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+
+        .btn-filter {
+            width: 100%; background: #007bff; color: white; border: none;
+            padding: 10px; border-radius: 5px; cursor: pointer; font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .btn-filter:hover { background: #0056b3; }
+
+        .status-legend {
+            display: flex; gap: 10px; margin-top: 15px; justify-content: center;
+        }
+        .badge-avail { background: #28a745; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        .badge-used  { background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+
+        /* Request Cards */
+        .res-card {
+            border: 1px solid #e0e0e0;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            background: #fafafa;
+        }
+        .res-card p { margin: 5px 0; font-size: 13px; color: #333; }
+        .res-card p b { color: #2c3e70; }
+        .action-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-accept { 
+            background: #28a745; color: white; border: none; 
+            padding: 6px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .btn-accept:hover { background: #218838; }
+        .btn-deny { 
+            background: #dc3545; color: white; border: none; 
+            padding: 6px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .btn-deny:hover { background: #c82333; }
+
+        /* Log Entries */
+        .log-entry { 
+            font-size: 13px; padding: 12px 0; 
+            border-bottom: 1px solid #eee; color: #333;
+        }
+        .log-entry p { margin: 4px 0; }
+        .log-entry b { color: #2c3e70; }
+
+        .status-pending  { color: #856404; font-weight: bold; background: #fff3cd; padding: 2px 8px; border-radius: 4px; }
+        .status-accepted { color: #155724; font-weight: bold; background: #d4edda; padding: 2px 8px; border-radius: 4px; }
+        .status-denied   { color: #721c24; font-weight: bold; background: #f8d7da; padding: 2px 8px; border-radius: 4px; }
+
+        .empty-state {
+            text-align: center; color: #aaa; margin-top: 40px; font-size: 14px;
+        }
+        .empty-state i { font-size: 36px; display: block; margin-bottom: 10px; }
+
+        /* Refresh button */
+        .btn-refresh {
+            width: 100%; background: #6c757d; color: white; border: none;
+            padding: 8px; border-radius: 5px; cursor: pointer; font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif; margin-top: 8px;
+        }
+        .btn-refresh:hover { background: #5a6268; }
+
+        .panel-count {
+            font-size: 11px; opacity: 0.8; margin-left: 6px;
+            background: rgba(255,255,255,0.25); padding: 1px 7px; border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Search Modal -->
+    <div id="searchModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa fa-search"></i> Search Student</h2>
+                <button class="close-btn" onclick="closeModal('searchModal')" style="color:white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
+                    style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
+                    onkeydown="if(event.key==='Enter') executeSearch(event)">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('searchModal')">Cancel</button>
+                <button class="btn-confirm" onclick="executeSearch(event)">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Info Modal -->
+    <div id="studentInfoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa fa-user"></i> Student Information</h2>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="color:white;">&times;</button>
+            </div>
+            <div class="modal-body" id="infoBody"></div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Sit-In Modal -->
+    <div id="genericSitInModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa fa-laptop"></i> Confirm Sit-In</h2>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="color:white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <label>ID Number:</label>
+                    <input type="text" id="genIdNumber" placeholder="Enter ID Number" oninput="autoFillStudent()">
+                </div>
+                <div class="form-row">
+                    <label>Full Name:</label>
+                    <input type="text" id="genFullName" placeholder="Student Name" readonly>
+                </div>
+                <div class="form-row">
+                    <label>Purpose:</label>
+                    <select id="genPurpose">
+                        <option value="C Programming">C Programming</option>
+                        <option value="Java Projects">Java Projects</option>
+                        <option value="Python/Data Science">Python/Data Science</option>
+                        <option value="Web Development">Web Development</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Laboratory:</label>
+                    <select id="genLab">
+                        <option value="524">524</option>
+                        <option value="525">525</option>
+                        <option value="526">526</option>
+                        <option value="527">527</option>
+                        <option value="528">528</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Sessions Left:</label>
+                    <input type="text" id="genRemaining" placeholder="30" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('genericSitInModal')">Cancel</button>
+                <button class="btn-confirm" onclick="submitGenericSitIn(event)">Confirm Sit-In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+        <ul class="nav-links">
+            <li><a href="admin-dashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="students(admin).html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin(admin).html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports(admin).html" class="active"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedbackreports(admin).html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation(admin).html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Grid -->
+    <div class="reservation-grid">
+
+        <!-- Panel 1: Computer Control -->
+        <div class="panel">
+            <div class="panel-header">Computer Control</div>
+            <div class="panel-body">
+                <div class="control-group">
+                    <label>Lab</label>
+                    <select id="labFilter">
+                        <option value="524">524</option>
+                        <option value="525">525</option>
+                        <option value="526">526</option>
+                        <option value="527">527</option>
+                        <option value="528">528</option>
+                    </select>
+                </div>
+                <button class="btn-filter" onclick="fetchReservations()">
+                    <i class="fa fa-filter"></i> Filter
+                </button>
+                <button class="btn-refresh" onclick="fetchReservations()">
+                    <i class="fa fa-refresh"></i> Refresh
+                </button>
+                <div class="status-legend">
+                    <span class="badge-avail">Available</span>
+                    <span class="badge-used">Used</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Reservation Requests (Pending) -->
+        <div class="panel">
+            <div class="panel-header">
+                Reservation Request
+                <span class="panel-count" id="pendingCount">0</span>
+            </div>
+            <div id="requestBody" class="panel-body"></div>
+        </div>
+
+        <!-- Panel 3: Logs (All) -->
+        <div class="panel">
+            <div class="panel-header">
+                Logs
+                <span class="panel-count" id="logCount">0</span>
+            </div>
+            <div id="logBody" class="panel-body"></div>
+        </div>
+
+    </div>
+
+<script src="adminreservation(admin).js"></script>
+</body>
+</html>

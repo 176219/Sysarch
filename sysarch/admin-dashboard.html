@@ -141,16 +141,17 @@
 <body>
 
     <nav class="navbar">
-        <div class="logo-text">College of Computer Studies Admin</div>
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
-            <li><a href="admin-dashboard.html" class="active">🏠︎ Home</a></li>
-            <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
-            <li><a href="students(admin).html">👤 Students</a></li>
-            <li><a href="javascript:void(0)" onclick="openSitInModal()">🧑‍💻 Sit-in</a></li>
-            <li><a href="viewsitin(admin).html">📄 View Sit-in Records</a></li>
-            <li><a href="viewrecords.html">📁 Sit-in Reports</a></li>
-            <li><a href="viewrecords.html">📝 Feedback Reports</a></li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout">⏻ Log out</a></li>
+            <li><a href="admin-dashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="students(admin).html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin(admin).html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports(admin).html" class="active"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedbackreports(admin).html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation(admin).html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
         </ul>
     </nav>
 
@@ -186,17 +187,17 @@
         </div>
     </div>
 
-    <div id="searchModal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'searchModal')">
+    <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Search Student</h2>
                 <button class="close-btn" onclick="closeSearchModal()">❌</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px;">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
             </div>
             <div class="modal-footer">
-                <button class="btn-sit-in" onclick="executeSearch()">Check ID</button>
+                <button class="btn-confirm" onclick="executeSearch()">Search</button>
             </div>
         </div>
     </div>

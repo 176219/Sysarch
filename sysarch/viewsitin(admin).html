@@ -11,19 +11,20 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="logo-text">College of Computer Studies Admin</div>
-    <ul class="nav-links">
-        <li><a href="admin-dashboard.html">🏠︎ Home</a></li>
-        <li><a href="javascript:void(0)" onclick="openSearchModal()">🔎︎ Search</a></li>
-        <li><a href="students(admin).html">👤 Students</a></li>
-        <li><a href="javascript:void(0)" onclick="openGenericSitInForm()">🧑‍💻 Sit-in</a></li>
-        <li><a href="viewsitin(admin).html" class="active">📄 View Sit-in Records</a></li>
-        <li><a href="sitinreports.html">📁 Sit-in Reports</a></li>
-        <li><a href="feedbackreports.html">📝 Feedback Reports</a></li>
-        <li><a href="javascript:void(0)" onclick="logout()" class="logout">➜] Log out</a></li>
-    </ul>
-</nav>
+    <nav class="navbar">
+        <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
+        <ul class="nav-links">
+            <li><a href="admin-dashboard.html"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
+            <li><a href="students(admin).html"><i class="fa fa-users"></i> Students</a></li>
+            <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
+            <li><a href="viewsitin(admin).html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
+            <li><a href="sitinreports(admin).html" class="active"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="feedbackreports(admin).html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
+            <li><a href="adminreservation(admin).html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
+        </ul>
+    </nav>
 
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
@@ -63,15 +64,7 @@
             <div class="modal-body">
                 <div class="form-row"><label>ID Number:</label><input type="text" id="genIdNumber" placeholder="Enter ID"></div>
                 <div class="form-row"><label>Full Name:</label><input type="text" id="genFullName" placeholder="Enter Name"></div>
-                <div class="form-row">
-                    <label>Purpose:</label>
-                    <select id="genPurpose">
-                        <option>C Programming</option>
-                        <option>Java Projects</option>
-                        <option>Python/Data Science</option>
-                        <option>Web Development</option>
-                    </select>
-                </div>
+                <div class="form-row"><label>Purpose:</label><input type="text" id="genPurpose" placeholder="Purpose"></div>
                 <div class="form-row"><label>Laboratory:</label><input type="text" id="genLab" placeholder="e.g. 524"></div>
                 <div class="form-row"><label>Sessions Left:</label><input type="text" id="genRemaining" placeholder="e.g. 30"></div>
             </div>
