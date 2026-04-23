@@ -1,5 +1,7 @@
+const SESSION_DURATION = 60;
+
 function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     // ── Search ──────────────────────────────────────────────
     function openSearchModal() {
@@ -7,31 +9,55 @@ function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
         document.getElementById('modalSearchInput').focus();
     }
 
-    async function executeSearch(event) {
-        if (event) event.preventDefault();
-        const id = document.getElementById('modalSearchInput').value.trim();
-        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
+async function executeSearch(event) {
+    if (event) event.preventDefault();
 
-        try {
-            const res  = await fetch(`http://localhost:3000/student/${id}`);
-            const data = await res.json();
-            if (res.ok) {
-                closeModal('searchModal');
-                document.getElementById('infoBody').innerHTML = `
-                    <p><b>ID Number:</b> ${data.idNumber}</p>
-                    <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
-                    <p><b>Course:</b> ${data.course || 'N/A'}</p>
-                    <p><b>Email:</b> ${data.email || 'N/A'}</p>
-                    <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
-                    <p><b>Address:</b> ${data.address || 'N/A'}</p>
-                    <p><b>Sessions Left:</b> <strong style="color:#28a745">${data.remainingSession ?? 30}</strong></p>
-                `;
-                openModal('studentInfoModal');
-            } else {
-                Swal.fire('Oops!', 'Student not found.', 'warning');
+    const id = document.getElementById('modalSearchInput').value.trim();
+    if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
+
+    try {
+        const res = await fetch(`http://localhost:3000/student/${id}`);
+        const data = await res.json();
+
+        if (res.ok) {
+            closeModal('searchModal');
+
+            let timeLeftText = "No active session";
+
+            if (data.timeIn && !data.timeOut) {
+                const timeIn = new Date(data.timeIn);
+                const now = new Date();
+
+                const diffMinutes = Math.floor((now - timeIn) / 60000);
+                const remaining = SESSION_DURATION - diffMinutes;
+
+                if (remaining > 0) {
+                    timeLeftText = `${remaining} minutes left`;
+                } else {
+                    timeLeftText = "Session expired";
+                }
             }
-        } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
+
+            document.getElementById('infoBody').innerHTML = `
+                <p><b>ID Number:</b> ${data.idNumber}</p>
+                <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
+                <p><b>Course:</b> ${data.course || 'N/A'}</p>
+                <p><b>Email:</b> ${data.email || 'N/A'}</p>
+                <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
+                <p><b>Address:</b> ${data.address || 'N/A'}</p>
+                <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
+                <p><b>Time Left:</b> 
+                    <span style="color:#007bff;font-weight:bold;">${timeLeftText}</span>
+                </p>
+            `;
+            openModal('studentInfoModal');
+        } else {
+            Swal.fire('Oops!', 'Student not found.', 'warning');
+        }
+    } catch (e) {
+        Swal.fire('Error', 'Server Error', 'error');
     }
+}
 
     // ── Generic Sit-In (Admin) ───────────────────────────────
     function openGenericSitInForm() {

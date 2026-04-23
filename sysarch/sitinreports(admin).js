@@ -1,219 +1,240 @@
+// --- INITIALIZE ---
+document.addEventListener("DOMContentLoaded", () => {
+    loadReports();
+});
 
-    function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
-    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+const SESSION_DURATION_MINUTES = 60;
 
-    // --- Search Logic (New Flow) ---
-    function openSearchModal() { openModal('searchModal'); document.getElementById('modalSearchInput').focus(); }
-    
-    async function executeSearch(event) {
+// --- LOAD REPORTS ---
+async function loadReports() {
+    const dateVal = document.getElementById("dateFilter").value;
+    let url = "http://localhost:3000/admin/reports";
 
-        if (event) event.preventDefault();
-
-        const id = document.getElementById('modalSearchInput').value.trim();
-        if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
-
-        try {
-            const res = await fetch(`http://localhost:3000/student/${id}`);
-            const data = await res.json();
-
-            if (res.ok) {
-                closeModal('searchModal');
-                
-                const infoBody = document.getElementById('infoBody');
-                infoBody.innerHTML = `
-                    <p><b>ID Number:</b> ${data.idNumber}</p>
-                    <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
-                    <p><b>Course:</b> ${data.course || 'N/A'}</p>
-                    <p><b>Email:</b> ${data.email || 'N/A'}</p>
-                    <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
-                    <p><b>Address:</b> ${data.address || 'N/A'}</p>
-                    <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
-                `;
-                openModal('studentInfoModal');
-            } else {
-                Swal.fire('Oops!', 'Student not found.', 'warning');
-            }
-        } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
+    if (dateVal) {
+        url += `?date=${dateVal}`;
     }
 
-    // --- Generic Sit-In Logic (Matches Image) ---
-    function openGenericSitInForm() { 
-        // Clear previous inputs when opening a blank form
-        document.getElementById('genIdNumber').value = "";
-        document.getElementById('genFullName').value = "";
-        document.getElementById('genLab').value = "524"; // Default value for dropdown
-        document.getElementById('genRemaining').value = "";
-        openModal('genericSitInModal'); 
-    }
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const body = document.getElementById("reportsBody");
 
-    // NEW: Auto-fill function to show Name and Sessions as you type the ID
-    async function autoFillStudent() {
-        const idInput = document.getElementById('genIdNumber');
-        const nameInput = document.getElementById('genFullName');
-        const sessionInput = document.getElementById('genRemaining');
-        
-        const idNumber = idInput.value.trim();
-
-        // LIVE CLEAR: If the user backspaces and the field is empty, clear everything
-        if (idNumber === "") {
-            nameInput.value = "";
-            sessionInput.value = "";
+        if (!Array.isArray(data) || data.length === 0) {
+            body.innerHTML = `<tr><td colspan="8" style="text-align:center;">No records found.</td></tr>`;
             return;
         }
 
-        try {
-            // Fetch from your server.js endpoint
-            const res = await fetch(`http://localhost:3000/get-student/${idNumber}`);
-            
-            if (res.ok) {
-                const data = await res.json();
-                // LIVE MATCH: If a student is found, display details
-                nameInput.value = `${data.firstName} ${data.lastName}`;
-                sessionInput.value = data.remainingSession ?? 30;
-            } else {
-                // LIVE DISAPPEAR: If the ID is partial or wrong, keep fields empty
-                nameInput.value = "";
-                sessionInput.value = "";
+        body.innerHTML = data.map((r, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td><b>${r.idNumber}</b></td>
+                <td>${r.firstName} ${r.lastName}</td>
+                <td>${r.purpose || 'N/A'}</td>
+                <td>${r.lab || 'N/A'}</td>
+                <td>${r.timeIn || '—'}</td>
+                <td>${r.timeOut
+                    ? r.timeOut
+                    : '<span style="color:red;font-weight:bold;">Still Active</span>'}</td>
+                <td>${r.date || '—'}</td>
+            </tr>
+        `).join("");
+
+    } catch (err) {
+        console.error("Error loading reports:", err);
+        document.getElementById("reportsBody").innerHTML =
+            `<tr><td colspan="8" style="color:red;text-align:center;">Server error. Please check your connection.</td></tr>`;
+    }
+}
+
+// --- LIVE SEARCH FILTER ---
+function filterTable() {
+    const input = document.getElementById("reportSearch").value.toUpperCase();
+    const rows = document.getElementById("reportsBody").getElementsByTagName("tr");
+
+    for (let row of rows) {
+        row.style.display = row.innerText.toUpperCase().includes(input) ? "" : "none";
+    }
+}
+
+// --- PRINT REPORTS ---
+function printReports() {
+    window.print();
+}
+
+// --- EXPORT TO CSV ---
+function exportCSV() {
+    const rows = document.querySelectorAll("#reportsBody tr");
+    const headers = ["#", "ID Number", "Name", "Purpose", "Lab", "Time In", "Time Out", "Date"];
+
+    const csvLines = [headers.join(",")];
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length === 0) return;
+        const line = Array.from(cells).map(td => `"${td.innerText.replace(/"/g, '""')}"`).join(",");
+        csvLines.push(line);
+    });
+
+    const blob = new Blob([csvLines.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sit-in-reports-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// --- MODAL HELPERS ---
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// --- SEARCH STUDENT MODAL ---
+function openSearchModal() {
+    openModal('searchModal');
+    document.getElementById('modalSearchInput').focus();
+}
+
+async function executeSearch(event) {
+    if (event) event.preventDefault();
+
+    const id = document.getElementById('modalSearchInput').value.trim();
+    if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
+
+    try {
+        const res = await fetch(`http://localhost:3000/student/${id}`);
+        const data = await res.json();
+
+        if (res.ok) {
+            closeModal('searchModal');
+
+            let timeLeftText = "No active session";
+
+            if (data.timeIn && !data.timeOut) {
+                const timeIn = new Date(data.timeIn);
+                const now = new Date();
+
+                const diffMinutes = Math.floor((now - timeIn) / 60000);
+                const remaining = SESSION_DURATION - diffMinutes;
+
+                if (remaining > 0) {
+                    timeLeftText = `${remaining} minutes left`;
+                } else {
+                    timeLeftText = "Session expired";
+                }
             }
-        } catch (e) {
-            // We stay silent during live typing to avoid error popups for every keystroke
-            console.error("Live search error:", e);
+
+            document.getElementById('infoBody').innerHTML = `
+                <p><b>ID Number:</b> ${data.idNumber}</p>
+                <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
+                <p><b>Course:</b> ${data.course || 'N/A'}</p>
+                <p><b>Email:</b> ${data.email || 'N/A'}</p>
+                <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
+                <p><b>Address:</b> ${data.address || 'N/A'}</p>
+                <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
+                <p><b>Time Left:</b> 
+                    <span style="color:#007bff;font-weight:bold;">${timeLeftText}</span>
+                </p>
+            `;
+            openModal('studentInfoModal');
+        } else {
+            Swal.fire('Oops!', 'Student not found.', 'warning');
         }
+    } catch (e) {
+        Swal.fire('Error', 'Server Error', 'error');
+    }
+}
+
+// --- GENERIC SIT-IN ---
+function openGenericSitInForm() {
+    document.getElementById('genIdNumber').value = "";
+    document.getElementById('genFullName').value = "";
+    document.getElementById('genLab').value = "524";
+    document.getElementById('genRemaining').value = "";
+    openModal('genericSitInModal');
+}
+
+async function autoFillStudent() {
+    const idNumber = document.getElementById('genIdNumber').value.trim();
+    const nameInput = document.getElementById('genFullName');
+    const sessionInput = document.getElementById('genRemaining');
+
+    if (idNumber === "") {
+        nameInput.value = "";
+        sessionInput.value = "";
+        return;
     }
 
-    // Add 'e' as a parameter to handle the event
-    async function submitGenericSitIn(e) {
-        // 1. Prevent page reload if called from a form or button click
-        if (e) e.preventDefault();
-
-        const idInput = document.getElementById('genIdNumber');
-        const labInput = document.getElementById('genLab');
-        const purposeInput = document.getElementById('genPurpose');
-
-        const payload = {
-            idNumber: idInput.value.trim(),
-            purpose: purposeInput.value,
-            lab: labInput.value 
-        };
-
-        if (!payload.idNumber || !payload.lab) {
-            return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
+    try {
+        const res = await fetch(`http://localhost:3000/get-student/${idNumber}`);
+        if (res.ok) {
+            const data = await res.json();
+            nameInput.value = `${data.firstName} ${data.lastName}`;
+            sessionInput.value = data.remainingSession ?? 30;
+        } else {
+            nameInput.value = "";
+            sessionInput.value = "";
         }
+    } catch (e) {
+        console.error("Live search error:", e);
+    }
+}
 
-        try {
-            const res = await fetch('http://localhost:3000/sit-in', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+async function submitGenericSitIn(e) {
+    if (e) e.preventDefault();
+
+    const payload = {
+        idNumber: document.getElementById('genIdNumber').value.trim(),
+        purpose: document.getElementById('genPurpose').value,
+        lab: document.getElementById('genLab').value
+    };
+
+    if (!payload.idNumber || !payload.lab) {
+        return Swal.fire('Warning', 'ID Number and Lab are required.', 'warning');
+    }
+
+    try {
+        const res = await fetch('http://localhost:3000/sit-in', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Sit-in recorded!',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false,
+                allowEscapeKey: false
             });
 
-            if (res.ok) {
-                // 2. Use 'await' so the code pauses while the alert is visible
-                await Swal.fire({ 
-                    icon: 'success', 
-                    title: 'Sit-in recorded!', 
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                });
-
-                closeModal('genericSitInModal');
-                
-                // 3. Optional: Clear inputs after success
-                idInput.value = "";
-                
-                // 4. Check if fetchSitIns exists before calling to avoid errors
-                if (typeof fetchSitIns === "function") {
-                    fetchSitIns(); 
-                }
-                
-                // Refresh stats on dashboard
-                loadDashboardStats(); 
-
-            } else {
-                const txt = await res.text();
-                Swal.fire('Error', txt, 'error');
-            }
-        } catch (err) { 
-            console.error("Submission error:", err);
-            Swal.fire('Error', 'Connection to server failed.', 'error'); 
+            closeModal('genericSitInModal');
+            document.getElementById('genIdNumber').value = "";
+            loadReports();
+        } else {
+            const txt = await res.text();
+            Swal.fire('Error', txt, 'error');
         }
+    } catch (err) {
+        Swal.fire('Error', 'Connection to server failed.', 'error');
     }
+}
 
-    async function loadReports() {
-        // 1. Check if the user has selected a date to filter
-        const dateVal = document.getElementById("dateFilter").value;
-        let url = "http://localhost:3000/admin/reports";
-        
-        if (dateVal) {
-            url += `?date=${dateVal}`;
+// --- LOGOUT ---
+function logout() {
+    Swal.fire({
+        title: 'Logout Admin?',
+        text: "Are you sure you want to end your admin session?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, logout admin!',
+        cancelButtonText: 'Stay logged in'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            sessionStorage.removeItem("adminWelcomeShown");
+            window.location.href = "index.html";
         }
-
-        try {
-            // 2. Fetch data from your Node server
-            const res = await fetch(url);
-            const data = await res.json();
-            const body = document.getElementById("reportsBody");
-            
-            // 3. Clear existing table and check for empty results
-            if (data.length === 0) {
-                body.innerHTML = `<tr><td colspan="7" style="text-align:center;">No records found.</td></tr>`;
-                return;
-            }
-
-            // 4. Map the data into HTML rows
-            body.innerHTML = data.map(r => `
-                <tr>
-                    <td><b>${r.idNumber}</b></td>
-                    <td>${r.firstName} ${r.lastName}</td>
-                    <td>${r.purpose}</td>
-                    <td>${r.lab}</td>
-                    <td>${r.timeIn}</td>
-                    <td>${r.timeOut ? r.timeOut : '<span style="color:red; font-weight:bold;">Still Active</span>'}</td>
-                    <td>${r.date}</td>
-                </tr>
-            `).join("");
-
-        } catch (err) {
-            console.error("Error loading reports:", err);
-        }
-    }
-
-    // --- SEARCH FILTER (Live Typing) ---
-    function filterTable() {
-        const input = document.getElementById("reportSearch").value.toUpperCase();
-        const rows = document.getElementById("reportsBody").getElementsByTagName("tr");
-        
-        for (let row of rows) {
-            const text = row.innerText.toUpperCase();
-            // Show the row if the ID or Name matches the search
-            row.style.display = text.includes(input) ? "" : "none";
-        }
-    }
-
-    // --- INITIALIZE ---
-    // Automatically load everything when the admin opens the page
-    document.addEventListener("DOMContentLoaded", loadReports);
-    
-    // Modal helpers you already use
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    function logout() {
-        Swal.fire({
-            title: 'Logout Admin?',
-            text: "Are you sure you want to end your admin session?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, logout admin!',
-            cancelButtonText: 'Stay logged in'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Clear admin session data
-                sessionStorage.removeItem("adminWelcomeShown");
-                window.location.href = "index.html";
-            }
-        });
-    }
+    });
+}

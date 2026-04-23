@@ -1,10 +1,14 @@
+const SESSION_DURATION = 60;
+
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 // --- Search Logic ---
 function openSearchModal() { openModal('searchModal'); document.getElementById('modalSearchInput').focus(); }
 
-async function executeSearch() {
+async function executeSearch(event) {
+    if (event) event.preventDefault();
+
     const id = document.getElementById('modalSearchInput').value.trim();
     if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
 
@@ -14,8 +18,24 @@ async function executeSearch() {
 
         if (res.ok) {
             closeModal('searchModal');
-            const infoBody = document.getElementById('infoBody');
-            infoBody.innerHTML = `
+
+            let timeLeftText = "No active session";
+
+            if (data.timeIn && !data.timeOut) {
+                const timeIn = new Date(data.timeIn);
+                const now = new Date();
+
+                const diffMinutes = Math.floor((now - timeIn) / 60000);
+                const remaining = SESSION_DURATION - diffMinutes;
+
+                if (remaining > 0) {
+                    timeLeftText = `${remaining} minutes left`;
+                } else {
+                    timeLeftText = "Session expired";
+                }
+            }
+
+            document.getElementById('infoBody').innerHTML = `
                 <p><b>ID Number:</b> ${data.idNumber}</p>
                 <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
                 <p><b>Course:</b> ${data.course || 'N/A'}</p>
@@ -23,12 +43,17 @@ async function executeSearch() {
                 <p><b>Year:</b> ${data.yearLevel || 'N/A'}</p>
                 <p><b>Address:</b> ${data.address || 'N/A'}</p>
                 <p><b>Sessions Left:</b> <span class="badge badge-session">${data.remainingSession ?? 30}</span></p>
+                <p><b>Time Left:</b> 
+                    <span style="color:#007bff;font-weight:bold;">${timeLeftText}</span>
+                </p>
             `;
             openModal('studentInfoModal');
         } else {
             Swal.fire('Oops!', 'Student not found.', 'warning');
         }
-    } catch (e) { Swal.fire('Error', 'Server Error', 'error'); }
+    } catch (e) {
+        Swal.fire('Error', 'Server Error', 'error');
+    }
 }
 
 // --- Sit-In Logic ---

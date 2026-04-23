@@ -68,8 +68,8 @@
             font-weight: bold; 
             color: #333; 
             font-size: 14px;
-            
         }
+
         .form-row input, .form-row select { 
             flex: 1; 
             padding: 10px; 
@@ -90,6 +90,7 @@
             justify-content: flex-end;
             gap: 10px;
         }
+
         .modal-footer button {
             padding: 10px 20px;
             border: none;
@@ -213,6 +214,26 @@
             border-radius: 5px; 
             width: 250px;
         }
+
+        .star-cell {
+            white-space: nowrap;
+        }
+
+        .stars-filled {
+            color: #f5a623;
+            font-size: 16px;
+        }
+
+        .stars-empty {
+            color: #ccc;
+            font-size: 16px;
+        }
+
+        .stars-label {
+            font-size: 12px;
+            color: #888;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -224,22 +245,23 @@
             <li><a href="students(admin).html"><i class="fa fa-users"></i> Students</a></li>
             <li><a href="javascript:void(0)" onclick="openGenericSitInForm()"><i class="fa fa-laptop"></i> Sit-in</a></li>
             <li><a href="viewsitin(admin).html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
-            <li><a href="sitinreports(admin).html" class="active"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="sitinreports(admin).html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
             <li><a href="feedbackreports(admin).html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
             <li><a href="adminreservation(admin).html"><i class="fa fa-calendar"></i> Reservation</a></li>
             <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-in"></i> Log out</a></li>
         </ul>
     </nav>
 
-
+    <!-- Search Modal -->
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Search Student</h2>
-                <button class="close-btn" onclick="closeModal('searchModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <button class="close-btn" onclick="closeModal('searchModal')" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
             </div>
             <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number" style="width:100%; padding:15px; font-size:15px; box-sizing: border-box;">
+                <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
+                    style="width:100%;padding:15px;font-size:15px;box-sizing:border-box;">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-confirm" onclick="executeSearch(event)">Search</button>
@@ -247,25 +269,26 @@
         </div>
     </div>
 
+    <!-- Student Info Modal -->
     <div id="studentInfoModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Student Information</h2>
-                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
             </div>
-            <div class="modal-body" id="infoBody">
-                </div>
+            <div class="modal-body" id="infoBody"></div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
             </div>
         </div>
     </div>
 
+    <!-- Generic Sit-In Modal -->
     <div id="genericSitInModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Confirm Sit-In for <span id="displayStudentName">Student</span></h2>
-                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px;">&times;</button>
+                <button class="close-btn" onclick="closeModal('genericSitInModal')" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-row">
@@ -307,14 +330,15 @@
         </div>
     </div>
 
+    <!-- Main Content -->
     <div class="reports-container">
         <div class="header-section">
             <h1>Feedback Report</h1>
         </div>
-        
+
         <div class="controls">
             <button class="btn-print" onclick="window.print()">Print</button>
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
                 <label for="feedbackSearch">Filter</label>
                 <input type="text" id="feedbackSearch" onkeyup="filterFeedback()">
             </div>
@@ -326,14 +350,14 @@
                     <th>Student ID Number <i class="fa fa-sort"></i></th>
                     <th>Laboratory <i class="fa fa-sort"></i></th>
                     <th>Date <i class="fa fa-sort"></i></th>
+                    <th>Rating <i class="fa fa-sort"></i></th>
                     <th>Message</th>
                 </tr>
             </thead>
-            <tbody id="feedbackBody">
-                </tbody>
+            <tbody id="feedbackBody"></tbody>
         </table>
     </div>
 
-<script src="feedbackreports(admin).js"></script>
+    <script src="feedbackreports(admin).js"></script>
 </body>
 </html>
