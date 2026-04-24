@@ -287,8 +287,9 @@ app.post("/sit-in", (req, res) => {
 });
 
 // time out a sit-in
-app.post("/time-out", (req, res) => {
-    const { idNumber, sitInId } = req.body;
+app.post(["/time-out", "/time-out/:sitInId"], (req, res) => {
+    const idNumber = req.body.idNumber;
+    const sitInId  = req.params.sitInId || req.body.sitInId;
     const timeOut = new Date().toISOString();
 
     db.run(
