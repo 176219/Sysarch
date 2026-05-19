@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── PAGE LAYOUT ── */
+        .leaderboard-wrapper {
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* ── MAIN GRID ── */
+        .leaderboard-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr;
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+            align-items: start;
+            margin-top: 20px;
+        }
+
+        /* ── SHARED CARD ── */
+        .lb-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            border: 1px solid #e3e6f0;
+        }
+
+        .lb-card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 14px 20px;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.04em;
+        }
+
+        .lb-card-body {
+            padding: 20px;
+        }
+
+        /* ── LEADERBOARD TABLE ── */
+        .lb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92em;
+        }
+
+        .lb-table thead tr {
+            background-color: #f0f2f5;
+            color: #444;
+            text-align: left;
+        }
+
+        .lb-table th,
+        .lb-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .lb-table th {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #666;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .lb-table td {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #333;
+        }
+
+        .lb-table tbody tr:hover {
+            background-color: #f8f9fc;
+            transition: background 0.2s;
+        }
+
+        /* ── RANK BADGE ── */
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .rank-1 { background: #ffd700; color: #333; }
+        .rank-2 { background: #c0c0c0; color: #333; }
+        .rank-3 { background: #cd7f32; color: #fff; }
+        .rank-other { background: #e8ecf3; color: #555; }
+
+        /* ── HIGHLIGHT CURRENT USER ── */
+        .current-user-row {
+            background-color: #eaf0ff !important;
+            font-weight: 600;
+        }
+
+        /* ── POINTS BADGE ── */
+        .points-badge {
+            display: inline-block;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffc107;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* ── COURSE CHIP ── */
+        .course-chip {
+            display: inline-block;
+            background: #e8ecf3;
+            color: #555;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Sora', sans-serif;
+        }
+
+        /* ── YOUR RANKING CARD ── */
+        .rank-display {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .rank-number {
+            font-size: 65px;
+            font-weight: 800;
+            color: #4e73df;
+            font-family: 'Sora', sans-serif;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .rank-label {
+            font-size: 15px;
+            color: #888;
+            font-family: 'Sora', sans-serif;
+            margin-bottom: 30px;
+            letter-spacing: 0.06em;
+        }
+
+        .rank-divider {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 0 -20px 25px;
+        }
+
+        .rank-stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 20px;
+            
+        }
+
+        .rank-stat-value {
+            font-size: 42px;
+            font-weight: 800;
+            color: #ffc107;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .rank-stat-label {
+            font-size: 15px;
+            color: #888;
+            letter-spacing: 0.06em;
+            font-family: 'Sora', sans-serif;
+        }
+
+        /* ── ADDITIONAL STATS ROW ── */
+        .rank-meta {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            margin-top: 5px;
+        }
+
+        .rank-meta-item {
+            text-align: center;
+        }
+
+        .rank-meta-item .meta-value {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 10px;
+            color: #2c3e70;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .rank-meta-item .meta-label {
+            font-size: 13.5px;
+            color: #888;
+            margin-top: 5px;
+            letter-spacing: 0.05em;
+            font-family: 'Sora', sans-serif;
+        }
+
+        /* ── TROPHY ICONS ── */
+        .trophy-1 { color: #ffd700; }
+        .trophy-2 { color: #c0c0c0; }
+        .trophy-3 { color: #cd7f32; }
+
+        /* ── EMPTY STATE ── */
+        .empty-lb {
+            text-align: center;
+            color: #aaa;
+            padding: 40px 20px;
+            font-size: 15px;
+        }
+
+        /* ── NOTIFICATION (copied from dashboard) ── */
+        .notif-wrapper { position: relative; }
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px; right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px; height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            width: 340px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .notif-list { max-height: 300px; overflow-y: auto; }
+
+        /* ── LOADING SPINNER ── */
+        .lb-loading {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .lb-loading i { font-size: 28px; margin-bottom: 10px; animation: spin 1s linear infinite; display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+
+        /* ══════════════════════════════════════
+           DARK / LIGHT MODE - CSS VARIABLES
+        ══════════════════════════════════════ */
+        :root {
+            --bg-page:      #f0f2f5;
+            --bg-card:      #ffffff;
+            --bg-input:     #f6f6f6;
+            --text-main:    #333333;
+            --text-muted:   #555555;
+            --text-label:   #1a1a2e;
+            --border-color: #dddddd;
+            --border-inner: #cccccc;
+            --shadow:       0 10px 30px rgba(0,0,0,0.2);
+            --table-even:   #f3f3f3;
+            --table-hover:  #f8f9fc;
+            --thead-bg:     #f0f2f5;
+        }
+        [data-theme="dark"] {
+            --bg-page:      #0f1117;
+            --bg-card:      #1a1d27;
+            --bg-input:     #22263a;
+            --text-main:    #e0e0e0;
+            --text-muted:   #b0b8cc;
+            --text-label:   #ffffff;
+            --border-color: #2e3347;
+            --border-inner: #3a3f58;
+            --shadow:       0 10px 30px rgba(0,0,0,0.5);
+            --table-even:   #1e2235;
+            --table-hover:  #232840;
+            --thead-bg:     #1e2235;
+        }
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #111827, #0a0a1a) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+        }
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+ 
+        /* leaderboard dark mode */
+        .leaderboard-wrapper { background: var(--bg-page); }
+        .lb-card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .lb-card-header { background: #1e2a50; }
+        [data-theme="dark"] .lb-table thead tr { background-color: var(--thead-bg); }
+        [data-theme="dark"] .lb-table th { color: var(--text-muted); }
+        [data-theme="dark"] .lb-table td { color: var(--text-main); border-color: var(--border-color); }
+        [data-theme="dark"] .lb-table tbody tr:hover { background-color: var(--table-hover); }
+        [data-theme="dark"] .current-user-row { background-color: #1e2a50 !important; }
+        [data-theme="dark"] .course-chip { background: #22263a; color: var(--text-muted); }
+        [data-theme="dark"] .rank-other { background: #22263a; color: var(--text-muted); }
+        [data-theme="dark"] .rank-number { color: #60a5fa; }
+        [data-theme="dark"] .rank-label { color: var(--text-muted); }
+        [data-theme="dark"] .rank-divider,
+        [data-theme="dark"] .rank-meta { border-color: var(--border-inner); }
+        [data-theme="dark"] .meta-value { color: #c8d0e8; }
+        [data-theme="dark"] .meta-label { color: var(--text-muted); }
+        [data-theme="dark"] .empty-lb { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar">
+    <div class="logo-text"><i class="fa fa-trophy"></i> Student Leaderboard</div>
+    <ul class="nav-links">
+        <li class="notif-wrapper">
+            <a href="#" onclick="toggleNotifDropdown(event)">
+                <i class="fa fa-bell"></i> Notifications
+            </a>
+            <span id="notifBadge" class="notif-badge"></span>
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    <i class="fa fa-bell"></i> Announcements
+                    <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                </div>
+                <div id="notifList" class="notif-list"></div>
+            </div>
+        </li>
+        <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+        <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+        <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="leaderboard.html" class="active"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+        <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+        <li>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel"></span>
+                </button>
+            </li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+</nav>
+
+<!-- ── PAGE CONTENT ── -->
+<div class="leaderboard-wrapper">
+
+    <div class="leaderboard-grid">
+
+        <!-- LEFT: Top Students Table -->
+        <div class="lb-card">
+            <div class="lb-card-header"><i class="fa-solid fa-ranking-star"></i> Top Students</div>
+            <div class="lb-card-body" style="padding: 0;">
+                <div id="leaderboardContent">
+                    <div class="lb-loading">
+                        <i class="fa fa-spinner"></i>
+                        Loading leaderboard...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Your Ranking -->
+        <div class="lb-card">
+            <div class="lb-card-header">
+                <i class="fa-solid fa-medal"></i> Your Ranking
+            </div>
+            <div class="lb-card-body">
+                <div class="rank-display">
+                    <div id="yourRankNumber" class="rank-number">—</div>
+                    <div class="rank-label">Your current rank</div>
+
+                    <hr class="rank-divider">
+
+                    <div class="rank-stat-box">
+                        <div id="yourPoints" class="rank-stat-value">—</div>
+                        <div class="rank-stat-label">Total Points</div>
+                    </div>
+
+                    <div class="rank-meta">
+                        <div class="rank-meta-item">
+                            <div id="yourSitins" class="meta-value">—</div>
+                            <div class="meta-label">Sit-ins</div>
+                        </div>
+                        <div class="rank-meta-item">
+                            <div id="totalStudents" class="meta-value">—</div>
+                            <div class="meta-label">Total Students</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── SCRIPTS ── -->
+<script src="leaderboard.js">
+</script>
+</body>
+</html>

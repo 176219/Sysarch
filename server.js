@@ -50,7 +50,8 @@ CREATE TABLE IF NOT EXISTS users (
     course TEXT,
     yearLevel TEXT,
     profileImage TEXT,
-    remainingSession INTEGER DEFAULT 30
+    remainingSession INTEGER DEFAULT 30,
+    manualPoints INTEGER DEFAULT 0
 )
 `);
 
@@ -92,6 +93,9 @@ CREATE TABLE IF NOT EXISTS announcements (
     createdAt TEXT,
     isRead INTEGER DEFAULT 0
 )`);
+
+// Safe migration: add manualPoints column if it doesn't exist yet
+db.run(`ALTER TABLE users ADD COLUMN manualPoints INTEGER DEFAULT 0`, () => {});
 
 
 //           ROUTES                   //
@@ -181,7 +185,6 @@ app.post("/update-profile", upload.single("profileImage"), (req, res) => {
 app.post("/make-reservation", (req, res) => {
     const { idNumber, purpose, lab, timeIn, date, pcNumber } = req.body;
 
-    // Combine date + time into a full ISO string
     const fullTimeIn = (date && timeIn) ? new Date(`${date}T${timeIn}`).toISOString() : new Date().toISOString();
 
     const sql = `
@@ -245,6 +248,24 @@ app.get(["/student/:idNumber", "/get-student/:idNumber"], (req, res) => {
     });
 });
 
+// search students (live search by id, first name, last name)
+app.get("/search-students", (req, res) => {
+    const raw = req.query.q || "";
+    const startQ = `${raw}%`;   // matches IDs that START with the typed digits
+    const anyQ   = `%${raw}%`;  // still matches anywhere in name fields
+    db.all(
+        `SELECT idNumber, firstName, lastName, course, yearLevel, remainingSession
+        FROM users
+        WHERE idNumber LIKE ? OR firstName LIKE ? OR lastName LIKE ?
+        ORDER BY idNumber ASC LIMIT 10`,
+        [startQ, anyQ, anyQ],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
+        }
+    );
+});
+
 // get all sit-ins
 app.get("/get-sitin", (req, res) => {
     const sql = `
@@ -262,7 +283,7 @@ app.get("/get-sitin", (req, res) => {
     });
 });
 
-// POST a new sit-in  (FIX: use ISO date string for consistency)
+// POST a new sit-in
 app.post("/sit-in", (req, res) => {
     const { idNumber, purpose, lab } = req.body;
     const now = new Date();
@@ -355,9 +376,7 @@ app.post("/admin/update-reservation", (req, res) => {
     });
 });
 
-// ─── REPORTS ENDPOINT (FIXED) ────────────────────────────────────────────────
-// Returns all sit-in records joined with student info.
-// Optional ?date=YYYY-MM-DD query param filters by date.
+// reports endpoint
 app.get("/admin/reports", (req, res) => {
     const { date } = req.query;
 
@@ -389,6 +408,7 @@ app.get("/admin/reports", (req, res) => {
     });
 });
 
+// submit feedback
 app.post("/api/feedback", (req, res) => {
     const { idNumber, lab, date, rating, message } = req.body;
     db.run(
@@ -401,7 +421,7 @@ app.post("/api/feedback", (req, res) => {
     );
 });
 
-// GET all feedback (admin)
+// get all feedback (admin)
 app.get("/api/feedback", (req, res) => {
     db.all(`SELECT * FROM feedback ORDER BY date DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -409,6 +429,7 @@ app.get("/api/feedback", (req, res) => {
     });
 });
 
+// sit-in stats by course
 app.get("/api/sitin-stats", (req, res) => {
     const sql = `
         SELECT u.course, COUNT(*) AS total
@@ -423,12 +444,11 @@ app.get("/api/sitin-stats", (req, res) => {
             console.error("Sit-in stats error:", err);
             return res.status(500).json({ error: err.message });
         }
-
         res.json(rows);
     });
 });
 
-// Post announcement
+// post announcement
 app.post("/api/announcements", (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: "Message is required" });
@@ -439,11 +459,116 @@ app.post("/api/announcements", (req, res) => {
     });
 });
 
-// Get all announcements
+// get all announcements
 app.get("/api/announcements", (req, res) => {
     db.all(`SELECT * FROM announcements ORDER BY createdAt DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
+    });
+});
+
+// ─── LEADERBOARD ─────────────────────────────────────────────────────────────
+app.get("/admin/leaderboard", (req, res) => {
+    const sql = `
+        SELECT
+            u.idNumber,
+            u.firstName,
+            u.lastName,
+            u.course,
+            u.manualPoints,
+            COUNT(r.id) AS sitins,
+            COALESCE(SUM(
+                CASE
+                    WHEN r.timeOut IS NOT NULL
+                    THEN ROUND((julianday(r.timeOut) - julianday(r.timeIn)) * 1440)
+                    ELSE 0
+                END
+            ), 0) AS totalMinutes,
+            COALESCE(MAX(
+                CASE
+                    WHEN r.timeOut IS NOT NULL
+                    THEN ROUND((julianday(r.timeOut) - julianday(r.timeIn)) * 1440)
+                    ELSE 0
+                END
+            ), 0) AS longestMinutes
+        FROM users u
+        LEFT JOIN reservations r
+               ON r.idNumber = u.idNumber
+              AND r.status   = 'Accepted'
+              AND r.timeOut  IS NOT NULL
+        GROUP BY u.idNumber
+        HAVING sitins > 0 OR u.manualPoints > 0
+    `;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        const ranked = rows.map(s => ({
+            ...s,
+            points:
+                (s.sitins || 0) +
+                Math.min(Math.floor((s.totalMinutes || 0) / 20), 5) +
+                ((s.totalMinutes || 0) >= 120 ? 2 : 0) +
+                (s.manualPoints || 0)
+        })).sort((a, b) => b.points - a.points);
+
+        res.json(ranked);
+    });
+});
+
+// ─── ADD MANUAL POINTS ────────────────────────────────────────────────────────
+app.post("/admin/add-points", (req, res) => {
+    const { idNumber, points } = req.body;
+    if (!idNumber || !points || points < 1)
+        return res.status(400).json({ error: "idNumber and points (>=1) are required" });
+
+    db.run(
+        `UPDATE users SET manualPoints = COALESCE(manualPoints, 0) + ? WHERE idNumber = ?`,
+        [points, idNumber],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            if (this.changes === 0) return res.status(404).json({ error: "Student not found" });
+            res.json({ message: `+${points} points added to ${idNumber}` });
+        }
+    );
+});
+
+// ─── RESET ALL MANUAL POINTS ──────────────────────────────────────────────────
+app.post("/admin/reset-all-points", (req, res) => {
+    db.run(`UPDATE users SET manualPoints = 0`, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "All manual points reset to 0" });
+    });
+});
+
+// ─── DASHBOARD SUMMARY DATA ───────────────────────────────────────────────────
+app.get("/admin/dashboard-data", (req, res) => {
+    db.get(`SELECT COUNT(*) AS registered FROM users`, (err, r1) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        db.get(`SELECT COUNT(*) AS totalSitin FROM reservations WHERE status = 'Accepted'`, (err, r2) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            db.get(
+                `SELECT COUNT(*) AS currentSitin FROM reservations WHERE status = 'Accepted' AND timeOut IS NULL`,
+                (err, r3) => {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({
+                        registered:   r1.registered,
+                        totalSitin:   r2.totalSitin,
+                        currentSitin: r3.currentSitin
+                    });
+                }
+            );
+        });
+    });
+});
+
+// ─── RESET ALL SESSIONS ───────────────────────────────────────────────────────
+app.post("/admin/reset-sessions", (req, res) => {
+    db.run(`UPDATE users SET remainingSession = 30`, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "All sessions reset to 30" });
     });
 });
 

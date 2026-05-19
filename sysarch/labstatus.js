@@ -25,65 +25,72 @@ function toggleTheme() {
     setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
 }
  
-// Load saved theme on page start
-(function() {
-    const saved = localStorage.getItem('ccs_theme') || 'light';
-    applyTheme(saved);
-})();
+(function() { applyTheme(localStorage.getItem('ccs_theme') || 'light'); })();
 
+const BASE = 'http://localhost:3000';
+
+// Labs config — add or rename as needed to match your actual lab names
+const LABS_CONFIG = [
+    { name: 'Lab 524', alias: 'Laboratory 524', capacity: 40 },
+    { name: 'Lab 525', alias: 'Laboratory 525', capacity: 40 },
+    { name: 'Lab 526', alias: 'Laboratory 526', capacity: 40 },
+    { name: 'Lab 527', alias: 'Laboratory 527', capacity: 40 },
+    { name: 'Lab 528', alias: 'Laboratory 528', capacity: 40 },
+];
+
+/* ── Default software list (also reads from software.html localStorage) ── */
+const DEFAULT_SOFTWARE = [
+    { name: 'Microsoft Office 365', desc: 'Word, Excel, PowerPoint', icon: 'fa-file-word',    color: '#d94f3d', bg: '#d94f3d22' },
+    { name: 'Visual Studio Code',   desc: 'Code editor',             icon: 'fa-code',          color: '#007acc', bg: '#007acc22' },
+    { name: 'NetBeans IDE',         desc: 'Java development',        icon: 'fa-coffee',        color: '#f39c12', bg: '#f39c1222' },
+    { name: 'XAMPP',                desc: 'Local PHP server',        icon: 'fa-server',        color: '#e74c3c', bg: '#e74c3c22' },
+    { name: 'Python 3.x',           desc: 'Interpreter + IDLE',      icon: 'fa-python',        color: '#3776ab', bg: '#3776ab22' },
+    { name: 'Android Studio',       desc: 'Mobile development',      icon: 'fa-android',       color: '#3ddc84', bg: '#3ddc8422' },
+    { name: 'MySQL Workbench',      desc: 'Database management',     icon: 'fa-database',      color: '#00758f', bg: '#00758f22' },
+    { name: 'Figma (Browser)',      desc: 'UI/UX design',            icon: 'fa-pen-ruler',     color: '#a259ff', bg: '#a259ff22' },
+    { name: 'Google Chrome',        desc: 'Web browser',             icon: 'fa-globe',         color: '#4285f4', bg: '#4285f422' },
+    { name: 'Cisco Packet Tracer',  desc: 'Network simulation',      icon: 'fa-network-wired', color: '#1ba0d8', bg: '#1ba0d822' },
+    { name: 'Adobe Photoshop',      desc: 'Photo editing',           icon: 'fa-image',         color: '#31a8ff', bg: '#31a8ff22' },
+    { name: 'VMware Workstation',   desc: 'Virtual machines',        icon: 'fa-hard-drive',    color: '#607078', bg: '#60707822' },
+];
+
+// ── NOTIFICATION ─────────────────────────────────────────────────────────
 let _announcements = [];
-
 function toggleNotifDropdown(e) {
     e.preventDefault();
     const d = document.getElementById('notifDropdown');
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
 }
-
 document.addEventListener('click', (e) => {
     if (!e.target.closest('li:has(#notifDropdown)')) {
         const d = document.getElementById('notifDropdown');
         if (d) d.style.display = 'none';
     }
 });
-
 function getReadIds() { return JSON.parse(localStorage.getItem('readIds') || '[]'); }
 function saveReadIds(ids) { localStorage.setItem('readIds', JSON.stringify(ids)); }
-
-function markAllRead() {
-    saveReadIds(_announcements.map(a => a.id));
-    renderNotifs();
-}
-
+function markAllRead() { saveReadIds(_announcements.map(a => a.id)); renderNotifs(); }
 function renderNotifs() {
     const readIds = getReadIds();
     const unread = _announcements.filter(a => !readIds.includes(a.id)).length;
     const badge = document.getElementById('notifBadge');
-    badge.textContent = unread;
-    badge.style.display = unread > 0 ? 'flex' : 'none';
-
+    badge.textContent = unread; badge.style.display = unread > 0 ? 'flex' : 'none';
     document.getElementById('notifList').innerHTML = _announcements.length
         ? _announcements.map(a => `
-            <div onclick="markOneRead(${a.id})" style="padding:12px 14px; border-bottom:1px solid #eee;
-                cursor:pointer; background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
-                <div style="font-size:11px; color:#888;">${a.author} | ${a.date}</div>
-                <div style="font-size:13px; color:#222; margin-top:3px;">${a.content}</div>
+            <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;
+                cursor:pointer;background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                <div style="font-size:11px;color:#888;">${a.author} | ${a.date}</div>
+                <div style="font-size:13px;color:#222;margin-top:3px;">${a.content}</div>
             </div>`).join('')
         : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
 }
-
 function markOneRead(id) {
     const ids = getReadIds();
     if (!ids.includes(id)) { ids.push(id); saveReadIds(ids); renderNotifs(); }
 }
-
 async function pollAnnouncements() {
-    try {
-        const res = await fetch('http://localhost:3000/api/announcements');
-        _announcements = await res.json();
-        renderNotifs();
-    } catch(e) {}
+    try { const r = await fetch(`${BASE}/api/announcements`); _announcements = await r.json(); renderNotifs(); } catch(e) {}
 }
-
 pollAnnouncements();
 setInterval(pollAnnouncements, 30000);
 
@@ -200,119 +207,101 @@ setTimeout(async () => {
 }, 500);
 setInterval(checkForNewResNotifs, 15000);
 
+/* ══ RENDER SOFTWARE ══ */
+function renderSoftware() {
+    let registered = [];
+    try { registered = JSON.parse(localStorage.getItem('ccs_software') || '[]'); } catch(e) {}
+    const list = registered.length > 0 ? registered : DEFAULT_SOFTWARE;
+ 
+    document.getElementById('softwareGrid').innerHTML = list.map(sw => {
+        const name  = sw.name  || 'Unknown';
+        const desc  = sw.desc  || sw.category || '';
+        const icon  = sw.icon  || 'fa-box';
+        const color = sw.color || '#4e73df';
+        const bg    = sw.bg    || color + '22';
+        return `
+            <div class="sw-card">
+                <div class="sw-icon" style="background:${bg};color:${color};">
+                    <i class="fa-solid ${icon}"></i>
+                </div>
+                <div>
+                    <span class="sw-name">${name}</span>
+                    <span class="sw-desc">${desc}</span>
+                    <span class="sw-installed"><i class="fa fa-circle-check"></i> Installed</span>
+                </div>
+            </div>`;
+    }).join('');
+}
 
-let selectedPhoto = null;
-
-document.addEventListener("DOMContentLoaded", async () => {
-    const idNumber = localStorage.getItem("loggedInId");
-    if (!idNumber) { 
-        window.location.href = "login.html"; 
-        return; 
-    }
-
-    let originalID = idNumber;
-
+// ── LOAD LAB STATUS ───────────────────────────────────────────────────────
+async function loadLabStatus() {
     try {
-        const res = await fetch(`http://localhost:3000/student/${idNumber}`);
-        const user = await res.json();
-
-        if (res.ok) {
-            originalID = user.idNumber;
-
-            document.getElementById("edit-id").value = user.idNumber || "";
-            document.getElementById("edit-lastName").value = user.lastName || "";
-            document.getElementById("edit-firstName").value = user.firstName || "";
-            document.getElementById("edit-middleName").value = user.middleName || "";
-            document.getElementById("edit-yearLevel").value = user.yearLevel || "";
-            document.getElementById("edit-course").value = user.course || "";
-            document.getElementById("edit-email").value = user.email || "";
-            document.getElementById("edit-address").value = user.address || "";
-
-            if (user.profilePhoto) {
-
-                selectedPhoto = user.profilePhoto;
-                document.getElementById("profilePhoto").src = user.profilePhoto;
-                document.getElementById("profilePhoto").style.display = "block";
-                document.getElementById("noPhotoPlaceholder").style.display = "none";
-            }
-        }
-    } catch (err) {
-        console.error(err);
+        const res = await fetch(`${BASE}/get-sitin`);
+        const sitins = await res.json();
+ 
+        const labMap = {};
+        sitins.forEach(s => {
+            const key = s.lab || 'Unknown';
+            if (!labMap[key]) labMap[key] = [];
+            labMap[key].push(s);
+        });
+ 
+        const labs = LABS_CONFIG.map(cfg => ({
+            ...cfg,
+            students: labMap[cfg.name] || labMap[cfg.alias] || []
+        }));
+ 
+        // add any unknown labs from DB
+        Object.keys(labMap).forEach(k => {
+            if (!LABS_CONFIG.find(l => l.name === k || l.alias === k))
+                labs.push({ name: k, alias: k, capacity: 40, students: labMap[k] });
+        });
+ 
+        document.getElementById('labsGrid').innerHTML = labs.map(lab => {
+            const count = lab.students.length;
+            const cap   = lab.capacity;
+            const free  = cap - count;
+            const pct   = Math.min(Math.round((count / cap) * 100), 100);
+ 
+            const fillCls = pct >= 90 ? 'fill-high' : pct >= 50 ? 'fill-medium' : 'fill-low';
+            const iconCls = count === 0 ? '' : count >= cap ? 'full' : 'occupied';
+            const tagCls  = count === 0 ? '' : count >= cap ? 'warn' : 'busy';
+            const iconFA  = count === 0 ? 'fa-desktop' : count >= cap ? 'fa-ban' : 'fa-users';
+            const tagTxt  = count === 0 ? `${free} free` : count >= cap ? 'Full' : `${free} free`;
+ 
+            return `
+                <div class="room-card">
+                    <div class="room-top">
+                        <div class="room-icon ${iconCls}"><i class="fa ${iconFA}"></i></div>
+                        <div>
+                            <div class="room-name">${lab.alias}</div>
+                            <div class="room-meta">${count} / ${cap} PCs available</div>
+                        </div>
+                    </div>
+                    <div class="room-bar-wrap">
+                        <div class="room-bar-fill ${fillCls}" style="width:${pct}%;"></div>
+                    </div>
+                    <div class="room-foot">
+                        <span class="room-free-tag ${tagCls}">${tagTxt}</span>
+                        <span class="room-count">${count} in use</span>
+                    </div>
+                </div>`;
+        }).join('');
+ 
+        const now = new Date();
+        document.getElementById('lastUpdated').textContent =
+            `Last updated: ${now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
+ 
+    } catch(err) {
+        document.getElementById('labsGrid').innerHTML = `
+            <div class="empty-state">
+                <i class="fa fa-exclamation-circle" style="color:#e74c3c;"></i>
+                Could not load lab status. Make sure the server is running.
+            </div>`;
     }
+}
 
-    document.getElementById("photoUpload").addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            selectedPhoto = event.target.result;
-
-            document.getElementById("profilePhoto").src = selectedPhoto;
-            document.getElementById("profilePhoto").style.display = "block";
-            document.getElementById("noPhotoPlaceholder").style.display = "none";
-        };
-        reader.readAsDataURL(file);
-    });
-
-    const editForm = document.getElementById("editProfileForm");
-
-    editForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        
-        const saveBtn = document.getElementById("saveBtn");
-        saveBtn.disabled = true;
-        saveBtn.innerText = "Saving...";
-
-        const updatedUser = {
-            oldIdNumber: originalID,
-            idNumber: document.getElementById("edit-id").value,
-            lastName: document.getElementById("edit-lastName").value,
-            firstName: document.getElementById("edit-firstName").value,
-            middleName: document.getElementById("edit-middleName").value,
-            yearLevel: document.getElementById("edit-yearLevel").value,
-            course: document.getElementById("edit-course").value,
-            email: document.getElementById("edit-email").value,
-            address: document.getElementById("edit-address").value,
-            profilePhoto: selectedPhoto 
-        };
-
-        try {
-            const response = await fetch("http://localhost:3000/update-profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedUser)
-            });
-
-            if (response.ok) {
-                localStorage.setItem("loggedInId", updatedUser.idNumber);
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Profile Updated!',
-                    text: 'Your changes have been saved.',
-                    confirmButtonColor: '#0056b3',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                }).then(() => {
-                    window.location.href = 'dashboard.html';
-                });
-            } else {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "Save";
-                Swal.fire('Error', 'Update failed. ID might be taken.', 'error');
-            }
-        } catch (error) {
-            saveBtn.disabled = false;
-            saveBtn.innerText = "Save";
-            Swal.fire('Error', 'Server connection lost.', 'error');
-        }
-    });
-});
-
-
+// ── LOGOUT ───────────────────────────────────────────────────────────────
 async function logout() {
     const studentId = localStorage.getItem('loggedInId');
     
@@ -354,3 +343,14 @@ async function logout() {
         }
     }
 }
+
+// ── INIT + AUTO-REFRESH ───────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const idNumber = localStorage.getItem('loggedInId');
+    if (!idNumber) { window.location.href = 'login.html'; return; }
+    pollAnnouncements();
+    setInterval(pollAnnouncements, 30000);
+    renderSoftware();
+    loadLabStatus();
+    setInterval(loadLabStatus, 30000);
+});

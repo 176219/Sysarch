@@ -4,100 +4,761 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile - CCS Portal</title>
-    <link rel="stylesheet" href="editprofile.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+         .register-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 40px 25px 60px;
+            min-height: calc(100vh - 65px);
+        }
+ 
+        .register-container {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+ 
+        .profile-sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .profile-avatar-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 30px 25px 25px;
+            text-align: center;
+        }
+ 
+        .avatar-wrap {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 15px;
+            cursor: pointer;
+        }
+
+        .avatar-wrap:hover .avatar-overlay { 
+            opacity: 1; 
+        }
+ 
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #f0f0f0;
+            display: block;
+            background-color: #f0f0f0;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: #fff;
+            font-size: 15px;
+        }
+ 
+        .avatar-hint {
+            font-size: 11px;
+            color: #bbb;
+            margin-bottom: 10px;
+        }
+ 
+        .profile-name {
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #2c3e70;
+            margin-bottom: 6px;
+            min-height: 20px;
+        }
+
+        .profile-badge {
+            display: inline-block;
+            background: #2c3e70;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+ 
+        /* ---- RIGHT FORM CARD ---- */
+        .form-card {
+            flex: 1;
+            background: #fff;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 35px 35px 30px;
+        }
+ 
+        .form-card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-card-icon {
+            width: 41px;
+            height: 41px;
+            background: #2c3e70;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .form-card-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 25px;
+            font-weight: 700;
+            color: #2c3e70;
+        }
+
+        .form-card-sub {
+            font-size: 15px;
+            color: #999;
+            margin-top: 2px;
+        }
+ 
+        .section-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #6b6a6a;
+            margin-bottom: 10px;
+            margin-top: 18px;
+        }
+
+        .uc-card {
+            background: #1a1a2e;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .uc-card::before {
+            content: '';
+            position: absolute;
+            width: 170px; height: 170px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            top: -50px; right: -50px;
+        }
+
+        .uc-card::after {
+            content: '';
+            position: absolute;
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            bottom: -30px; left: -30px;
+        }
+
+        .uc-card img {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 6px 16px rgba(44,62,112));
+        }
+
+        .uc-card-label {
+            font-family: 'Sora', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
+        }
+ 
+        /* ---- INPUTS ---- */
+        .reg-input-group {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .reg-input-group input {
+            width: 100%;
+            padding: 15px 45px 15px 35px;
+            border: 1px solid #e2e2e2;
+            border-radius: 10px;
+            outline: none;
+            font-size: 15px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.25s ease;
+            background: #f6f6f6;
+            color: black;
+        }
+
+        .reg-input-group input:focus {
+            border-color: #1a1a2e;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,26,46,0.07);
+        }
+
+        .reg-input-group input::placeholder { 
+            color: #aaa; 
+        }
+
+        .reg-input-group input[readonly] {
+            background: #f4f4f6;
+            color: #999;
+            cursor: not-allowed;
+            border-color: #eee;
+        }
+ 
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #bbb;
+            font-size: 13px;
+            pointer-events: none;
+        }
+ 
+        /* Dropdown */
+        .reg-input-group.dropdown-group::after {
+            content: '';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0; height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid #bbb;
+            pointer-events: none;
+        }
+        .dropdown-input {
+            width: 100%;
+            padding: 13px 45px 13px 35px;
+            border: 1px solid #e2e2e2;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.25s ease;
+            background: #f9f9fb;
+            cursor: pointer;
+            box-sizing: border-box;
+            color: #aaa;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+        .dropdown-input:focus {
+            border-color: #1a1a2e;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(26,26,46,0.07);
+            color: #1a1a2e;
+        }
+        .dropdown-input option { color: #1a1a2e; }
+ 
+        .row-group { 
+            display: flex; gap: 12px; 
+        }
+        .row-group .reg-input-group { 
+            flex: 1; 
+        }
+ 
+        /* ---- BUTTONS ---- */
+        .btn-center {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 22px;
+            gap: 10px;
+        }
+        .cancel-btn {
+            background: transparent;
+            color: #999;
+            border: 1px solid #e2e2e2;
+            border-radius: 12px;
+            padding: 12px 22px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .cancel-btn:hover { 
+            background: #f4f4f6; 
+            color: #555; 
+        }
+ 
+        .reg-submit-btn {
+            background: #2c3e70;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 28px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reg-submit-btn:hover {
+            background: #2d2d4e;
+            transform: translateY(-1px);
+        }
+
+        .notif-wrapper {
+            position: relative;
+        }
+
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            width: 340px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .notif-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+
+        /* ══════════════════════════════════════
+           DARK / LIGHT MODE - CSS VARIABLES
+        ══════════════════════════════════════ */
+        :root {
+            --bg-page:      #f0f2f5;
+            --bg-card:      #ffffff;
+            --bg-input:     #f6f6f6;
+            --text-main:    #333333;
+            --text-muted:   #555555;
+            --text-label:   #1a1a2e;
+            --border-color: #dddddd;
+            --border-inner: #cccccc;
+            --shadow:       0 10px 30px rgba(0,0,0,0.2);
+            --table-even:   #f3f3f3;
+            --table-hover:  #f8f9fc;
+            --thead-bg:     #f0f2f5;
+        }
+        [data-theme="dark"] {
+            --bg-page:      #0f1117;
+            --bg-card:      #1a1d27;
+            --bg-input:     #22263a;
+            --text-main:    #e0e0e0;
+            --text-muted:   #b0b8cc;
+            --text-label:   #ffffff;
+            --border-color: #2e3347;
+            --border-inner: #3a3f58;
+            --shadow:       0 10px 30px rgba(0,0,0,0.5);
+            --table-even:   #1e2235;
+            --table-hover:  #232840;
+            --thead-bg:     #1e2235;
+        }
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #111827, #0a0a1a) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+        }
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+ 
+        /* ── register-container dark mode (editprofile) ── */
+ 
+        /* Page & wrapper */
+        .register-wrapper { background: var(--bg-page) !important; }
+        [data-theme="dark"] .register-wrapper {
+            background: linear-gradient(135deg, #0f1117 0%, #111827 100%) !important;
+        }
+ 
+        /* ── Left sidebar: avatar card ── */
+        .profile-avatar-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: var(--shadow) !important;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .profile-image {
+            border-color: var(--border-color) !important;
+            background-color: var(--bg-input) !important;
+        }
+        [data-theme="dark"] .profile-name   { color: #c8d0e8 !important; }
+        [data-theme="dark"] .profile-badge  { background: #2a3a6a !important; color: #fff !important; }
+        [data-theme="dark"] .avatar-hint    { color: var(--text-muted) !important; }
+ 
+        /* ── Right: form card ── */
+        .form-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: var(--shadow) !important;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .form-card-header { border-bottom-color: var(--border-inner) !important; }
+        [data-theme="dark"] .form-card-icon   { background: #1e2a50 !important; }
+        [data-theme="dark"] .form-card-title  { color: #c8d0e8 !important; }
+        [data-theme="dark"] .form-card-sub    { color: var(--text-muted) !important; }
+        [data-theme="dark"] .section-label    { color: var(--text-muted) !important; }
+ 
+        /* ── Inputs ── */
+        [data-theme="dark"] .reg-input-group input {
+            background: var(--bg-input) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .reg-input-group input::placeholder { color: var(--text-muted) !important; }
+        [data-theme="dark"] .reg-input-group input:focus {
+            border-color: #4e73df !important;
+            background: #1e2235 !important;
+            box-shadow: 0 0 0 3px rgba(78,115,223,0.15) !important;
+        }
+        [data-theme="dark"] .reg-input-group input[readonly] {
+            background: #1a1d27 !important;
+            color: var(--text-muted) !important;
+            border-color: var(--border-color) !important;
+            cursor: not-allowed;
+        }
+        [data-theme="dark"] .input-icon { color: var(--text-muted) !important; }
+ 
+        /* ── Dropdowns ── */
+        [data-theme="dark"] .dropdown-input {
+            background: var(--bg-input) !important;
+            border-color: var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .dropdown-input:focus {
+            border-color: #4e73df !important;
+            background: #1e2235 !important;
+            box-shadow: 0 0 0 3px rgba(78,115,223,0.15) !important;
+            color: var(--text-main) !important;
+        }
+        [data-theme="dark"] .dropdown-input option {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+        }
+        /* dropdown arrow color in dark mode */
+        [data-theme="dark"] .reg-input-group.dropdown-group::after {
+            border-top-color: var(--text-muted) !important;
+        }
+ 
+        /* ── Buttons ── */
+        [data-theme="dark"] .cancel-btn {
+            color: var(--text-muted) !important;
+            border-color: var(--border-color) !important;
+            background: transparent !important;
+        }
+        [data-theme="dark"] .cancel-btn:hover {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+        }
+ 
+        /* ── Notification dropdown ── */
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+        }
+        [data-theme="dark"] .notif-list > div {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+            color: var(--text-main) !important;
+        }
+
+        /* ── Profile sidebar container ── */
+        [data-theme="dark"] .profile-sidebar {
+            background: transparent !important;
+        }
+
+        /* ── Avatar card - force dark override ── */
+        [data-theme="dark"] .profile-avatar-card {
+            background: #1a1d27 !important;
+            border: 1px solid #2e3347 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        }
+
+        /* ── Profile image circle ── */
+        [data-theme="dark"] .profile-image {
+            border-color: #2e3347 !important;
+            background-color: #22263a !important;
+        }
+
+        /* ── No-photo placeholder icon ── */
+        [data-theme="dark"] #noPhotoPlaceholder {
+            background: #22263a !important;
+            color: #b0b8cc !important;
+        }
+
+        /* ── Form card force dark ── */
+        [data-theme="dark"] .form-card {
+            background: #1a1d27 !important;
+            border: 1px solid #2e3347 !important;
+        }
+
+        /* ── Page background force dark ── */
+        [data-theme="dark"] body {
+            background: #0f1117 !important;
+        }
+
+        [data-theme="dark"] .register-wrapper {
+            background: linear-gradient(135deg, #0f1117 0%, #111827 100%) !important;
+        }
+
+        [data-theme="dark"] .register-container {
+            background: transparent !important;
+        }
+    </style>
 </head>
 <body>
+ 
     <nav class="navbar">
-        <div class="logo-text">Edit Profile Students</div>
+        <div class="logo-text"><i class="fa fa-pencil"></i> Edit Profile Students</div>
         <ul class="nav-links">
-            <li><a href="#">✉ Notification 🔻</a></li>
-            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
-            <li><a href="editprofile.html" class="active">✎ Edit Profile</a></li>
-            <li><a href="history.html">🕮 History</a></li>
-            <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="#" class="logout">➜] Logout</a></li>
+            <li class="notif-wrapper">
+                <a href="#" onclick="toggleNotifDropdown(event)">
+                    <i class="fa fa-bell"></i> Notifications
+                </a>
+                <span id="notifBadge" class="notif-badge"></span>
+                <div id="notifDropdown" class="notif-dropdown">
+                    <div class="notif-header">
+                        <i class="fa fa-bell"></i> Announcements
+                        <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                    </div>
+                    <div id="notifList" class="notif-list"></div>
+                </div>
+            </li>
+            <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li><a href="editprofile.html" class="active"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+            <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+            <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="leaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+            <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+            <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+            <li>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel"></span>
+                </button>
+            </li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
     </nav>
-
-    <div class="register-wrapper"> 
+ 
+    <div class="register-wrapper">
         <div class="register-container">
-            <div class="register-content">
-                
-                <!-- Form Column -->
-                <div class="form-column">
-                    <form id="editProfileForm">
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-id" placeholder="ⵌ ID Number" required>
+ 
+            <!-- LEFT: PROFILE SIDEBAR -->
+            <div class="profile-sidebar">
+ 
+                <div class="profile-avatar-card">
+                    <div class="avatar-wrap" onclick="document.getElementById('photoUpload').click()">
+                        <div id="noPhotoPlaceholder">
+                            <i class="fa fa-user"></i>
                         </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-lastName" placeholder="👤 Last Name" required>
+                        <img id="profilePhoto" src="" alt="Student Photo" class="profile-image" style="display:none;">
+                        <div class="avatar-overlay">
+                            <i class="fa fa-camera"></i>
                         </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-firstName" placeholder="👤 First Name" required>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-middleName" placeholder="👤 Middle Name">
-                        </div>
-
-                        <div class="row-group">
-                            <div class="reg-input-group">
-                                <input id="edit-yearLevel" list="course-levels" placeholder="🧑‍🎓 Year Level" required>
-                                <datalist id="course-levels">
-                                    <option value="1st year">
-                                    <option value="2nd year">
-                                    <option value="3rd year">
-                                    <option value="4th year">
-                                </datalist>
-                            </div>
-
-                            <div class="reg-input-group">
-                                <input id="edit-course" list="courses" placeholder="📚 Course" required>
-                                <datalist id="courses">
-                                    <option value="BSIT">
-                                    <option value="BSCS">
-                                    <option value="BSCE">
-                                    <option value="ACT">
-                                </datalist>
-                            </div>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="email" id="edit-email" placeholder="✉️ Email" required>
-                        </div>
-
-                        <div class="reg-input-group">
-                            <input type="text" id="edit-address" placeholder="🏠 Address" required>
-                        </div>
-
-                        <div class="btn-center">
-                            <button type="submit" id="saveBtn" class="reg-submit-btn">Save</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Image Column (Profile Preview + Illustration) -->
-                <div class="image-column">
-                    <!-- Profile Preview -->
-                    <div style="margin-bottom: 20px; text-align: center;">
-                        <img id="profilePreview" src="images/default.png" alt="Profile Photo" class="profile-image">
-                        <input type="file" id="photoUpload" accept="image/*" style="display: none;">
-                        <button type="button" onclick="document.getElementById('photoUpload').click()" 
-                            class="reg-submit-btn" style="margin-top: 10px; font-size: 14px;">Change Photo</button>
                     </div>
 
-
-                    
+                    <span class="profile-badge">Student</span>
                 </div>
-                
+
+                <div class="uc-card">
+                    <img src="images/uc.png" alt="UC Logo">
+                    <div class="uc-card-label">CCS Portal</div>
+                </div>
+ 
             </div>
+ 
+            <!-- RIGHT: FORM CARD -->
+            <div class="form-card">
+ 
+                <div class="form-card-header">
+                    <div class="form-card-icon">
+                        <i class="fa fa-user-pen"></i>
+                    </div>
+                    <div>
+                        <div class="form-card-title">Edit Profile</div>
+                        <div class="form-card-sub">Update your personal information below.</div>
+                    </div>
+                </div>
+ 
+                <!-- original hidden file input -->
+                <input type="file" id="photoUpload" accept="image/*" style="display:none;">
+ 
+                <form id="editProfileForm">
+ 
+                    <div class="section-label">Personal Information</div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-id-card input-icon"></i>
+                        <input type="text" id="edit-id" placeholder="ID Number" required>
+                    </div>
+ 
+                    <div class="row-group">
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" id="edit-lastName" placeholder="Last Name" required>
+                        </div>
+                        <div class="reg-input-group">
+                            <i class="fa fa-user input-icon"></i>
+                            <input type="text" id="edit-firstName" placeholder="First Name" required>
+                        </div>
+                    </div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-user input-icon"></i>
+                        <input type="text" id="edit-middleName" placeholder="Middle Name">
+                    </div>
+ 
+                    <div class="section-label">Academic Details</div>
+ 
+                    <div class="row-group">
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-graduation-cap input-icon"></i>
+                            <select id="edit-yearLevel" class="dropdown-input" required>
+                                <option value="" disabled selected hidden>Year Level</option>
+                                <option value="1st year">1st Year</option>
+                                <option value="2nd year">2nd Year</option>
+                                <option value="3rd year">3rd Year</option>
+                                <option value="4th year">4th Year</option>
+                            </select>
+                        </div>
+                        <div class="reg-input-group dropdown-group">
+                            <i class="fa fa-book input-icon"></i>
+                            <select id="edit-course" class="dropdown-input" required>
+                                <option value="" disabled selected hidden>Course</option>
+                                <option value="BSIT">BSIT</option>
+                                <option value="BSCS">BSCS</option>
+                                <option value="BSCE">BSCE</option>
+                                <option value="ACT">ACT</option>
+                            </select>
+                        </div>
+                    </div>
+ 
+                    <div class="section-label">Contact Details</div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-envelope input-icon"></i>
+                        <input type="email" id="edit-email" placeholder="Email" required>
+                    </div>
+ 
+                    <div class="reg-input-group">
+                        <i class="fa fa-home input-icon"></i>
+                        <input type="text" id="edit-address" placeholder="Address" required>
+                    </div>
+ 
+                    <div class="btn-center">
+                        <button type="submit" id="saveBtn" class="reg-submit-btn"><i class="fa fa-floppy-disk" style="margin-right:7px;"></i>Save Changes</button>
+                        <button type="button" class="cancel-btn" onclick="history.back()">Cancel</button>
+                    </div>
+ 
+                </form>
+            </div>
+ 
         </div>
     </div>
 
-    <script src="editprofile.js"></script>
-    <script src="logout.js"></script>
+<script src="editprofile.js">
+</script>
 </body>
 </html>

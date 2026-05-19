@@ -45,10 +45,12 @@ body {
 
 /*-----Image-----*/
 .left-logo-section {
-    flex: 1; 
+    flex: 1;
     display: flex;
     justify-content: center;
+    align-items: flex-start;
 }
+
 .left-logo-section img {
     max-width: 550px;
     height: auto;
@@ -185,4 +187,147 @@ body {
 .nav-links li a.active { 
     background: rgba(255, 193, 7); 
     color: black;
+}
+.leaderboard-preview {
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid #e3e6f0;
+    overflow: hidden;
+}
+
+.lb-preview-header {
+    background: #2c3e70;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lb-preview-title {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lb-preview-sub {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.lb-loading {
+    text-align: center;
+    padding: 30px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+.lb-preview-list {
+    padding: 0;
+}
+
+.lb-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.lb-preview-item:last-child {
+    border-bottom: none;
+}
+
+.lb-preview-item:hover {
+    background: #f8f9fc;
+}
+
+.lb-top-1 { background-color: #fffdf0; }
+.lb-top-2 { background-color: #f8f8f8; }
+.lb-top-3 { background-color: #fff8f3; }
+
+.lb-top-1:hover { background-color: #fff3cd; }
+.lb-top-2:hover { background-color: #f0f0f0; }
+.lb-top-3:hover { background-color: #f8d7b0; }
+
+.lb-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.lb-rank-badge.rank-1 { background: #fff3cd; color: #856404; }
+.lb-rank-badge.rank-2 { background: #e9ecef; color: #495057; }
+.lb-rank-badge.rank-3 { background: #f8d7b0; color: #7a4f26; }
+.lb-rank-badge.rank-other { background: #eef0f5; color: #666; font-size: 12px; }
+
+.lb-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lb-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a1a2e;
+}
+
+.lb-course-chip {
+    display: inline-block;
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lb-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+}
+
+.lb-points {
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffc107;
+}
+
+.lb-points-unit {
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffc107;
+}
+
+.lb-sitins {
+    font-size: 11px;
+    color: #aaa;
+}
+
+.lb-preview-footer {
+    padding: 12px 20px;
+    background: #fafbfc;
+    border-top: 1px solid #f0f0f0;
+    font-size: 12px;
+    color: #aaa;
+    text-align: right;
 }

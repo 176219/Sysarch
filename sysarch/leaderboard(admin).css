@@ -1,3 +1,4 @@
+/* NEW - matches admin-dashboard */
 .navbar {
     background: linear-gradient(135deg, #0056b3, #003d82);
     display: flex;
@@ -186,47 +187,102 @@ input[readonly] {
         opacity: 1;
     }
 }
-.sit-drop-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-inner);
-    transition: background 0.15s;
-}
-.sit-drop-item:last-child { border-bottom: none; }
-.sit-drop-item:hover {
-    background: var(--bg-card-alt);
-    transform: translateX(2px);
-}
-.sit-drop-avatar {
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    background: #4e73df;
-    color: #fff;
-    font-size: 12px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-}
-.sit-drop-info  { flex: 1; min-width: 0; }
-.sit-drop-name  {
-    font-weight: 700; font-size: 13px;
-    color: var(--text-main);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.sit-drop-meta  {
-    font-size: 11px; color: var(--text-muted);
-    margin-top: 2px; display: flex; gap: 6px;
-}
-.sit-drop-sessions {
-    font-size: 12px; font-weight: 800;
-    color: #1cc88a; flex-shrink: 0;
-}
-.sit-drop-empty {
-    padding: 16px; font-size: 13px;
-    color: var(--text-muted); text-align: center;
+
+/* --- TABLE --- */
+.admin-table-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 40px;
+
+    background: white;
+    border-radius: 12px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="dark"] .sit-drop-item:hover { background: var(--bg-table-hover); }
-[data-theme="dark"] .sit-drop-avatar { background: #2c4aad; }
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: left;
+
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* --- BUTTONS --- */
+.btn-add {
+    padding: 10px 20px;
+
+    background: #007bff;
+    color: white;
+
+    border: none;
+    border-radius: 5px;
+
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-reset {
+    padding: 10px 20px;
+
+    background: #dc3545;
+    color: white;
+
+    border: none;
+    border-radius: 5px;
+
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* --- SEARCH --- */
+.search-box {
+    float: right;
+    width: 250px;
+    padding: 10px;
+
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* --- BADGES --- */
+.badge-session {
+    display: inline-block;
+    padding: 3px 10px;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    border-radius: 12px;
+
+    background: #e9f5ff;
+    color: #0056b3;
+}
+
+/* --- INFO MODAL --- */
+#infoBody p {
+    margin: 10px 0;
+    padding-bottom: 5px;
+
+    font-size: 14px;
+
+    border-bottom: 1px solid #eee;
+}
+
+#infoBody b {
+    width: 100px;
+    display: inline-block;
+
+    color: #0056b3;
+}

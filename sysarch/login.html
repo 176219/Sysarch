@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo=text"><b>College of Computer Studies Sit-in Monitoring System</b></div>
+        <div class="logo-text"><b>College of Computer Studies Sit-in Monitoring System</b></div>
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
             <li><a href="#">Community</a></li>
@@ -19,10 +20,24 @@
     </nav>
 
     <div class="main-content">
+
+        <!-- LEADERBOARD (replaces logo) -->
         <div class="left-logo-section">
-            <img src="images/ccs.png" alt="CCS Logo">
+            <div class="leaderboard-preview">
+                <div class="lb-preview-header">
+                    <span class="lb-preview-title">
+                        <i class="fa fa-trophy" style="color:#ffc107;"></i> Top Students
+                    </span>
+                    <span class="lb-preview-sub">Based on sit-in activity &amp; points</span>
+                </div>
+                <div class="lb-preview-list" id="lbPreviewList">
+                    <div class="lb-loading">Loading leaderboard...</div>
+                </div>
+                <div class="lb-preview-footer">Showing top 5 students</div>
+            </div>
         </div>
 
+        <!-- LOGIN FORM -->
         <div class="right-form-section">
             <div class="login-card">
                 <h4>Have an account?</h4>
@@ -31,20 +46,18 @@
                     <div class="input-group">
                         <input type="text" name="idNumber" placeholder="🪪 Enter a Valid ID Number" required>
                     </div>
-
                     <div class="input-group">
                         <input type="password" name="password" id="passwordField" placeholder="🔏 Enter Password" required>
                         <span class="password-toggle" onclick="toggleVisibility()">🧿</span>
                     </div>
-
                     <button type="submit" class="login-button">Log in</button>
                     <p class="register-text">Don't have an account? <a href="register.html">Sign Up</a></p>
                 </form>
             </div>
         </div>
+
     </div>
 
-<script src="login.js"></script>
-
+    <script src="login.js"></script>
 </body>
 </html>

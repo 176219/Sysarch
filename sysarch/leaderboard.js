@@ -1,3 +1,5 @@
+const BASE = 'http://localhost:3000';
+
 /* ══════════════════════════════════════
    DARK / LIGHT MODE
 ══════════════════════════════════════ */
@@ -31,6 +33,7 @@ function toggleTheme() {
     applyTheme(saved);
 })();
 
+// ── NOTIFICATION SYSTEM ──────────────────────────────────────────────
 let _announcements = [];
 
 function toggleNotifDropdown(e) {
@@ -78,12 +81,11 @@ function markOneRead(id) {
 
 async function pollAnnouncements() {
     try {
-        const res = await fetch('http://localhost:3000/api/announcements');
+        const res = await fetch(`${BASE}/api/announcements`);
         _announcements = await res.json();
         renderNotifs();
     } catch(e) {}
 }
-
 pollAnnouncements();
 setInterval(pollAnnouncements, 30000);
 
@@ -200,119 +202,91 @@ setTimeout(async () => {
 }, 500);
 setInterval(checkForNewResNotifs, 15000);
 
-
-let selectedPhoto = null;
-
-document.addEventListener("DOMContentLoaded", async () => {
-    const idNumber = localStorage.getItem("loggedInId");
-    if (!idNumber) { 
-        window.location.href = "login.html"; 
-        return; 
-    }
-
-    let originalID = idNumber;
+// ── LEADERBOARD LOGIC ─────────────────────────────────────────────────
+async function loadLeaderboard() {
+    const myId = localStorage.getItem('loggedInId');
+    if (!myId) { window.location.href = 'login.html'; return; }
 
     try {
-        const res = await fetch(`http://localhost:3000/student/${idNumber}`);
-        const user = await res.json();
+        const res = await fetch(`${BASE}/admin/leaderboard`);
+        if (!res.ok) throw new Error('Server error');
+        const data = await res.json(); // [{ idNumber, firstName, lastName, course, sitins, points }, ...]
 
-        if (res.ok) {
-            originalID = user.idNumber;
-
-            document.getElementById("edit-id").value = user.idNumber || "";
-            document.getElementById("edit-lastName").value = user.lastName || "";
-            document.getElementById("edit-firstName").value = user.firstName || "";
-            document.getElementById("edit-middleName").value = user.middleName || "";
-            document.getElementById("edit-yearLevel").value = user.yearLevel || "";
-            document.getElementById("edit-course").value = user.course || "";
-            document.getElementById("edit-email").value = user.email || "";
-            document.getElementById("edit-address").value = user.address || "";
-
-            if (user.profilePhoto) {
-
-                selectedPhoto = user.profilePhoto;
-                document.getElementById("profilePhoto").src = user.profilePhoto;
-                document.getElementById("profilePhoto").style.display = "block";
-                document.getElementById("noPhotoPlaceholder").style.display = "none";
-            }
-        }
+        renderTable(data, myId);
+        renderMyRank(data, myId);
     } catch (err) {
-        console.error(err);
+        console.error('Leaderboard error:', err);
+        document.getElementById('leaderboardContent').innerHTML =
+            '<div class="lb-loading"><i class="fa fa-exclamation-circle" style="color:#e74c3c;animation:none;"></i>Could not load leaderboard.<br><small>Make sure the server is running.</small></div>';
+    }
+}
+
+function renderTable(data, myId) {
+    const container = document.getElementById('leaderboardContent');
+
+    if (!data.length) {
+        container.innerHTML = '<div class="empty-lb"><i class="fa fa-ghost"></i><br>No data yet. Be the first to sit in!</div>';
+        return;
     }
 
-    document.getElementById("photoUpload").addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+    const trophyIcons = ['trophy-1', 'trophy-2', 'trophy-3'];
+    const rankClasses = ['rank-1', 'rank-2', 'rank-3'];
 
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            selectedPhoto = event.target.result;
+    const rows = data.map((s, i) => {
+        const rank  = i + 1;
+        const isMe  = s.idNumber === myId;
+        const rankBadgeClass = rank <= 3 ? rankClasses[rank - 1] : 'rank-other';
+        const rowClass       = isMe ? 'current-user-row' : '';
+        const meLabel        = isMe ? ' <span style="font-size:14px;background:#4e73df;color:#fff;padding:1px 6px;border-radius:8px;vertical-align:middle;">You</span>' : '';
 
-            document.getElementById("profilePhoto").src = selectedPhoto;
-            document.getElementById("profilePhoto").style.display = "block";
-            document.getElementById("noPhotoPlaceholder").style.display = "none";
-        };
-        reader.readAsDataURL(file);
-    });
+        return `
+            <tr class="${rowClass}">
+                <td><span class="rank-badge ${rankBadgeClass}">${rank <= 3 ? '<i class="fa fa-trophy ' + (trophyIcons[rank-1]) + '"></i>' : '#' + rank}</span></td>
+                <td>${s.firstName} ${s.lastName}${meLabel}</td>
+                <td><span class="course-chip">${s.course || '—'}</span></td>
+                <td>${s.sitins}</td>
+                <td><span class="points-badge">${s.points}</span></td>
+            </tr>`;
+    }).join('');
 
-    const editForm = document.getElementById("editProfileForm");
+    container.innerHTML = `
+        <table class="lb-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Sit-ins</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
 
-    editForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        
-        const saveBtn = document.getElementById("saveBtn");
-        saveBtn.disabled = true;
-        saveBtn.innerText = "Saving...";
+function renderMyRank(data, myId) {
+    const idx = data.findIndex(s => s.idNumber === myId);
+    const me  = data[idx];
 
-        const updatedUser = {
-            oldIdNumber: originalID,
-            idNumber: document.getElementById("edit-id").value,
-            lastName: document.getElementById("edit-lastName").value,
-            firstName: document.getElementById("edit-firstName").value,
-            middleName: document.getElementById("edit-middleName").value,
-            yearLevel: document.getElementById("edit-yearLevel").value,
-            course: document.getElementById("edit-course").value,
-            email: document.getElementById("edit-email").value,
-            address: document.getElementById("edit-address").value,
-            profilePhoto: selectedPhoto 
-        };
+    document.getElementById('totalStudents').textContent = data.length;
 
-        try {
-            const response = await fetch("http://localhost:3000/update-profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedUser)
-            });
+    if (!me) {
+        document.getElementById('yourRankNumber').textContent = '—';
+        document.getElementById('yourRankNumber').style.color = '#aaa';
+        document.getElementById('yourPoints').textContent     = '0';
+        document.getElementById('yourSitins').textContent     = '0';
+        return;
+    }
 
-            if (response.ok) {
-                localStorage.setItem("loggedInId", updatedUser.idNumber);
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Profile Updated!',
-                    text: 'Your changes have been saved.',
-                    confirmButtonColor: '#0056b3',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                }).then(() => {
-                    window.location.href = 'dashboard.html';
-                });
-            } else {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "Save";
-                Swal.fire('Error', 'Update failed. ID might be taken.', 'error');
-            }
-        } catch (error) {
-            saveBtn.disabled = false;
-            saveBtn.innerText = "Save";
-            Swal.fire('Error', 'Server connection lost.', 'error');
-        }
-    });
-});
+    const rank = idx + 1;
+    const rankColors = { 1: '#ffd700', 2: '#c0c0c0', 3: '#cd7f32' };
+    document.getElementById('yourRankNumber').textContent = `#${rank}`;
+    document.getElementById('yourRankNumber').style.color = rankColors[rank] || '#4e73df';
+    document.getElementById('yourPoints').textContent     = me.points;
+    document.getElementById('yourSitins').textContent     = me.sitins;
+}
 
-
+// ── LOGOUT ─────────────────────────────────────────────────────────────
 async function logout() {
     const studentId = localStorage.getItem('loggedInId');
     
@@ -354,3 +328,6 @@ async function logout() {
         }
     }
 }
+
+// ── INIT ───────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadLeaderboard);

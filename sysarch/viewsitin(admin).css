@@ -57,14 +57,14 @@
 /* --- GLOBAL --- */
 body {
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Times New Roman', Tahoma, Geneva, Verdana, sans-serif;
     background: #f4f7f6;
 }
 
 .logo-text {
     color: white;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 15px;
     letter-spacing: 0.5px;
 }
 

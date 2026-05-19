@@ -58,7 +58,35 @@ async function executeSearch(event) {
         Swal.fire('Error', 'Server Error', 'error');
     }
 }
-
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const icon  = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (theme === 'dark') {
+            icon.className  = 'fa-solid fa-sun';
+        } else {
+            icon.className  = 'fa-solid fa-moon';
+        }
+    }
+    
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('ccs_theme', next);
+        applyTheme(next);
+    
+        // Animate the icon on toggle
+        const icon = document.getElementById('themeIcon');
+        icon.style.transform = 'rotate(360deg)';
+        icon.style.transition = 'transform 0.4s ease';
+        setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+    }
+    
+    // Load saved theme on page start
+    (function() {
+        const saved = localStorage.getItem('ccs_theme') || 'light';
+        applyTheme(saved);
+    })();
     // ── Generic Sit-In (Admin) ───────────────────────────────
     function openGenericSitInForm() {
         document.getElementById('genIdNumber').value  = "";

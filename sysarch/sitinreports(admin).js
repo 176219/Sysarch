@@ -5,6 +5,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const SESSION_DURATION_MINUTES = 60;
 
+   /* ══════════════════════════════════════
+    DARK / LIGHT MODE
+    ══════════════════════════════════════ */
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const icon  = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (theme === 'dark') {
+            icon.className  = 'fa-solid fa-sun';
+        } else {
+            icon.className  = 'fa-solid fa-moon';
+        }
+    }
+    
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('ccs_theme', next);
+        applyTheme(next);
+    
+        // Animate the icon on toggle
+        const icon = document.getElementById('themeIcon');
+        icon.style.transform = 'rotate(360deg)';
+        icon.style.transition = 'transform 0.4s ease';
+        setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+    }
+    
+    // Load saved theme on page start
+    (function() {
+        const saved = localStorage.getItem('ccs_theme') || 'light';
+        applyTheme(saved);
+    })();
 // --- LOAD REPORTS ---
 async function loadReports() {
     const dateVal = document.getElementById("dateFilter").value;
@@ -20,21 +52,26 @@ async function loadReports() {
         const body = document.getElementById("reportsBody");
 
         if (!Array.isArray(data) || data.length === 0) {
-            body.innerHTML = `<tr><td colspan="8" style="text-align:center;">No records found.</td></tr>`;
+            body.innerHTML = `<tr><td colspan="7" style="text-align:center;">No records found.</td></tr>`;
             return;
         }
 
-        body.innerHTML = data.map((r, index) => `
+        // ── Only show completed sit-ins (timeOut must exist) ──
+        const completed = data.filter(r => r.timeOut && r.timeOut !== '');
+
+        if (completed.length === 0) {
+            body.innerHTML = `<tr><td colspan="7" style="text-align:center;">No completed sit-in records found.</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = completed.map((r, index) => `
             <tr>
-                <td>${index + 1}</td>
-                <td><b>${r.idNumber}</b></td>
+                <td>${r.idNumber}</td>
                 <td>${r.firstName} ${r.lastName}</td>
                 <td>${r.purpose || 'N/A'}</td>
                 <td>${r.lab || 'N/A'}</td>
-                <td>${r.timeIn || '—'}</td>
-                <td>${r.timeOut
-                    ? r.timeOut
-                    : '<span style="color:red;font-weight:bold;">Still Active</span>'}</td>
+                <td>${formatTime(r.timeIn)}</td>
+                <td>${formatTime(r.timeOut)}</td>
                 <td>${r.date || '—'}</td>
             </tr>
         `).join("");
@@ -42,8 +79,15 @@ async function loadReports() {
     } catch (err) {
         console.error("Error loading reports:", err);
         document.getElementById("reportsBody").innerHTML =
-            `<tr><td colspan="8" style="color:red;text-align:center;">Server error. Please check your connection.</td></tr>`;
+            `<tr><td colspan="7" style="color:red;text-align:center;">Server error. Please check your connection.</td></tr>`;
     }
+}
+
+function formatTime(isoString) {
+    if (!isoString) return '—';
+    const d = new Date(isoString);
+    if (isNaN(d)) return isoString;
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 }
 
 // --- LIVE SEARCH FILTER ---

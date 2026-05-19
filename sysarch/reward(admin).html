@@ -2,158 +2,299 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sit-in Reports - CCS Admin</title>
-    <link rel="stylesheet" href="sitinreports(admin).css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards - CCS Admin</title>
+    <link rel="stylesheet" href="reward(admin).css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
 
+        /* ── MODAL ── */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 500;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-            background-color: rgba(0,0,0,0.4);
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 500; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); background-color: rgba(0,0,0,0.4);
         }
 
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            width: 450px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            overflow: hidden;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .modal-header {
-            background: #2c3e70;
-            color: white;
-            padding: 15px 20px;
+        .page-title {
+            font-size: 25px;
+            font-weight: 700;
+            color: #2c3e70;
+            margin-bottom: 25px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-        }
-
-        .modal-header h2 { font-size: 20px; color: white; margin: 0; }
-        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
-        .modal-body { padding: 25px; }
-
-        .form-row { display: flex; margin-bottom: 15px; align-items: center; }
-        .form-row label { width: 150px; font-weight: bold; color: #333; font-size: 14px; }
-        .form-row input, .form-row select { 
-            flex: 1; padding: 10px; border: 1px solid #ccc; 
-            border-radius: 5px; font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        input[readonly] { background: #eee; cursor: not-allowed; }
-
-        .modal-footer {
-            padding: 12px;
-            background: #f8f9fa;
-            display: flex;
-            justify-content: flex-end;
             gap: 10px;
         }
-        .modal-footer button {
-            padding: 10px 20px; border: none; border-radius: 5px;
-            font-size: 13px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700;
+ 
+        .page-title i { color: #f6c23e; }
+
+        .modal-content { background:#fff; border-radius:10px; box-shadow:0 15px 35px rgba(0,0,0,0.4); overflow:hidden; animation:slideDown 0.3s ease-out; }
+        .modal-header  { background:#2c3e70; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; color:white; }
+        .modal-footer  { padding:15px 20px; background:#f8f9fc; border-top:1px solid #e3e6f0; display:flex; justify-content:flex-end; gap:10px; }
+        .search-wrapper { display:flex; align-items:center; background:#fff; border:2px solid #e3e6f0; border-radius:10px; transition:all 0.2s; }
+        .search-wrapper:focus-within { box-shadow:0 0 8px rgba(44,62,112,0.2); }
+        .search-wrapper input { flex:1; border:none !important; padding:12px; font-size:15px; outline:none !important; }
+        #searchResultsList { margin-top:15px; display:flex; flex-direction:column; gap:10px; }
+        .search-result-item { display:flex; align-items:center; background:#f8f9fc; border-radius:12px; padding:12px; cursor:pointer; transition:all 0.2s; }
+        .search-result-item:hover { background:#fff; transform:translateY(-2px); }
+        .user-avatar { width:45px; height:45px; background:#4e73df; color:white; border-radius:50%; display:flex; justify-content:center; align-items:center; font-weight:700; margin-right:15px; }
+        .user-info-text .name { display:block; font-weight:700; color:#2c3e70; font-size:14px; }
+        .user-info-text .meta { font-size:11px; color:#858796; display:flex; gap:8px; }
+        .user-status-badges { display:flex; flex-direction:column; align-items:flex-end; flex:1; font-size:11px; font-weight:800; }
+        .badge-sessions { color:#1cc88a; }
+        .student-profile-card { background:#f8f9fc; border-left:5px solid #2c3e70; border-radius:8px; padding:20px; margin:20px; }
+        .profile-name { display:block; font-size:1.1rem; font-weight:600; color:#2c3e70; margin-bottom:10px; text-transform:uppercase; }
+        .profile-meta { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+        .meta-item label { display:block; font-size:10px; text-transform:uppercase; color:#858796; font-weight:800; }
+        .meta-item span  { font-weight:600; color:#444; }
+        .modern-select { width:100%; padding:12px; border:1px solid #d1d3e2; border-radius:8px; cursor:pointer; }
+        .btn-confirm { background:#2c3e70; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600; }
+        .btn-cancel  { background:#858796; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; }
+        .btn-confirm:hover { transform:translateY(-1px); }
+        .btn-cancel:hover  { transform:translateY(-1px); }
+        @keyframes slideDown { from{transform:translateY(-50px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+        /* ── PAGE ── */
+        .page-wrapper {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
         }
 
-        .btn-confirm { background-color: #2c3e70; color: #fff; }
-        .btn-confirm:hover { background: #2d2d4e; transform: translateY(-1px); }
-        .btn-cancel { background-color: #6c757d; color: white; }
-        .btn-cancel:hover { background: #5a6268; transform: translateY(-1px); }
-
-        @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        /* ── TWO-COLUMN LAYOUT ── */
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 25px;
+            align-items: start;
         }
 
-        #infoBody p { 
-            margin: 10px 0; 
-            font-size: 14px; 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 5px;
+        /* ── SHARED CARD ── */
+        .rw-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+            border: 1px solid #e3e6f0;
+            overflow: hidden;
+        }
+
+        .rw-card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 14px 18px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        #infoBody b { 
-            color: #0056b3; 
-            width: 100px; 
+        .rw-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rw-card-body { padding: 22px; }
+
+        /* ── AWARD FORM ── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 6px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f8f9fc;
+            color: #333;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #2c3e70;
+            box-shadow: 0 0 0 3px rgba(44,62,112,0.08);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #bbb;
+        }
+
+        /* ── FORM BUTTONS ── */
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-award {
+            flex: 1;
+            background: #1cc88a;
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-award:hover { background: #17a673; transform: translateY(-1px); }
+
+        .btn-reset-all {
+            flex: 1;
+            background: #4e73df;
+            color: white;
+            border: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .btn-reset-all:hover { background: #3a5bbf; transform: translateY(-1px); }
+
+        /* ── LEADERBOARD TABLE ── */
+        .lb-legend {
+            font-size: 11px;
+            color: rgba(255,255,255,0.75);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rw-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .rw-table thead tr { background-color: #2c3e70; }
+
+        .rw-table th {
+            padding: 13px 15px;
+            text-align: left;
+            font-size: 14px;
+            color: white;
+            font-family: serif, 'Plus Jakarta Sans';
+            font-weight: 700;
+        }
+
+        .rw-table td {
+            padding: 13px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .rw-table tbody tr:hover { background: #f8f9ff; }
+
+        /* ── RANK PIP ── */
+        .rank-pip {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 50%;
+            font-weight: 700; font-size: 12px;
+        }
+        .pip-1 { background:#fff3cd; color:#856404; }
+        .pip-2 { background:#e9ecef; color:#495057; }
+        .pip-3 { background:#f8d7b0; color:#7a4f26; }
+        .pip-n { background:#f0f2f5; color:#666; font-size:11px; }
+
+        /* ── STUDENT CELL ── */
+        .student-name { font-weight: 700; color: #1a1a2e; font-size: 14px; }
+        .student-id   { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        /* ── COURSE CHIP ── */
+        .course-chip {
             display: inline-block; 
-        }
-
-        .reports-container { 
-            padding: 30px; 
-            max-width: 1200px; 
-            margin: auto; 
-        }
-
-        .controls { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-        }
-
-        .filter-group { 
-            display: flex; 
-            gap: 10px; 
-            align-items: center; 
-        }
-        
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            background: white; 
-            border-radius: 8px; 
-            overflow: hidden; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-        }
-
-        th { 
-            background-color: #2c3e70; 
-            color: white; 
-            padding: 15px; 
-            text-align: left; 
+            background: #dbeafe; 
+            color: #1e40af;
+            padding: 3px 10px; 
+            border-radius: 20px; 
             font-size: 14px; 
+            font-weight: 600;
+            font-family: 'Sora', sans-serif;
         }
 
-        td { 
-            padding: 12px 15px; 
-            border-bottom: 1px solid #eee; 
-            font-size: 14px; color: #333; 
+        /* ── HOURS ── */
+        .hours-val { color: #1cc88a; font-weight: 600; }
+        .hours-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+        /* ── POINTS ── */
+        .pts-val  { font-size: 15px; font-weight: 800; color: #ffc107; font-family:'Sora',sans-serif; }
+        .pts-unit { font-size: 11px; font-weight: 700; color: #ffc107; }
+        .pts-sub  { font-size: 10px; color: #bbb; margin-top: 2px; cursor: help; }
+
+        /* ── TOOLTIP ── */
+        .tooltip-wrap { position: relative; display: inline-block; }
+        .tooltip-box {
+            visibility: hidden; opacity: 0;
+            background: #1a1a2e; color: #fff; font-size: 11px;
+            border-radius: 8px; padding: 8px 12px;
+            position: absolute; bottom: calc(100% + 6px); left: 0;
+            white-space: nowrap; z-index: 100; transition: opacity 0.2s;
+            line-height: 1.7; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .tooltip-wrap:hover .tooltip-box { visibility: visible; opacity: 1; }
+
+        /* ── ADD POINTS BUTTON ── */
+        .btn-add-pts {
+            background: #1cc88a; color: white; border: none;
+            padding: 7px 14px; border-radius: 7px; cursor: pointer;
+            font-weight: 700; font-size: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: inline-flex; align-items: center; gap: 5px;
+            transition: all 0.2s;
+        }
+        .btn-add-pts:hover { background: #17a673; transform: translateY(-1px); }
+
+        /* ── EMPTY ── */
+        .table-empty {
+            text-align: center; padding: 40px; color: #aaa;
+            font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        tr:hover { 
-            background-color: #f8f9ff; 
-        }
-        
-        .btn-print { 
-            background: #28a745; 
-            color: white; 
-            border: none; 
-            padding: 8px 15px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-        }
-
-        input[type="text"], input[type="date"] { 
-            padding: 8px; 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-        }
-        
-  .theme-toggle-btn {
+        .theme-toggle-btn {
             display: flex;
             align-items: center;
             background: rgba(255,255,255,0.12);
@@ -377,42 +518,31 @@
         [data-theme="dark"] .badge-active  { background: #0e2a1e !important; color: #48c78e !important; }
         [data-theme="dark"] .badge-timeout { background: #2a0e0e !important; color: #f87171 !important; }
         [data-theme="dark"] .no-data { color: var(--text-muted) !important; }
+ 
         /* ── SCROLLBAR ── */
         ::-webkit-scrollbar { width: 7px; height: 7px; }
         ::-webkit-scrollbar-track { background: var(--scrollbar-bg); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
         [data-theme="dark"] ::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
         [data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
-
+ 
         /* ── NOTIFICATION DROPDOWN ── */
         [data-theme="dark"] .notif-dropdown { background: var(--bg-card) !important; border-color: var(--border-color) !important; }
         [data-theme="dark"] .notif-list > div { background: var(--bg-card) !important; border-color: var(--border-inner) !important; color: var(--text-main) !important; }
         [data-theme="dark"] .notif-list > div[style*="eaf3fb"] { background: var(--bg-card-alt) !important; }
+ 
         /* ── MISCELLANEOUS ── */
         [data-theme="dark"] .page-title { color: var(--text-main) !important; }
         [data-theme="dark"] .header-section h1 { color: var(--text-main) !important; }
         [data-theme="dark"] .controls { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
         [data-theme="dark"] .filter-group label { color: var(--text-label) !important; }
         [data-theme="dark"] .filter-group select { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
-        /* ── Admin container background ── */
-        [data-theme="dark"] .admin-container { background: transparent !important; }
-        /* ── Cards ── */
-        [data-theme="dark"] .card { background: #1a1d27 !important; border-color: #2a2f47 !important; }
-        [data-theme="dark"] .card-body { background: #1a1d27 !important; color: #e0e6f0 !important; }
-        /* ── Stat numbers and labels ── */
-        [data-theme="dark"] .stat-item h3 { color: #7b9cff !important; }
-        [data-theme="dark"] .stat-item p { color: #8892a4 !important; }
-        /* ── Announcement items ── */
-        [data-theme="dark"] .announcement-item {background: #1e2235 !important; border-color: #2a2f47 !important; color: #e0e6f0 !important; }
-        [data-theme="dark"] .announcement-item p { color: #e0e6f0 !important; }
-        /* ── Textarea ── */
-        [data-theme="dark"] #announcementText { background: #252839 !important; color: #e0e6f0 !important; border-color: #3a3f5c !important; }
-        [data-theme="dark"] #announcementText::placeholder { color: #8892a4 !important; }
-        /* ── Left and right panes ── */
-        [data-theme="dark"] .left-pane, [data-theme="dark"] .right-pane { background: transparent !important; }
     </style>
 </head>
 <body>
+
+<!-- ── NAVBAR ── -->
+
     <nav class="navbar">
         <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
@@ -421,11 +551,11 @@
             <li><a href="students(admin).html"><i class="fa fa-users"></i> Students</a></li>
             <li><a href="sitin(admin).html"><i class="fa fa-laptop"></i>  Sit-in</a></li>
             <li><a href="viewsitin(admin).html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
-            <li><a href="sitinreports(admin).html" class="active"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
+            <li><a href="sitinreports(admin).html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
             <li><a href="feedbackreports(admin).html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
             <li><a href="adminreservation(admin).html"><i class="fa fa-calendar"></i> Reservation</a></li>
             <li><a href="analytics(admin).html"><i class="fa fa-line-chart"></i> Analytics</a></li>
-            <li><a href="reward(admin).html"><i class="fa fa-gift"></i> Reward</a></li>
+            <li><a href="reward(admin).html" class="active"><i class="fa fa-gift"></i> Reward</a></li>
             <li><a href="software(admin).html"><i class="fa fa-upload"></i> Software</a></li>
             <li>
                 <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
@@ -437,71 +567,97 @@
         </ul>
     </nav>
 
-
-
-    <div id="searchModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fa fa-search"></i> Search Student</h2>
-                <button class="close-btn" onclick="closeModal('searchModal')" style="color:white;">&times;</button>
+<!-- ── UNIFIED SIT-IN MODAL ── -->
+<div id="unifiedSitInModal" class="modal-overlay">
+    <div class="modal-content" style="width:450px;">
+        <div class="modal-header">
+            <h3><i class="fa fa-search"></i> Find Student</h3>
+            <button onclick="closeModal('unifiedSitInModal')" style="background:none;border:none;color:white;cursor:pointer;font-size:20px;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:10px;">
+            <div class="search-wrapper">
+                <input type="text" id="uniIdSearch" placeholder="Enter Student ID....">
+                <button class="btn-confirm" onclick="searchAndPopulate()"><i class="fa fa-search"></i></button>
             </div>
-            <div class="modal-body">
-                <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
-                    style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
-                    onkeydown="if(event.key==='Enter') executeSearch(event)">
+            <div id="searchResultsList"></div>
+            <div id="studentDetailsBox" style="display:none;">
+                <div class="student-profile-card"><div id="accountInfoDisplay"></div></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:0 20px;">
+                    <div>
+                        <label style="font-size:13px;font-weight:700;color:#4e73df;">Purpose</label>
+                        <select id="uniPurpose" class="modern-select">
+                            <option>C Programming</option><option>Java Projects</option>
+                            <option>Web Development</option><option>Python/Data Science</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:700;color:#4e73df;">Lab Room</label>
+                        <select id="uniLab" class="modern-select">
+                            <option>524</option><option>526</option>
+                            <option>528</option><option>529</option><option>531</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal('searchModal')">Cancel</button>
-                <button class="btn-confirm" onclick="executeSearch(event)">Search</button>
-            </div>
+        </div>
+        <div class="modal-footer" id="uniFooter" style="display:none;">
+            <button class="btn-cancel" onclick="closeModal('unifiedSitInModal')">Cancel</button>
+            <button class="btn-confirm" onclick="submitUnifiedSitIn()">Confirm Sit-In</button>
         </div>
     </div>
+</div>
 
+<!-- ── PAGE ── -->
+<div class="page-wrapper">
 
-    <!-- STUDENT INFO MODAL -->
-    <div id="studentInfoModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fa fa-user"></i> Student Information</h2>
-                <button class="close-btn" onclick="closeModal('studentInfoModal')" style="color:white;">&times;</button>
+    <div class="page-title"><i class="fa fa-star"></i> Add Reward & Points</div>
+
+    <div class="rewards-grid">
+
+        <!-- LEFT: Award Form -->
+        <div class="rw-card">
+            <div class="rw-card-header">
+                <div class="rw-card-header-left"><i class="fa fa-star"></i> Award Points to Student</div>
             </div>
-            <div class="modal-body" id="infoBody"></div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal('studentInfoModal')">Close</button>
+            <div class="rw-card-body">
+                <div class="form-group">
+                    <label>Student ID Number</label>
+                    <input type="text" id="awardStudentId" placeholder="e.g. 20-1234-567">
+                </div>
+                <div class="form-group">
+                    <label>Points to Add</label>
+                    <input type="number" id="awardPoints" value="10" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <textarea id="awardReason" placeholder="e.g. Perfect attendance"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-award" onclick="awardPoints()">
+                        <i class="fa fa-star"></i> Award Points
+                    </button>
+                    <button class="btn-reset-all" onclick="confirmResetSessions()">
+                        <i class="fa fa-refresh"></i> Reset All Sessions
+                    </button>
+                </div>
             </div>
         </div>
-    </div>  
 
-
-    <div class="reports-container">
-        <center><h1 style="margin-bottom: 20px">Sit-in Reports</h1></center>
-        
-        <div class="controls">
-            
-            <div class="filter-group">
-                <input type="date" id="dateFilter">
-                <button class="btn-submit-ann" style="margin-top:0;" onclick="loadReports()">Filter Date</button>
-                <button class="btn-print" onclick="window.print()"><i class="fa fa-print"></i> Print PDF</button>
+        <!-- RIGHT: Leaderboard Table -->
+        <div class="rw-card">
+            <div class="rw-card-header">
+                <div class="rw-card-header-left"><i class="fa-solid fa-ranking-star"></i> Points Leaderboard</div>
+                <div class="lb-legend"><i class="fa fa-star"></i> Points = Completions + Duration + Bonus</div>
             </div>
-            <input type="text" id="reportSearch" placeholder="Search by name or ID..." onkeyup="filterTable()">
+            <div id="leaderboardContainer">
+                <div class="table-empty"><i class="fa fa-spinner fa-spin"></i> Loading...</div>
+            </div>
         </div>
 
-        <table id="reportsTable">
-            <thead>
-                <tr>
-                    <th>ID Number</th>
-                    <th>Name</th>
-                    <th>Purpose</th>
-                    <th>Laboratory</th>
-                    <th>Login</th>
-                    <th>Logout</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody id="reportsBody"></tbody>
-        </table>
     </div>
+</div>
 
-<script src="sitinreports(admin).js"></script>
+<script src="reward(admin).js">
+</script>
 </body>
 </html>

@@ -1,111 +1,333 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dashboard - CCS Sit-in Monitoring</title>
-        <link rel="stylesheet" href="dashboard.css">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CCS Sit-in Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">    
+</head>
+<style>
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr 1.5fr;
+            gap: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            align-items: start;
+        }
+        .dash-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        .card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .profile-img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            border: 1px 1px solid #f0f0f0;
+            object-fit: cover;
+            background-color: #f0f0f0;
+        }
+        .info-row {
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .announcement-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 10px 0;
+        }
+        .announcement-date {
+            font-size: 25px;
+            font-weight: bold;
+            font-family: 'Sora', sans-serif;
+        }
+        .rules-text {
+            font-size: 15px;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
-        <nav class="navbar">
-            <div class="logo-text"><b>Dashboard</b></div>
-            <ul class="nav-links">
-                <li class="notif-wrapper">
-                    <a href="#" onclick="toggleNotifDropdown(event)">
-                        <i class="fa fa-bell"></i> Notifications
-                    </a>
-                    <span id="notifBadge" class="notif-badge"></span>
-                    <div id="notifDropdown" class="notif-dropdown">
-                        <div class="notif-header">
-                            <i class="fa fa-bell"></i> Announcements
-                            <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
-                        </div>
-                        <div id="notifList" class="notif-list"></div>
-                    </div>
-                </li>
-                <li><a href="dashboard.html" class="active">🏠︎ Dashboard</a></li>
-                <li><a href="editprofile.html" >✎ Edit Profile</a></li>
-                <li><a href="history.html">🕮 History</a></li>
-                <li><a href="reservation.html">🗒 Reservation</a></li>
-                <li><a href="#" class="logout">➜] Logout</a></li>
-            </ul>
-        </nav>
+        #sessionTimerBox {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
 
-        <div class="dashboard-container">
-            
-            <div class="dash-card">
-                <div class="card-header">📋 Student Information</div>
-                <div class="card-body">
-                    <img id="profile-img" src="images/avatar.png" class="profile-img">
-                    <div class="info-row"><b>ⵌ ID Number:</b> <span id="display-id">Loading...</span></div>
-                    <div class="info-row"><b>👤 Name:</b> <span id="display-name">Loading...</span></div>
-                    <div class="info-row"><b>🎓 Course:</b> <span id="display-course">Loading...</span></div>
-                    <div class="info-row"><b>✉️ Email:</b> <span id="display-email">Loading...</span></div>
-                    <div class="info-row"><b>📈 Year:</b> <span id="display-yearLevel">Loading...</span></div>
-                    <div class="info-row"><b>🏠 Address:</b> <span id="display-address">Loading...</span></div>
-                    <div id="session-timer-wrapper" class="session-timer-wrapper timer-normal">
-                        <div class="timer-icon"><span>⏱️ Session Duration</span></div>
-                        <div class="timer-content">
-                            <div id="session-timer">00:00:00</div>
-                            <div class="timer-status" id="timer-status">Session active</div>
-                        </div>
-                    </div>
+            color: #d4a017;
+            font-weight: bold;
+            font-size: 18px;
+        }
 
+        #sessionTimerBox i {
+            font-size: 20px;
+            animation: flipSand 5s infinite linear;
+        }
+
+        @keyframes flipSand {
+            0%   { transform: rotate(0deg); }
+            50%  { transform: rotate(180deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #sessionTimer {
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .notif-wrapper {
+            position: relative;
+        }
+
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            width: 340px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 13px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .notif-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+
+        /* ── DARK / LIGHT MODE VARIABLES ── */
+        :root {
+            --bg-page:     #f0f2f5;
+            --bg-card:     #ffffff;
+            --text-main:   #333333;
+            --text-muted:  #444444;
+            --text-label:  #000000;
+            --border-color:#dddddd;
+            --border-inner:#000000;
+            --rules-color: #444444;
+            --shadow:      0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        [data-theme="dark"] {
+            --bg-page:     #0f1117;
+            --bg-card:     #1a1d27;
+            --text-main:   #e0e0e0;
+            --text-muted:  #b0b8cc;
+            --text-label:  #ffffff;
+            --border-color:#2e3347;
+            --border-inner:#3a3f58;
+            --rules-color: #b0b8cc;
+            --shadow:      0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #111827, #0a0a1a) !important;
+        }
+
+        /* Apply to your cards */
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        [data-theme="dark"] .card-header {
+            background: #1e2a50;
+        }
+
+</style>
+<body>
+
+<nav class="navbar">
+    <div class="logo-text"><i class="fa fa-home"></i> Student Dasboard</div>
+    <ul class="nav-links">
+        <li class="notif-wrapper">
+            <a href="#" onclick="toggleNotifDropdown(event)">
+                <i class="fa fa-bell"></i> Notifications
+            </a>
+            <span id="notifBadge" class="notif-badge"></span>
+            <div id="notifDropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    <i class="fa fa-bell"></i> Announcements
+                    <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
                 </div>
+                <div id="notifList" class="notif-list"></div>
             </div>
+        </li>
+        <li><a href="dashboard.html" class="active"><i class="fa fa-home"></i> Dashboard</a></li>
+        <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+        <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+        <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+        <li><a href="leaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+        <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+        <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+        <li>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+                <span id="themeLabel"></span>
+            </button>
+        </li>
+        <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
+    </ul>
+</nav>
 
-            <div class="dash-card">
-                <div class="card-header">📢 Announcement</div>
-                <div class="card-body">
-                    <div class="announcement-item">
-                        <div class="announcement-date">CCS Admin 2025 - 2026</div>
-                        <p style="font-size: 17px; margin-top: 10px;"><b>Welcome to the New Semester, College of Computer Studies‼️</b></p>
-                        <p style="font-size: 15px; margin-top: 10px;">We’re excited to begin a new academic journey filled with learning, innovation, and success.🚀📚</p>
-                    </div>
-                    <div class="announcement-item">
-                        <div class="announcement-date">CCS Admin</div>
-                        <p style="font-size: 20px; margin-top: 10px;"><b>📢 Important Announcement‼️</b></p>
-                        <p style="font-size: 15px; margin-top: 10px;">We are excited to announce the launch of our new website 🎉 Explore our latest features, services, and updates designed to give you a better and more efficient experience. 🚀💻</p>
-                    </div>
+    <div class="dashboard-container">
+        
+        <div class="dash-card">
+            <div class="card-header"><i class="fa-solid fa-id-badge"></i> Student Information</div>
+            <div class="card-body">
+                <div style="text-align: center; border-bottom: 1px solid #f0f0f0;">
+                    <div id="noPhotoPlaceholder" class="profile-img"></div>
+                    <img id="profilePhoto" src="" alt="Student Photo" class="profile-img" style="display: none;">
                 </div>
-            </div>
-
-            <div class="dash-card">
-                <div class="card-header">📖 Rules and Regulation</div>
-                <div class="card-body">
-                    <div class="rules-text">
-                        <center><b style="font-size: 30px; color: #da0ca6;">University of Cebu</b><br><b>COLLEGE OF INFORMATION & COMPUTER STUDIES</b></center><br>
-
-                        <b>LABORATORY RULES AND REGULATIONS</b>
-
-                        <p style="margin-bottom: 15px; margin-top: 15px; font-size: 15px;">To avoid embarrassment and maintain camaraderie with your friends and superiors at our laboratories, please observe the following:</p>
-
-                        <ul style="padding-left: 20px; margin-top: 10px;">
-                        <li style="margin-bottom: 15px;">Maintain silence, proper decorum, and discipline inside the laboratory. Mobile phones, walkmans and other personal pieces of equipment must be switched off.</li>
-                        <li style="margin-bottom: 15px;">Games are not allowed inside the lab. This includes computer-related games, card games and other games that may disturb the operation of the lab.</li>
-                        <li style="margin-bottom: 15px;">Surfing the Internet is allowed only with the permission of the instructor. Downloading and installing of software are strictly prohibited.</li>
-                        <li style="margin-bottom: 15px;">Getting access to other websites not related to the course (especially pornographic and illicit sites) is strictly prohibited.</li>
-                        <li style="margin-bottom: 15px;">Deleting computer files and changing the set-up of the computer is a major offense.</li>
-                        <li style="margin-bottom: 15px;">Observe computer time usage carefully. A fifteen-minute allowance is given for each use. Otherwise, the unit will be given to those who wish to "sit-in".</li>
-                        <li style="margin-bottom: 15px;">Observe proper decorum while inside the laboratory.</li>
-                        <li style="margin-bottom: 15px;">Chewing gum, eating, drinking, smoking, and other forms of vandalism are prohibited inside the lab.</li>
-                        <li style="margin-bottom: 15px;">Anyone causing a continual disturbance will be asked to leave the lab. Acts or gestures offensive to the members of the community, including public display of physical intimacy, are not tolerated.</li>
-                        <li style="margin-bottom: 15px;">Persons exhibiting hostile or threatening behavior such as yelling, swearing, or disregarding requests made by lab personnel will be asked to leave the lab.</li>
-                        <li style="margin-bottom: 15px;">For serious offense, the lab personnel may call the Civil Security Office (CSU) for assistance.</li>
-                        <li style="margin-bottom: 15px;">Any technical problem or difficulty must be addressed to the laboratory supervisor, student assistant or instructor immediately.</li>
-                        
-                        <p style="margin-top: 20px;"><b>DISCIPLINARY ACTION</b></p> 
-                        <p style="margin-top: 20px;"><b>First Offense - </b>The Head or the Dean or OIC recommends to the Guidance Center for a suspension from classes for each offender.</p>
-                        <p style="margin-top: 20px;"><b>Second and Subsequent Offenses - </b>A recommendation for a heavier sanction will be endorsed to the Guidance Center.</p>
-                        </ul>
-                    </div>
-                </div>
+                
+                <div class="info-row"><i class="fa-solid fa-id-card"></i><b> ID Number:</b> <span id="display-id" style="font-family: 'Plus Jakarta Sans', sans-serif;">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-user"></i><b> Name:</b> <span id="display-name" style="font-family: 'Plus Jakarta Sans', sans-serif;">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-graduation-cap"></i><b> Course:</b> <span id="display-course" style="font-family: 'Plus Jakarta Sans', sans-serif;">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-envelope"></i><b> Email:</b> <span id="display-email" style="font-family: 'Plus Jakarta Sans', sans-serif;">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-chart-line"></i><b> Year:</b> <span id="display-yearLevel" style="font-family: 'Plus Jakarta Sans', sans-serif;">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-house"></i><b> Address:</b> <span id="display-address" style="font-family: 'Plus Jakarta Sans', sans-serif;">Loading...</span></div>
+                <div class="info-row"><i class="fa-solid fa-clock"></i><b> Session:</b> <span id="display-session" style="font-family: 'Plus Jakarta Sans', sans-serif;">Loading...</span></div>
             </div>
 
         </div>
-    <script src="dashboard.js"></script>
-    <script src="logout.js"></script>
-    </body>
-    </html>
+
+        <div class="dash-card">
+            <div class="card-header"><i class="fa-solid fa-bullhorn"></i> Announcement</div>
+            <div class="card-body">
+                <div id="announcementList">
+                    <div class="announcement-date">CCS Admin 2025 - 2026</div>
+                    <p style="color:#aaa; text-align:center;">Loading announcements...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <div class="card-header"><i class="fa-solid fa-book"></i> Rules and Regulation</div>
+            <div class="card-body">
+                <div class="rules-text">
+                    <center><b style="font-size: 30px; font-family: 'Plus Jakarta Sans', sans-serif;">University of Cebu</b><br><b style="font-family: 'Plus Jakarta Sans', sans-serif;">COLLEGE OF INFORMATION & COMPUTER STUDIES</b></center><br>
+
+                    <b style="font-family: 'Plus Jakarta Sans', sans-serif;">LABORATORY RULES AND REGULATIONS</b>
+                    <p style="margin-bottom: 15px; margin-top: 15px; font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">To avoid embarrassment and maintain camaraderie with your friends and superiors at our laboratories, please observe the following:</p>
+
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Maintain silence, proper decorum, and discipline inside the laboratory. Mobile phones, walkmans and other personal pieces of equipment must be switched off.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Games are not allowed inside the lab. This includes computer-related games, card games and other games that may disturb the operation of the lab.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Surfing the Internet is allowed only with the permission of the instructor. Downloading and installing of software are strictly prohibited.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Getting access to other websites not related to the course (especially pornographic and illicit sites) is strictly prohibited.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Deleting computer files and changing the set-up of the computer is a major offense.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Observe computer time usage carefully. A fifteen-minute allowance is given for each use. Otherwise, the unit will be given to those who wish to "sit-in".</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Observe proper decorum while inside the laboratory.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Chewing gum, eating, drinking, smoking, and other forms of vandalism are prohibited inside the lab.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Anyone causing a continual disturbance will be asked to leave the lab. Acts or gestures offensive to the members of the community, including public display of physical intimacy, are not tolerated.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Persons exhibiting hostile or threatening behavior such as yelling, swearing, or disregarding requests made by lab personnel will be asked to leave the lab.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">For serious offense, the lab personnel may call the Civil Security Office (CSU) for assistance.</li>
+                    <li style="margin-bottom: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Any technical problem or difficulty must be addressed to the laboratory supervisor, student assistant or instructor immediately.</li>
+                    
+                    <p style="margin-top: 20px; font-family: 'Plus Jakarta Sans', sans-serif;"><b style="font-family: 'Plus Jakarta Sans', sans-serif;">DISCIPLINARY ACTION</b></p> 
+                    <p style="margin-top: 20px; font-family: 'Plus Jakarta Sans', sans-serif;"><b style="font-family: 'Plus Jakarta Sans', sans-serif;">First Offense - </b>The Head or the Dean or OIC recommends to the Guidance Center for a suspension from classes for each offender.</p>
+                    <p style="margin-top: 20px; font-family: 'Plus Jakarta Sans', sans-serif;"><b style="font-family: 'Plus Jakarta Sans', sans-serif;">Second and Subsequent Offenses - </b>A recommendation for a heavier sanction will be endorsed to the Guidance Center.</p>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script src="dashboard.js">
+
+</script>
+</body>
+</html>

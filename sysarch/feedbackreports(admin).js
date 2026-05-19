@@ -3,6 +3,38 @@ const SESSION_DURATION = 60;
 function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
 function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
 
+   /* ══════════════════════════════════════
+    DARK / LIGHT MODE
+    ══════════════════════════════════════ */
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const icon  = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (theme === 'dark') {
+            icon.className  = 'fa-solid fa-sun';
+        } else {
+            icon.className  = 'fa-solid fa-moon';
+        }
+    }
+    
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('ccs_theme', next);
+        applyTheme(next);
+    
+        // Animate the icon on toggle
+        const icon = document.getElementById('themeIcon');
+        icon.style.transform = 'rotate(360deg)';
+        icon.style.transition = 'transform 0.4s ease';
+        setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+    }
+    
+    // Load saved theme on page start
+    (function() {
+        const saved = localStorage.getItem('ccs_theme') || 'light';
+        applyTheme(saved);
+    })();
 
 function openSearchModal() {
     openModal('searchModal');
@@ -131,13 +163,13 @@ async function submitGenericSitIn(e) {
 
 // Build star HTML from a numeric rating
 function buildStars(rating) {
-    rating = parseInt(rating) || 0;
+    rating = Math.min(parseInt(rating) || 0, 5);
     const filled = '★'.repeat(rating);
-    const empty  = '☆'.repeat(10 - rating);
+    const empty  = '☆'.repeat(5 - rating);
     return `
         <span class="stars-filled">${filled}</span>
         <span class="stars-empty">${empty}</span>
-        <span class="stars-label">(${rating}/10)</span>
+        <span class="stars-label">(${rating}/5)</span>
     `;
 }
 

@@ -12,10 +12,87 @@ const SESSION_DURATION = 60;
 function openModal(id)  { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
+   /* ══════════════════════════════════════
+    DARK / LIGHT MODE
+    ══════════════════════════════════════ */
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const icon  = document.getElementById('themeIcon');
+        const label = document.getElementById('themeLabel');
+        if (theme === 'dark') {
+            icon.className  = 'fa-solid fa-sun';
+        } else {
+            icon.className  = 'fa-solid fa-moon';
+        }
+    }
+    
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('ccs_theme', next);
+        applyTheme(next);
+    
+        // Animate the icon on toggle
+        const icon = document.getElementById('themeIcon');
+        icon.style.transform = 'rotate(360deg)';
+        icon.style.transition = 'transform 0.4s ease';
+        setTimeout(() => { icon.style.transform = ''; icon.style.transition = ''; }, 400);
+    }
+    
+    // Load saved theme on page start
+    (function() {
+        const saved = localStorage.getItem('ccs_theme') || 'light';
+        applyTheme(saved);
+    })();
 // ── Search ──────────────────────────────────────────────
 function openSearchModal() {
     openModal('searchModal');
     document.getElementById('modalSearchInput').focus();
+}
+let _searchModalTimer;
+
+async function searchModalAutoFill() {
+    const id   = document.getElementById('modalSearchInput').value.trim();
+    const drop = document.getElementById('searchModalDropdown');
+
+    if (!id) { drop.style.display = 'none'; return; }
+
+    clearTimeout(_searchModalTimer);
+    _searchModalTimer = setTimeout(async () => {
+        drop.innerHTML = `<div class="sit-drop-empty"><i class="fa fa-spinner fa-spin"></i> Searching...</div>`;
+        drop.style.display = 'block';
+
+        try {
+            const res  = await fetch(`${BASE_URL}/search-students?q=${encodeURIComponent(id)}`);
+            const data = await res.json();
+
+            if (!res.ok || !data.length) {
+                drop.innerHTML = `<div class="sit-drop-empty">No students found for "<b>${id}</b>".</div>`;
+                return;
+            }
+
+            drop.innerHTML = data.map(s => `
+                <div class="sit-drop-item" onclick="selectSearchModalStudent(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+                    <div class="sit-drop-avatar">${s.firstName[0]}${s.lastName[0]}</div>
+                    <div class="sit-drop-info">
+                        <div class="sit-drop-name">${s.firstName} ${s.lastName}</div>
+                        <div class="sit-drop-meta">${s.idNumber} · ${s.course || ''} ${s.yearLevel || ''}</div>
+                    </div>
+                    <div class="sit-drop-sessions">${s.remainingSession ?? 30} sessions</div>
+                </div>`).join('');
+
+        } catch (e) {
+            drop.innerHTML = `<div class="sit-drop-empty" style="color:#dc3545;"><i class="fa fa-exclamation-circle"></i> Server error.</div>`;
+        }
+    }, 200);
+}
+
+function selectSearchModalStudent(s) {
+    // Fill the input with the selected ID and close the dropdown
+    document.getElementById('modalSearchInput').value = s.idNumber;
+    document.getElementById('searchModalDropdown').style.display = 'none';
+    // Auto-trigger the search immediately
+    executeSearch(null);
 }
 
 async function executeSearch(event) {
@@ -144,24 +221,87 @@ function openSitInModal() {
     setTimeout(() => document.getElementById('genIdNumber').focus(), 100);
 }
 
+let _sitInTimer;
+
 async function autoFillStudent() {
-    const id = document.getElementById('genIdNumber').value.trim();
+    const id   = document.getElementById('genIdNumber').value.trim();
+    const drop = document.getElementById('sitInDropdown');
+
+    // Clear dependent fields only if input is empty
     if (!id) {
         document.getElementById('genFullName').value  = '';
         document.getElementById('genRemaining').value = '';
+        drop.style.display = 'none';
         return;
     }
-    try {
-        const res = await fetch(`${BASE_URL}/student/${id}`);
-        if (res.ok) {
+
+    clearTimeout(_sitInTimer);
+    _sitInTimer = setTimeout(async () => {
+        // Show a loading state immediately
+        drop.innerHTML = `<div class="sit-drop-empty" style="color:#6c757d;">
+            <i class="fa fa-spinner fa-spin"></i> Searching...
+        </div>`;
+        drop.style.display = 'block';
+
+        try {
+            const res  = await fetch(`${BASE_URL}/search-students?q=${encodeURIComponent(id)}`);
             const data = await res.json();
-            document.getElementById('genFullName').value  = `${data.firstName} ${data.lastName}`;
-            document.getElementById('genRemaining').value = data.remainingSession ?? 30;
-        } else {
-            document.getElementById('genFullName').value  = '';
-            document.getElementById('genRemaining').value = '';
+
+            if (!res.ok || !data.length) {
+                drop.innerHTML = `<div class="sit-drop-empty">No students found for "<b>${id}</b>".</div>`;
+                drop.style.display = 'block';
+                return;
+            }
+
+            drop.innerHTML = data.map(s => `
+                <div class="sit-drop-item" onclick="selectSitInStudent(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+                    <div class="sit-drop-avatar">${s.firstName[0]}${s.lastName[0]}</div>
+                    <div class="sit-drop-info">
+                        <div class="sit-drop-name">${s.firstName} ${s.lastName}</div>
+                        <div class="sit-drop-meta">${s.idNumber} · ${s.course || ''} ${s.yearLevel || ''}</div>
+                    </div>
+                    <div class="sit-drop-sessions">${s.remainingSession ?? 30} sessions</div>
+                </div>`).join('');
+            drop.style.display = 'block';
+
+        } catch (e) {
+            drop.innerHTML = `<div class="sit-drop-empty" style="color:#dc3545;">
+                <i class="fa fa-exclamation-circle"></i> Server error.
+            </div>`;
+            drop.style.display = 'block';
         }
-    } catch (e) { console.error('Auto-fill error:', e); }
+    }, 200); // reduced from 300ms → 200ms for snappier feel
+}
+
+function selectSitInStudent(s) {
+    document.getElementById('genIdNumber').value  = s.idNumber;
+    document.getElementById('genFullName').value  = `${s.firstName} ${s.lastName}`;
+    document.getElementById('genRemaining').value = s.remainingSession ?? 30;
+    document.getElementById('sitInDropdown').style.display = 'none';
+}
+
+// Close dropdown when clicking outside the modal input area
+document.addEventListener('click', function (e) {
+    const drop  = document.getElementById('sitInDropdown');
+    const input = document.getElementById('genIdNumber');
+    if (drop && input && !drop.contains(e.target) && e.target !== input) {
+        drop.style.display = 'none';
+    }
+});
+
+// Also close dropdown on Escape key
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        const drop = document.getElementById('sitInDropdown');
+        if (drop) drop.style.display = 'none';
+    }
+});
+
+function selectSitInStudent(s) {
+    document.getElementById('genIdNumber').value  = s.idNumber;
+    document.getElementById('genFullName').value  = `${s.firstName} ${s.lastName}`;
+    document.getElementById('genRemaining').value = s.remainingSession ?? 30;
+    document.getElementById('sitInDropdown').style.display = 'none';
 }
 
 async function submitSitIn() {

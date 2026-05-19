@@ -6,12 +6,9 @@
     <title>Reservation - CCS Sit-in Monitoring</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-    .logo-text:hover {
-        color: #ffcc00;
-        transition: width 0.2s ease;
-        transform: scale(1.05);
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
     .reservation-container {
         display: flex;
         justify-content: center;
@@ -27,11 +24,31 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         width: 100%;
         max-width: 800px;
+        overflow: hidden;
     }
 
-    .reservation-card h1 {
+    .reservation-card select {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .card-header {
+        background: #2c3e70;
+        color: white;
+        padding: 15px;
+        font-size: 25px;
+        font-weight: 600;
         text-align: center;
-        margin-bottom: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: -30px -30px 20px -30px;
+        margin-bottom: 35px;
     }
 
     .reservation-card .input-group {
@@ -54,93 +71,304 @@
     }
 
     .btn-blue {
-        background-color: #007bff;
+        background-color: #4e73df;
         color: white;
         border: none;
         padding: 10px 20px;
         border-radius: 5px;
         cursor: pointer;
         margin-left: 200px;
-        transition: background-color 1s;
+        transition: background-color 0.3s;
     }
     .btn-blue:hover {
         background-color: #da0ca6;
     }
 
     .reserve-button {
-        background-color: #007bff;
+        background-color: #28a745;
         color: white;
         border: none;
         padding: 10px 20px;
-        border-radius: 5px;
+        border-radius: 12px;
         cursor: pointer;
         margin-top: 20px;
-        transition: background-color 1s;
+        transition: background-color 0.3s;
+        font-weight: bold;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .reserve-button:hover {
-        background-color: #da0ca6;
+        background-color: #218838;
     }
 
     .mt-20 { 
         margin-top: 15px; 
     }
-    </style>
+
+    /* Pending notice banner */
+    .pending-notice {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #856404;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .pending-notice i { font-size: 18px; }
+
+        .notif-wrapper {
+            position: relative;
+        }
+
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            width: 340px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 12px;
+            padding: 3px 9px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .notif-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+
+         /* ══════════════════════════════════════
+           DARK / LIGHT MODE - CSS VARIABLES
+        ══════════════════════════════════════ */
+        :root {
+            --bg-page:      #f0f2f5;
+            --bg-card:      #ffffff;
+            --bg-input:     #f6f6f6;
+            --text-main:    #333333;
+            --text-muted:   #555555;
+            --text-label:   #1a1a2e;
+            --border-color: #dddddd;
+            --border-inner: #cccccc;
+            --shadow:       0 10px 30px rgba(0,0,0,0.2);
+            --table-even:   #f3f3f3;
+            --table-hover:  #f8f9fc;
+            --thead-bg:     #f0f2f5;
+        }
+        [data-theme="dark"] {
+            --bg-page:      #0f1117;
+            --bg-card:      #1a1d27;
+            --bg-input:     #22263a;
+            --text-main:    #e0e0e0;
+            --text-muted:   #b0b8cc;
+            --text-label:   #ffffff;
+            --border-color: #2e3347;
+            --border-inner: #3a3f58;
+            --shadow:       0 10px 30px rgba(0,0,0,0.5);
+            --table-even:   #1e2235;
+            --table-hover:  #232840;
+            --thead-bg:     #1e2235;
+        }
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #111827, #0a0a1a) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+        }
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+ 
+        /* reservation dark mode */
+        .reservation-container { background: var(--bg-page); }
+        .reservation-card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .reservation-card label { color: var(--text-main); }
+        [data-theme="dark"] .reservation-card input,
+        [data-theme="dark"] .reservation-card select {
+            background: var(--bg-input);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+        [data-theme="dark"] .reservation-card input:focus,
+        [data-theme="dark"] .reservation-card select:focus { border-color: #4e73df; outline: none; }
+        [data-theme="dark"] .pending-notice {
+            background: #2d2000;
+            border-color: #ffc107;
+            color: #fbbf24;
+        }
+</style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo-text">Reservation</div>
+        <div class="logo-text"><i class="fa fa-calendar"></i> Student Reservation</div>
         <ul class="nav-links">
-            <li><a href="#">✉ Notification 🔻</a></li>
-            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
-            <li><a href="editprofile.html">✎ Edit Profile</a></li>
-            <li><a href="history.html">🕮 History</a></li>
-            <li><a href="reservation.html" class="active">🗒 Reservation</a></li>
-            <li><a href="#" class="logout">➜] Logout</a></li>
+            <li class="notif-wrapper">
+                <a href="#" onclick="toggleNotifDropdown(event)">
+                    <i class="fa fa-bell"></i> Notifications
+                </a>
+                <span id="notifBadge" class="notif-badge"></span>
+                <div id="notifDropdown" class="notif-dropdown">
+                    <div class="notif-header">
+                        <i class="fa fa-bell"></i> Notifications
+                        <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                    </div>
+                    <div id="notifList" class="notif-list"></div>
+                </div>
+            </li>
+
+            <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+            <li><a href="history.html"><i class="fa fa-history"></i> History</a></li>
+            <li><a href="javascript:void(0)" class="active"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="leaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+            <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+            <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+            <li>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel"></span>
+                </button>
+            </li>
+            <li><a href="javascript:void(0)" onclick="logout(event)" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
     </nav>
 
     <div class="reservation-container">
         <div class="reservation-card">
-            <h1 style="font-size: 40px;">Reservation</h1>
-            <form id="reservationForm">
+
+            <div class="card-header"><i class="fa-solid fa-calendar-check"></i> <span>Reservation</span></div>
+
+            <div id="reservationForm">
                 <div class="input-group">
-                    <label style="font-size: 15px;">ID Number:</label>
-                    <input type="text" id="res-id" placeholder="Your ID Number" required>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-id-card"></i> ID Number:</label>
+                    <input type="text" id="res-id" placeholder="Your ID Number" readonly>
                 </div>
                 <div class="input-group">
-                    <label style="font-size: 15px;">Student Name:</label>
-                    <input type="text" id="res-name" placeholder="Student Name" required>
-                </div>
-                <div class="input-group">
-                    <label style="font-size: 15px;">Purpose:</label>
-                    <input type="text" id="res-purpose" placeholder="e.g. C Programming" required>
-                </div>
-                <div class="input-group">
-                    <label style="font-size: 15px;">Lab:</label>
-                    <input type="text" id="res-lab" placeholder="e.g. 524" required>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-user"></i> Student Name:</label>
+                    <input type="text" id="res-name" placeholder="Student Name" readonly>
                 </div>
                 
+                <div class="input-group" style="margin-top: 40px;">
+                    <label style="font-size: 15px;"><i class="fa-solid fa-bullseye"></i> Purpose:</label>
+                    <select id="res-purpose">
+                        <option value="C Programming">C Programming</option>
+                        <option value="Java Projects">Java Projects</option>
+                        <option value="Python/Data Science">Python/Data Science</option>
+                        <option value="Web Development">Web Development</option>
+                    </select>
+                </div>
 
+                <div class="input-group">
+                    <label style="font-size: 15px;"><i class="fa-solid fa-computer"></i> Laboratory:</label>
+                    <select id="res-lab">
+                        <option value="Lab 524">Lab 524</option>
+                        <option value="Lab 525">Lab 525</option>
+                        <option value="Lab 526">Lab 526</option>
+                        <option value="Lab 527">Lab 527</option>
+                        <option value="Lab 528">Lab 528</option>
+                    </select>
+                </div>
 
-                <div class="input-group mt-20">
-                    <label style="font-size: 15px;">Time In:</label>
-                    <input type="time" id="res-time" required>
+                <div id="pc-selection-container" style="display: none; margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
+                    <label style="font-size: 15px; display: block; margin-bottom: 10px; font-weight: bold;">
+                        <i class="fa-solid fa-desktop"></i> Select Workstation:
+                    </label>
+                    <div id="pc-grid" style="display: grid; grid-template-columns: repeat(9, 1fr); gap: 10px; max-width: 100%;">
+                    </div>
+                    <input type="hidden" id="res-pc-number" value="">
+                </div>
+                
+                <div class="input-group mt-20" style="margin-top: 40px;">
+                    <label style="font-size: 15px;"><i class="fa-solid fa-clock"></i> Time In:</label>
+                    <input type="time" id="res-time">
                 </div>
                 <div class="input-group">
-                    <label style="font-size: 15px;">Date:</label>
-                    <input type="date" id="res-date" required>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-calendar-days"></i> Date:</label>
+                    <input type="date" id="res-date">
                 </div>
                 <div class="input-group">
-                    <label style="font-size: 15px;">Remaining Session:</label>
-                    <input type="text" id="res-sessions" value=" " required>
+                    <label style="font-size: 15px;"><i class="fa-solid fa-hourglass-half"></i> Remaining Session:</label>
+                    <input type="text" id="res-sessions" readonly>
                 </div>
 
-                <button type="submit" class="reserve-button">Reserve</button>
-            </form>
+                <button type="button" id="finalReserveBtn" class="reserve-button" onclick="handleReservation(event)"><i class="fa-solid fa-paper-plane"></i> Reserve</button>
+
+            </div>
         </div>
     </div>
 
-<script src="reservation.js"></script>
-<script src="logout.js"></script>
+<script src="reservation.js">
+
+</script>
 </body>
 </html>

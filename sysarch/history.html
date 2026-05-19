@@ -6,19 +6,14 @@
     <title>History Information - CCS Portal</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        .logo-text:hover {
-            color: #ffcc00;
-            transition: width 0.2s ease;
-            transform: scale(1.05);
-        }
-
         .history-container {
             padding: 40px;
             display: flex;
             justify-content: center;
         }
-
         .history-card {
             background: white;
             width: 90%;
@@ -26,235 +21,450 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            
         }
-
+        .card-header {
+            background: #2c3e70;
+            color: white;
+            padding: 15px;
+            font-size: 25px;
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin: -30px -30px 20px -30px;
+            border-radius: 12px 12px 0 0;
+        }
+        
         .styled-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             font-size: 0.9em;
+            
         }
-
         .styled-table thead tr {
-            background-color: #0056b3;
+            
+            background-color: #2c3e70;
             color: #ffffff;
             text-align: left;
+            
         }
-
         .styled-table th, .styled-table td {
             padding: 12px 15px;
             border-bottom: 1px solid #dddddd;
         }
 
+        .styled-table td {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
         .styled-table tbody tr:nth-of-type(even) {
             background-color: #f3f3f3;
         }
-
         .feedback-btn {
             background-color: #28a745;
             color: white;
             border: none;
             padding: 8px 12px;
-            border-radius: 4px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            font-family: inherit;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-
         .feedback-btn:hover {
             background-color: #218838;
+            transform: translateY(-1px);
         }
 
         .table-header-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
-        /* ── Feedback Modal ── */
-        .fb-overlay {
+        .styled-table th {
+            cursor: pointer;
+            user-select: none;
+        }
+        .sort-icon { 
+            margin-left: 4px; 
+            font-size: 0.75em; 
+            opacity: 0.6; 
+        }
+        .sort-icon.asc::after  { content: '▲'; opacity: 1; }
+        .sort-icon.desc::after { content: '▼'; opacity: 1; }
+        .sort-icon:not(.asc):not(.desc)::after { content: '⇅'; }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #entryInfo { 
+            font-size: 16px; color: #555; 
+        }
+
+        .pagination { 
+            display: flex; 
+            gap: 5px; 
+        }
+
+        .pagination button {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #dee2e6;
+            background: white;
+            color: #333;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .pagination button:hover:not(:disabled) { 
+            background: #218838; 
+        }
+
+        .pagination button.active { 
+            background: #28a745; 
+            color: white; 
+        }
+        
+        .pagination button:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+        }
+
+        .empty-row td { 
+            text-align: center; 
+            color: #888; 
+            padding: 30px; 
+        }
+        
+        .notif-wrapper {
+            position: relative;
+        }
+
+        .notif-badge {
+            display: none;
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #e24b4a;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2c3e70;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 36px;
+            right: 0;
+            width: 340px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .notif-header {
+            background: #2c3e70;
+            color: white;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .notif-mark-btn {
+            float: right;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .notif-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            color: white;
+            padding: 3px;
+            border-radius: 20px;
+            transition: background 0.25s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .theme-toggle-btn {
+            background: rgba(255,193,7,0.15);
+            border-color: rgba(255,193,7,0.4);
+            color: #ffc107;
+        }
+
+         /* ══════════════════════════════════════
+           DARK / LIGHT MODE - CSS VARIABLES
+        ══════════════════════════════════════ */
+        :root {
+            --bg-page:      #f0f2f5;
+            --bg-card:      #ffffff;
+            --bg-input:     #f6f6f6;
+            --text-main:    #333333;
+            --text-muted:   #555555;
+            --text-label:   #1a1a2e;
+            --border-color: #dddddd;
+            --border-inner: #cccccc;
+            --shadow:       0 10px 30px rgba(0,0,0,0.2);
+            --table-even:   #f3f3f3;
+            --table-hover:  #f8f9fc;
+            --thead-bg:     #f0f2f5;
+        }
+        [data-theme="dark"] {
+            --bg-page:      #0f1117;
+            --bg-card:      #1a1d27;
+            --bg-input:     #22263a;
+            --text-main:    #e0e0e0;
+            --text-muted:   #b0b8cc;
+            --text-label:   #ffffff;
+            --border-color: #2e3347;
+            --border-inner: #3a3f58;
+            --shadow:       0 10px 30px rgba(0,0,0,0.5);
+            --table-even:   #1e2235;
+            --table-hover:  #232840;
+            --thead-bg:     #1e2235;
+        }
+        body {
+            background: var(--bg-page);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(to right, #111827, #0a0a1a) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+        }
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+        }
+ 
+        /* history dark mode */
+        .history-container { background: var(--bg-page); }
+        .history-card {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        [data-theme="dark"] .styled-table thead tr { background-color: #1e2a50; }
+        [data-theme="dark"] .styled-table th,
+        [data-theme="dark"] .styled-table td { border-color: var(--border-color); color: var(--text-main); }
+        [data-theme="dark"] .styled-table tbody tr:nth-of-type(even) { background-color: var(--table-even); }
+        [data-theme="dark"] .styled-table tbody tr:hover { background-color: var(--table-hover); }
+        [data-theme="dark"] #entryInfo { color: var(--text-muted); }
+        [data-theme="dark"] .pagination button {
+            background: var(--bg-card);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+        [data-theme="dark"] .pagination button.active { background: #28a745; color: white; }
+        [data-theme="dark"] .empty-row td { color: var(--text-muted); }
+        [data-theme="dark"] .entries-control,
+        [data-theme="dark"] .entries-control select {
+            color: var(--text-main);
+            background: var(--bg-input);
+            border-color: var(--border-color);
+        }
+        [data-theme="dark"] #tableSearch {
+            background: var(--bg-input);
+            border-color: var(--border-color);
+            color: var(--text-main);
+        }
+        
+        /* ── STAR RATING MODAL ── */
+        #feedbackModal {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
-            z-index: 1000;
+            z-index: 9999;
             justify-content: center;
             align-items: center;
         }
-
-        .fb-overlay.active {
-            display: flex;
-        }
-
-        .fb-modal {
-            background: white;
-            border-radius: 12px;
-            width: 440px;
+        #feedbackModal.open { display: flex; }
+        .fb-modal-box {
+            background: #fff;
+            border-radius: 14px;
+            width: 420px;
+            max-width: 95vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            animation: slideDown 0.3s ease-out;
+            animation: fbSlide 0.28s ease-out;
         }
-
-        .fb-header {
-            background: #0056b3;
-            color: white;
-            padding: 16px 20px;
+        [data-theme="dark"] .fb-modal-box { background: #1a1d27; color: #e0e0e0; }
+        @keyframes fbSlide {
+            from { transform: translateY(-40px); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
+        }
+        .fb-modal-header {
+            background: #2c3e70;
+            color: #fff;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .fb-header h2 {
-            margin: 0;
-            font-size: 18px;
-            font-family: inherit;
-        }
-
-        .fb-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            line-height: 1;
-            padding: 0;
-        }
-
-        .fb-body {
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .fb-info-bar {
-            display: flex;
-            gap: 20px;
-            font-size: 13px;
-            color: #555;
-            background: #f0f4ff;
-            padding: 10px 14px;
-            border-radius: 8px;
-        }
-
-        .fb-info-bar span b {
-            color: #0056b3;
-        }
-
-        .fb-label {
-            font-weight: 600;
-            font-size: 14px;
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .fb-rating-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .fb-rating-row span {
-            font-size: 12px;
-            color: #888;
-        }
-
-        .fb-rating-row input[type="range"] {
-            flex: 1;
-            accent-color: #0056b3;
-        }
-
-        .fb-rating-val {
-            color: #0056b3;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
         }
-
-        .fb-stars {
-            margin-top: 6px;
-            font-size: 20px;
-            letter-spacing: 2px;
-            min-height: 28px;
+        .fb-modal-header button {
+            background: none; border: none; color: #fff;
+            font-size: 22px; cursor: pointer; line-height: 1;
         }
-
-        .fb-body textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 14px;
-            resize: vertical;
-            font-family: inherit;
-            box-sizing: border-box;
+        .fb-modal-body { padding: 22px 24px; }
+        .fb-label {
+            font-size: 14px; 
+            font-weight: 700;
+            color: #555; 
+            margin-bottom: 10px; 
+            display: block;
         }
-
-        .fb-body textarea:focus {
-            outline: none;
-            border-color: #0056b3;
-        }
-
-        .fb-footer {
-            padding: 14px 20px;
-            background: #f8f9fa;
+        [data-theme="dark"] .fb-label { color: #b0b8cc; }
+        .star-picker {
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 18px;
+            align-items: center;
+            width: 100%;
         }
 
-        .fb-footer button {
-            padding: 9px 22px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
+        .star-picker input[type="radio"] { display: none; }
+        .star-picker label {
+            font-size: 32px;
+            color: #d0d0d0;
             cursor: pointer;
-            font-family: inherit;
+            transition: color 0.15s;
         }
-
-        .btn-fb-cancel {
-            border: 1px solid #ccc;
-            background: white;
-            color: #333;
+        .star-picker label:hover,
+        .star-picker label:hover ~ label { color: #f5a623 !important; }
+        .star-picker input[type="radio"]:checked ~ label { color: #f5a623; }
+        #fbMessage {
+            width: 100%; box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
+            resize: vertical; min-height: 90px;
+            outline: none; transition: border-color 0.2s;
         }
-
-        .btn-fb-cancel:hover {
-            background: #f0f0f0;
+        #fbMessage:focus { border-color: #2c3e70; }
+        [data-theme="dark"] #fbMessage {
+            background: #22263a; color: #e0e0e0;
+            border-color: #3a3f58;
         }
-
-        .btn-fb-submit {
+        .fb-modal-footer {
+            padding: 14px 24px;
+            background: #f8f9fc;
+            border-top: 1px solid #eee;
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+        [data-theme="dark"] .fb-modal-footer {
+            background: #161928; border-color: #2e3347;
+        }
+        .fb-btn-cancel {
+            background: #6c757d; 
+            color: #fff; 
             border: none;
-            background: #0056b3;
-            color: white;
+            padding: 9px 18px; 
+            border-radius: 6px;
+            cursor: pointer; 
+            font-weight: 600;
         }
-
-        .btn-fb-submit:hover {
-            background: #004494;
+        .fb-btn-submit {
+            background: #2c3e70; 
+            color: #fff; 
+            border: none;
+            padding: 9px 18px; 
+            border-radius: 6px;
+            cursor: pointer; 
+            font-weight: 600;
         }
-
-        @keyframes slideDown {
-            from { transform: translateY(-40px); opacity: 0; }
-            to   { transform: translateY(0);     opacity: 1; }
+        .fb-btn-submit:hover { 
+            background: #1a2a55;
+            transform: translateY(-1px); 
+        }
+        .fb-btn-cancel:hover { 
+            background: #5a6268;
+            transform: translateY(-1px); 
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo-text"><b>Sit-in System History</b></div>
+        <div class="logo-text"><i class="fa fa-history"></i> Student History</div>
         <ul class="nav-links">
-            <li><a href="#">✉ Notification 🔻</a></li>
-            <li><a href="dashboard.html">🏠︎ Dashboard</a></li>
-            <li><a href="editprofile.html">✎ Edit Profile</a></li>
-            <li><a href="history.html" class="active">🕮 History</a></li>
-            <li><a href="reservation.html">🗒 Reservation</a></li>
-            <li><a href="#" class="logout">➜] Logout</a></li>
+            <li class="notif-wrapper">
+                <a href="#" onclick="toggleNotifDropdown(event)">
+                    <i class="fa fa-bell"></i> Notifications
+                </a>
+                <span id="notifBadge" class="notif-badge"></span>
+                <div id="notifDropdown" class="notif-dropdown">
+                    <div class="notif-header">
+                        <i class="fa fa-bell"></i> Announcements
+                        <button onclick="markAllRead()" class="notif-mark-btn">Mark all read</button>
+                    </div>
+                    <div id="notifList" class="notif-list"></div>
+                </div>
+            </li>
+            <li><a href="dashboard.html"><i class="fa fa-home"></i> Dashboard</a></li>
+            <li><a href="editprofile.html"><i class="fa fa-pencil"></i> Edit Profile</a></li>
+            <li><a href="history.html" class="active"><i class="fa fa-history"></i> History</a></li>
+            <li><a href="reservation.html"><i class="fa fa-calendar"></i> Reservation</a></li>
+            <li><a href="leaderboard.html"><i class="fa fa-trophy"></i> Leaderboard</a></li>
+            <li><a href="mysummary.html"><i class="fa fa-chart-line"></i> My Summary</a></li>
+            <li><a href="labstatus.html"><i class="fa fa-desktop"></i> Lab Status</a></li>
+            <li>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    <span id="themeLabel"></span>
+                </button>
+            </li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
     </nav>
 
     <div class="history-container">
         <div class="history-card">
-            <center><h1>History Information</h1></center>
+
+            <div class="card-header">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>History Information</span>
+            </div>
 
             <div class="table-header-actions">
                 <div class="entries-control">
@@ -262,23 +472,21 @@
                     <select id="entryCount">
                         <option value="10">10</option>
                         <option value="25">25</option>
-                    </select> entries per page
+                    </select> Entries per page
                 </div>
-                <div class="search-container">
-                    Search: <input type="text" id="tableSearch">
-                </div>
+                <div class="search-container"><input type="text" id="tableSearch" placeholder="Search by Name or ID..."></div>
             </div>
 
             <table class="styled-table">
                 <thead>
                     <tr>
-                        <th>ID Number</th>
-                        <th>Name</th>
-                        <th>Sit Purpose</th>
-                        <th>Laboratory</th>
-                        <th>Login</th>
-                        <th>Logout</th>
-                        <th>Date</th>
+                        <th data-col="idNumber">ID Number <span class="sort-icon" id="sort-idNumber"></span></th>
+                        <th data-col="displayName">Name <span class="sort-icon" id="sort-displayName"></span></th>
+                        <th data-col="purpose">Sit Purpose <span class="sort-icon" id="sort-purpose"></span></th>
+                        <th data-col="lab">Laboratory <span class="sort-icon" id="sort-lab"></span></th>
+                        <th data-col="displayIn">Login <span class="sort-icon" id="sort-displayIn"></span></th>
+                        <th data-col="displayOut">Logout <span class="sort-icon" id="sort-displayOut"></span></th>
+                        <th data-col="date">Date <span class="sort-icon" id="sort-date"></span></th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -287,134 +495,43 @@
 
             <div class="table-footer">
                 <p id="entryInfo">Showing 0 to 0 of 0 entries</p>
-                <div class="pagination">
-                    <button>«</button>
-                    <button class="active">1</button>
-                    <button>»</button>
-                </div>
+                <div class="pagination" id="pagination"></div>
             </div>
         </div>
     </div>
 
-    <!-- ── Feedback Modal ── -->
-    <div id="feedbackModal" class="fb-overlay">
-        <div class="fb-modal">
-            <div class="fb-header">
-                <h2>Submit Feedback</h2>
-                <button class="fb-close" onclick="closeFeedbackModal()">&times;</button>
+    <!-- STAR RATING FEEDBACK MODAL -->
+    <div id="feedbackModal">
+        <div class="fb-modal-box">
+            <div class="fb-modal-header">
+                <span><i class="fa fa-star"></i> Submit Feedback</span>
+                <button onclick="closeFeedbackModal()">&times;</button>
             </div>
-
-            <div class="fb-body">
-                <!-- Hidden fields -->
-                <input type="hidden" id="fb_idNumber">
-                <input type="hidden" id="fb_lab">
-                <input type="hidden" id="fb_date">
-
-                <!-- Info bar -->
-                <div class="fb-info-bar">
-                    <span><b>Lab:</b> <span id="fb_lab_display">—</span></span>
-                    <span><b>Date:</b> <span id="fb_date_display">—</span></span>
+            <div class="fb-modal-body">
+                <center><span class="fb-label">Tell us about your experience or report an issue:</span></center>
+                <div class="star-picker" id="starPicker">
+                    <input type="radio" name="rating" id="star5" value="5">
+                    <label for="star5" title="5 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star4" value="4">
+                    <label for="star4" title="4 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star3" value="3">
+                    <label for="star3" title="3 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star2" value="2">
+                    <label for="star2" title="2 stars">&#9733;</label>
+                    <input type="radio" name="rating" id="star1" value="1">
+                    <label for="star1" title="1 star">&#9733;</label>
                 </div>
-
-                <!-- Rating -->
-                <div>
-                    <label class="fb-label">
-                        Rating: <span id="ratingDisplay" class="fb-rating-val">5</span> / 10
-                    </label>
-                    <div class="fb-rating-row">
-                        <span>1</span>
-                        <input type="range" id="fb_rating" min="1" max="10" value="5" step="1"
-                            oninput="updateRating(this.value)">
-                        <span>10</span>
-                    </div>
-                    <div class="fb-stars" id="fb_stars">★★★★★☆☆☆☆☆</div>
-                </div>
-
-                <!-- Message -->
-                <div>
-                    <label class="fb-label" for="fb_message">Message</label>
-                    <textarea id="fb_message" rows="4"
-                        placeholder="Share your experience with this lab session..."></textarea>
-                </div>
+                <textarea id="fbMessage" placeholder="Type your message here..."></textarea>
             </div>
-
-            <div class="fb-footer">
-                <button class="btn-fb-cancel" onclick="closeFeedbackModal()">Cancel</button>
-                <button class="btn-fb-submit" onclick="submitFeedback()">Submit</button>
+            <div class="fb-modal-footer">
+                <button class="fb-btn-cancel" onclick="closeFeedbackModal()">Cancel</button>
+                <button class="fb-btn-submit" onclick="submitFeedbackModal()">Submit Feedback</button>
             </div>
         </div>
     </div>
 
-    <script src="history.js"></script>
-    <script src="logout.js"></script>
-    <script>
-        function updateRating(val) {
-            val = parseInt(val);
-            document.getElementById('ratingDisplay').textContent = val;
-            const filled = '★'.repeat(val);
-            const empty  = '☆'.repeat(10 - val);
-            document.getElementById('fb_stars').innerHTML =
-                `<span style="color:#f5a623;">${filled}</span><span style="color:#ccc;">${empty}</span>`;
-        }
+<script src="history.js">
 
-        function openFeedbackModal(btn) {
-            document.getElementById('fb_idNumber').value      = btn.dataset.id;
-            document.getElementById('fb_lab').value           = btn.dataset.lab;
-            document.getElementById('fb_date').value          = btn.dataset.date;
-            document.getElementById('fb_lab_display').textContent  = btn.dataset.lab;
-            document.getElementById('fb_date_display').textContent = btn.dataset.date;
-            document.getElementById('fb_rating').value        = 5;
-            document.getElementById('fb_message').value       = '';
-            updateRating(5);
-            document.getElementById('feedbackModal').classList.add('active');
-        }
-
-        function closeFeedbackModal() {
-            document.getElementById('feedbackModal').classList.remove('active');
-        }
-
-        async function submitFeedback() {
-            const payload = {
-                idNumber: document.getElementById('fb_idNumber').value,
-                lab:      document.getElementById('fb_lab').value,
-                date:     document.getElementById('fb_date').value,
-                rating:   parseInt(document.getElementById('fb_rating').value),
-                message:  document.getElementById('fb_message').value.trim()
-            };
-
-            if (!payload.message) {
-                return Swal.fire('Warning', 'Please enter a message before submitting.', 'warning');
-            }
-
-            try {
-                const res = await fetch('http://localhost:3000/api/feedback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (res.ok) {
-                    closeFeedbackModal();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thank you!',
-                        text: 'Your feedback has been submitted.',
-                        confirmButtonColor: '#0056b3'
-                    });
-                } else {
-                    const msg = await res.text();
-                    Swal.fire('Error', msg || 'Failed to submit feedback.', 'error');
-                }
-            } catch (err) {
-                console.error(err);
-                Swal.fire('Error', 'Could not connect to the server.', 'error');
-            }
-        }
-
-        // Close modal when clicking the dark overlay background
-        document.getElementById('feedbackModal').addEventListener('click', function(e) {
-            if (e.target === this) closeFeedbackModal();
-        });
-    </script>
+</script>
 </body>
 </html>

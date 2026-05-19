@@ -1,3 +1,6 @@
+const BASE = 'http://localhost:3000';
+const COLORS = ['#4e73df','#1cc88a','#ffc107','#e74c3c','#9b59b6','#2c3e70','#f39c12'];
+
 /* ══════════════════════════════════════
    DARK / LIGHT MODE
 ══════════════════════════════════════ */
@@ -31,6 +34,7 @@ function toggleTheme() {
     applyTheme(saved);
 })();
 
+// ── NOTIFICATION ──────────────────────────────────────────────────────────
 let _announcements = [];
 
 function toggleNotifDropdown(e) {
@@ -38,52 +42,37 @@ function toggleNotifDropdown(e) {
     const d = document.getElementById('notifDropdown');
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
 }
-
 document.addEventListener('click', (e) => {
     if (!e.target.closest('li:has(#notifDropdown)')) {
         const d = document.getElementById('notifDropdown');
         if (d) d.style.display = 'none';
     }
 });
-
 function getReadIds() { return JSON.parse(localStorage.getItem('readIds') || '[]'); }
 function saveReadIds(ids) { localStorage.setItem('readIds', JSON.stringify(ids)); }
-
-function markAllRead() {
-    saveReadIds(_announcements.map(a => a.id));
-    renderNotifs();
-}
-
+function markAllRead() { saveReadIds(_announcements.map(a => a.id)); renderNotifs(); }
 function renderNotifs() {
     const readIds = getReadIds();
     const unread = _announcements.filter(a => !readIds.includes(a.id)).length;
     const badge = document.getElementById('notifBadge');
     badge.textContent = unread;
     badge.style.display = unread > 0 ? 'flex' : 'none';
-
     document.getElementById('notifList').innerHTML = _announcements.length
         ? _announcements.map(a => `
-            <div onclick="markOneRead(${a.id})" style="padding:12px 14px; border-bottom:1px solid #eee;
-                cursor:pointer; background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
-                <div style="font-size:11px; color:#888;">${a.author} | ${a.date}</div>
-                <div style="font-size:13px; color:#222; margin-top:3px;">${a.content}</div>
+            <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;
+                cursor:pointer;background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
+                <div style="font-size:11px;color:#888;">${a.author} | ${a.date}</div>
+                <div style="font-size:13px;color:#222;margin-top:3px;">${a.content}</div>
             </div>`).join('')
         : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
 }
-
 function markOneRead(id) {
     const ids = getReadIds();
     if (!ids.includes(id)) { ids.push(id); saveReadIds(ids); renderNotifs(); }
 }
-
 async function pollAnnouncements() {
-    try {
-        const res = await fetch('http://localhost:3000/api/announcements');
-        _announcements = await res.json();
-        renderNotifs();
-    } catch(e) {}
+    try { const r = await fetch(`${BASE}/api/announcements`); _announcements = await r.json(); renderNotifs(); } catch(e) {}
 }
-
 pollAnnouncements();
 setInterval(pollAnnouncements, 30000);
 
@@ -200,119 +189,182 @@ setTimeout(async () => {
 }, 500);
 setInterval(checkForNewResNotifs, 15000);
 
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function parseMinutes(timeIn, timeOut) {
+    if (!timeIn || !timeOut || timeOut === 'null' || timeOut === '') return 0;
+    try {
+        const toMins = t => {
+            const clean = t.replace(/\s?(AM|PM)/i, '');
+            const [h, m] = clean.split(':').map(Number);
+            const isPM = /PM/i.test(t);
+            return (isPM && h !== 12 ? h + 12 : (!isPM && h === 12 ? 0 : h)) * 60 + m;
+        };
+        return Math.max(0, toMins(timeOut) - toMins(timeIn));
+    } catch { return 0; }
+}
 
-let selectedPhoto = null;
+function fmtMins(mins) {
+    if (mins <= 0) return '—';
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const idNumber = localStorage.getItem("loggedInId");
-    if (!idNumber) { 
-        window.location.href = "login.html"; 
-        return; 
-    }
+// ── LOAD SUMMARY ──────────────────────────────────────────────────────────
+let sessionChartInstance = null;
 
-    let originalID = idNumber;
+async function loadSummary() {
+    const idNumber = localStorage.getItem('loggedInId');
+    if (!idNumber) { window.location.href = 'login.html'; return; }
 
     try {
-        const res = await fetch(`http://localhost:3000/student/${idNumber}`);
-        const user = await res.json();
+        // Fetch history + student profile in parallel
+        const [histRes, studentRes] = await Promise.all([
+            fetch(`${BASE}/history/${idNumber}`),
+            fetch(`${BASE}/student/${idNumber}`)
+        ]);
+        const history = await histRes.json();
+        const student = await studentRes.json();
 
-        if (res.ok) {
-            originalID = user.idNumber;
+        // ── COMPUTE STATS ──
+        const totalSitins = history.length;
+        let totalMins = 0;
+        const purposeMap = {};
 
-            document.getElementById("edit-id").value = user.idNumber || "";
-            document.getElementById("edit-lastName").value = user.lastName || "";
-            document.getElementById("edit-firstName").value = user.firstName || "";
-            document.getElementById("edit-middleName").value = user.middleName || "";
-            document.getElementById("edit-yearLevel").value = user.yearLevel || "";
-            document.getElementById("edit-course").value = user.course || "";
-            document.getElementById("edit-email").value = user.email || "";
-            document.getElementById("edit-address").value = user.address || "";
+        history.forEach(row => {
+            const mins = parseMinutes(row.timeIn, row.timeOut);
+            totalMins += mins;
+            const p = row.purpose || 'Other';
+            purposeMap[p] = (purposeMap[p] || 0) + 1;
+        });
 
-            if (user.profilePhoto) {
+        const avgMins = totalSitins > 0 ? Math.round(totalMins / totalSitins) : 0;
+        const remaining = student.remainingSession ?? 30;
+        const used = 30 - remaining;
 
-                selectedPhoto = user.profilePhoto;
-                document.getElementById("profilePhoto").src = user.profilePhoto;
-                document.getElementById("profilePhoto").style.display = "block";
-                document.getElementById("noPhotoPlaceholder").style.display = "none";
-            }
-        }
+        // Points formula (same as leaderboard)
+        const timeBonus = Math.min(Math.floor(totalMins / 20), 5);
+        const longBonus = totalMins >= 120 ? 2 : 0;
+        const points = totalSitins + timeBonus + longBonus;
+
+        // ── STAT CARDS ──
+        document.getElementById('statTotalSitins').textContent = totalSitins;
+        document.getElementById('statTotalHours').textContent  = fmtMins(totalMins);
+        document.getElementById('statPoints').textContent      = points;
+        document.getElementById('statAvgSession').textContent  = fmtMins(avgMins);
+
+        // ── SESSION GAUGE ──
+        document.getElementById('gaugeLabel').textContent       = remaining;
+        document.getElementById('sessionUsed').textContent      = used;
+        document.getElementById('sessionRemaining').textContent = remaining;
+        renderSessionGauge(used, remaining);
+
+        // ── RECENT ACTIVITY ──
+        renderRecentActivity(history.slice(0, 8));
+
+        // ── PURPOSE BREAKDOWN ──
+        renderPurposeBreakdown(purposeMap, totalSitins);
+
     } catch (err) {
-        console.error(err);
+        console.error('Summary error:', err);
+    }
+}
+
+function renderSessionGauge(used, remaining) {
+    const ctx = document.getElementById('sessionChart').getContext('2d');
+    if (sessionChartInstance) sessionChartInstance.destroy();
+
+    const pct = used / 30;
+    const gaugeColor = pct >= 0.9 ? '#e74c3c' : pct >= 0.6 ? '#ffc107' : '#1cc88a';
+
+    sessionChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [used, remaining],
+                backgroundColor: [gaugeColor, '#f0f2f5'],
+                borderWidth: 0,
+                circumference: 180,
+                rotation: 270
+            }]
+        },
+        options: {
+            cutout: '78%',
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            animation: { animateRotate: true }
+        }
+    });
+}
+
+function renderRecentActivity(rows) {
+    const el = document.getElementById('recentActivity');
+    if (!rows.length) {
+        el.innerHTML = '<div class="empty-state">No sit-in records yet.</div>';
+        return;
     }
 
-    document.getElementById("photoUpload").addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+    const tableRows = rows.map(r => {
+        const isDone = r.timeOut && r.timeOut !== 'null' && r.timeOut !== '';
+        const statusBadge = isDone
+            ? `<span class="status-done">Done</span>`
+            : `<span class="status-active">Active</span>`;
+        const duration = isDone ? fmtMins(parseMinutes(r.timeIn, r.timeOut)) : '—';
 
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            selectedPhoto = event.target.result;
+        return `
+            <tr>
+                <td>${r.date || '—'}</td>
+                <td>${r.purpose || '—'}</td>
+                <td>${r.lab || '—'}</td>
+                <td>${r.timeIn || '—'}</td>
+                <td>${r.timeOut && r.timeOut !== 'null' ? r.timeOut : '—'}</td>
+                <td>${duration}</td>
+                <td>${statusBadge}</td>
+            </tr>`;
+    }).join('');
 
-            document.getElementById("profilePhoto").src = selectedPhoto;
-            document.getElementById("profilePhoto").style.display = "block";
-            document.getElementById("noPhotoPlaceholder").style.display = "none";
-        };
-        reader.readAsDataURL(file);
-    });
+    el.innerHTML = `
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Purpose</th>
+                    <th>Lab</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+        </table>`;
+}
 
-    const editForm = document.getElementById("editProfileForm");
+function renderPurposeBreakdown(purposeMap, total) {
+    const el = document.getElementById('purposeBreakdown');
+    const entries = Object.entries(purposeMap).sort((a,b) => b[1] - a[1]);
 
-    editForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        
-        const saveBtn = document.getElementById("saveBtn");
-        saveBtn.disabled = true;
-        saveBtn.innerText = "Saving...";
+    if (!entries.length) {
+        el.innerHTML = '<div class="empty-state">No data yet.</div>';
+        return;
+    }
 
-        const updatedUser = {
-            oldIdNumber: originalID,
-            idNumber: document.getElementById("edit-id").value,
-            lastName: document.getElementById("edit-lastName").value,
-            firstName: document.getElementById("edit-firstName").value,
-            middleName: document.getElementById("edit-middleName").value,
-            yearLevel: document.getElementById("edit-yearLevel").value,
-            course: document.getElementById("edit-course").value,
-            email: document.getElementById("edit-email").value,
-            address: document.getElementById("edit-address").value,
-            profilePhoto: selectedPhoto 
-        };
+    el.innerHTML = `<div class="purpose-list">${
+        entries.map(([name, count], i) => {
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            return `
+                <div class="purpose-item">
+                    <div class="purpose-top">
+                        <span class="purpose-name">${name}</span>
+                        <span class="purpose-count">${count} (${pct}%)</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" style="width:${pct}%;background:${COLORS[i % COLORS.length]};"></div>
+                    </div>
+                </div>`;
+        }).join('')
+    }</div>`;
+}
 
-        try {
-            const response = await fetch("http://localhost:3000/update-profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedUser)
-            });
-
-            if (response.ok) {
-                localStorage.setItem("loggedInId", updatedUser.idNumber);
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Profile Updated!',
-                    text: 'Your changes have been saved.',
-                    confirmButtonColor: '#0056b3',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    timer: 5000,
-                    timerProgressBar: true,
-                }).then(() => {
-                    window.location.href = 'dashboard.html';
-                });
-            } else {
-                saveBtn.disabled = false;
-                saveBtn.innerText = "Save";
-                Swal.fire('Error', 'Update failed. ID might be taken.', 'error');
-            }
-        } catch (error) {
-            saveBtn.disabled = false;
-            saveBtn.innerText = "Save";
-            Swal.fire('Error', 'Server connection lost.', 'error');
-        }
-    });
-});
-
-
+// ── LOGOUT ───────────────────────────────────────────────────────────────
 async function logout() {
     const studentId = localStorage.getItem('loggedInId');
     
@@ -354,3 +406,6 @@ async function logout() {
         }
     }
 }
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', loadSummary);
