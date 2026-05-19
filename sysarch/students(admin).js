@@ -33,110 +33,96 @@ function toggleTheme() {
 let _navTimer;
 let _navSelectedId = null;
 
+let _searchModalTimer;
+
 function openSearchModal() {
     openModal('searchModal');
-    document.getElementById('modalSearchInput').value = '';
-    document.getElementById('navSearchDropdown').style.display = 'none';
-    _navSelectedId = null;
-    setTimeout(() => document.getElementById('modalSearchInput').focus(), 100);
+    document.getElementById('modalSearchInput').focus();
 }
 
-function navSearchLive() {
-    clearTimeout(_navTimer);
-    _navSelectedId = null;
-    const q    = document.getElementById('modalSearchInput').value.trim();
-    const drop = document.getElementById('navSearchDropdown');
-    if (!q) { drop.style.display = 'none'; return; }
+async function searchModalAutoFill() {
+    const id   = document.getElementById('modalSearchInput').value.trim();
+    const drop = document.getElementById('searchModalDropdown');
 
-    _navTimer = setTimeout(async () => {
+    if (!id) { drop.style.display = 'none'; return; }
+
+    clearTimeout(_searchModalTimer);
+    _searchModalTimer = setTimeout(async () => {
+        drop.innerHTML = `<div class="sit-drop-empty"><i class="fa fa-spinner fa-spin"></i> Searching...</div>`;
+        drop.style.display = 'block';
+
         try {
-            const res  = await fetch(`${BASE_URL}/search-students?q=${encodeURIComponent(q)}`);
+            const res  = await fetch(`${BASE_URL}/search-students?q=${encodeURIComponent(id)}`);
             const data = await res.json();
 
             if (!res.ok || !data.length) {
-                drop.innerHTML = `<div style="padding:12px 16px;color:var(--text-muted);font-size:13px;">No students found.</div>`;
-                drop.style.display = 'block';
+                drop.innerHTML = `<div class="sit-drop-empty">No students found for "<b>${id}</b>".</div>`;
                 return;
             }
 
             drop.innerHTML = data.map(s => `
-                <div onclick="navSearchSelect('${s.idNumber}')"
-                    style="display:flex;align-items:center;gap:12px;padding:10px 14px;
-                           cursor:pointer;border-bottom:1px solid var(--border-inner);transition:background 0.15s;"
-                    onmouseover="this.style.background='var(--bg-table-hover)'"
-                    onmouseout="this.style.background=''">
-                    <div style="width:36px;height:36px;border-radius:50%;background:#4e73df;
-                                color:#fff;font-size:13px;font-weight:600;
-                                display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        ${s.firstName[0]}${s.lastName[0]}
+                <div class="sit-drop-item" onclick="selectSearchModalStudent(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+                    <div class="sit-drop-avatar">${s.firstName[0]}${s.lastName[0]}</div>
+                    <div class="sit-drop-info">
+                        <div class="sit-drop-name">${s.firstName} ${s.lastName}</div>
+                        <div class="sit-drop-meta">${s.idNumber} · ${s.course || ''} ${s.yearLevel || ''}</div>
                     </div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:600;font-size:14px;color:var(--text-main);
-                                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                            ${s.firstName} ${s.lastName}
-                        </div>
-                        <div style="font-size:12px;color:var(--text-muted);">
-                            ${s.idNumber} &nbsp;·&nbsp; ${s.course || ''} ${s.yearLevel || ''}
-                        </div>
-                    </div>
-                    <div style="font-size:12px;color:#1cc88a;font-weight:600;flex-shrink:0;">
-                        ${s.remainingSession ?? 30} sessions
-                    </div>
+                    <div class="sit-drop-sessions">${s.remainingSession ?? 30} sessions</div>
                 </div>`).join('');
-            drop.style.display = 'block';
 
         } catch (e) {
-            drop.innerHTML = `<div style="padding:12px 16px;color:#dc3545;font-size:13px;">Server error.</div>`;
-            drop.style.display = 'block';
+            drop.innerHTML = `<div class="sit-drop-empty" style="color:#dc3545;"><i class="fa fa-exclamation-circle"></i> Server error.</div>`;
         }
-    }, 300);
+    }, 200);
 }
 
-function navSearchSelect(idNumber) {
-    _navSelectedId = idNumber;
-    document.getElementById('modalSearchInput').value = idNumber;
-    document.getElementById('navSearchDropdown').style.display = 'none';
-    navSearchConfirm();
+function selectSearchModalStudent(s) {
+    document.getElementById('modalSearchInput').value = s.idNumber;
+    document.getElementById('searchModalDropdown').style.display = 'none';
+    executeSearch();
 }
 
-async function navSearchConfirm() {
-    const id = _navSelectedId || document.getElementById('modalSearchInput').value.trim();
-    if (!id) return Swal.fire('Error', 'Please enter or select a student.', 'error');
+async function executeSearch(event) {
+    if (event) event.preventDefault();
+
+    const id = document.getElementById('modalSearchInput').value.trim();
+    if (!id) return Swal.fire('Error', 'Please enter an ID', 'error');
 
     try {
-        const res  = await fetch(`${BASE_URL}/student/${id}`);
+        const res = await fetch(`${BASE_URL}/student/${id}`);
         const data = await res.json();
 
         if (res.ok) {
             closeModal('searchModal');
-            document.getElementById('navSearchDropdown').style.display = 'none';
+            
+            const profilePhotoHtml = data.profilePhoto 
+                ? `<img src="${data.profilePhoto}" alt="Avatar" style="width:70px; height:70px; border-radius:50%; object-fit:cover; margin-bottom:10px;">`
+                : `<div class="user-avatar" style="width:70px; height:70px; font-size:24px; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; background:#4e73df; color:white; border-radius:50%; font-weight:bold;">${data.firstName[0]}${data.lastName[0]}</div>`;
 
-            let timeLeftText = 'No active session';
-            if (data.timeIn && !data.timeOut) {
-                const diff = Math.floor((new Date() - new Date(data.timeIn)) / 60000);
-                const rem  = SESSION_DURATION - diff;
-                timeLeftText = rem > 0 ? `${rem} minutes left` : 'Session expired';
-            }
-
-            document.getElementById('infoBody').innerHTML = `
-                <p><b>ID Number:</b> ${data.idNumber}</p>
-                <p><b>Name:</b> ${data.firstName} ${data.lastName}</p>
-                <p><b>Course:</b> ${data.course   || 'N/A'}</p>
-                <p><b>Email:</b> ${data.email     || 'N/A'}</p>
-                <p><b>Year:</b> ${data.yearLevel  || 'N/A'}</p>
-                <p><b>Address:</b> ${data.address || 'N/A'}</p>
-                <p><b>Sessions Left:</b>
-                    <span class="badge badge-session">${data.remainingSession ?? 30}</span>
-                </p>
-                <p><b>Time Left:</b>
-                    <span style="color:#007bff;font-weight:bold;">${timeLeftText}</span>
-                </p>`;
+            const infoHtml = `
+                <div style="text-align:center; margin-bottom:15px;">
+                    ${profilePhotoHtml}
+                    <h3 style="margin:5px 0 2px; color:var(--text-main); font-family:'Sora', sans-serif;">${data.firstName} ${data.lastName}</h3>
+                    <span class="badge badge-session" style="background:#4e73df; color:white; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700;">${data.idNumber}</span>
+                </div>
+                <div class="student-profile-card" style="margin:0; padding:15px; background:var(--bg-card-alt); border-left:5px solid #4e73df; border-radius:8px;">
+                    <div class="profile-meta" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-family:'Plus Jakarta Sans', sans-serif;">
+                        <div class="meta-item"><label style="display:block; font-size:9px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:2px;">Middle Name</label><span style="font-weight:600; color:var(--text-main); font-size:13px;">${data.middleName || 'N/A'}</span></div>
+                        <div class="meta-item"><label style="display:block; font-size:9px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:2px;">Email</label><span style="font-weight:600; color:var(--text-main); font-size:13px; word-break:break-all;">${data.email || 'N/A'}</span></div>
+                        <div class="meta-item"><label style="display:block; font-size:9px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:2px;">Address</label><span style="font-weight:600; color:var(--text-main); font-size:13px;">${data.address || 'N/A'}</span></div>
+                        <div class="meta-item"><label style="display:block; font-size:9px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:2px;">Course</label><span style="font-weight:600; color:var(--text-main); font-size:13px;">${data.course || 'N/A'}</span></div>
+                        <div class="meta-item"><label style="display:block; font-size:9px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:2px;">Year Level</label><span style="font-weight:600; color:var(--text-main); font-size:13px;">${data.yearLevel || 'N/A'}</span></div>
+                        <div class="meta-item"><label style="display:block; font-size:9px; text-transform:uppercase; color:var(--text-muted); font-weight:800; margin-bottom:2px;">Remaining</label><span style="color:#1cc88a; font-weight:800; font-size:13px;">${data.remainingSession ?? 30} Sessions</span></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('infoBody').innerHTML = infoHtml;
             openModal('studentInfoModal');
         } else {
-            Swal.fire('Oops!', 'Student not found.', 'warning');
+            Swal.fire('Error', data.message || 'Student not found', 'error');
         }
     } catch (e) {
-        Swal.fire('Error', 'Server error.', 'error');
+        Swal.fire('Error', 'Unable to fetch student info', 'error');
     }
 }
 

@@ -9,8 +9,10 @@ const PORT = 3000;
 const SESSION_DURATION_MINUTES = 60;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use("/images", express.static("images"));
+app.use(express.static("sysarch"));
 
 const adminAccount = {
     username: "admin",
@@ -140,7 +142,7 @@ app.post("/login", (req, res) => {
         const now = new Date().toISOString();
         db.run(`INSERT INTO login_history (idNumber, loginTime) VALUES (?, ?)`, [idNumber, now]);
 
-        res.json({ role: "user", user: row });
+        res.json({ role: "user", user: { ...row, profilePhoto: row.profileImage } });
     });
 });
 
@@ -156,29 +158,52 @@ app.post("/logout", (req, res) => {
 });
 
 // update profile route
-app.post("/update-profile", upload.single("profileImage"), (req, res) => {
+app.post("/update-profile", (req, res, next) => {
+    if (req.headers["content-type"] && req.headers["content-type"].includes("multipart/form-data")) {
+        upload.single("profileImage")(req, res, next);
+    } else {
+        next();
+    }
+}, (req, res) => {
     const {
         oldIdNumber, idNumber, lastName, firstName,
-        middleName, yearLevel, course, email, address
+        middleName, yearLevel, course, email, address,
+        profilePhoto
     } = req.body;
 
     if (!oldIdNumber) return res.status(400).json({ error: "oldIdNumber is required" });
 
-    const profileImage = req.file ? req.file.filename : null;
+    // Support both multipart file upload and JSON base64 string
+    const profileImage = req.file ? req.file.filename : (profilePhoto || null);
 
-    const sql = `
-        UPDATE users
-        SET idNumber = ?, lastName = ?, firstName = ?, middleName = ?,
-            yearLevel = ?, course = ?, email = ?, address = ?,
-            profileImage = COALESCE(?, profileImage)
-        WHERE idNumber = ?
-    `;
+    const performUpdate = () => {
+        const sql = `
+            UPDATE users
+            SET idNumber = ?, lastName = ?, firstName = ?, middleName = ?,
+                yearLevel = ?, course = ?, email = ?, address = ?,
+                profileImage = COALESCE(?, profileImage)
+            WHERE idNumber = ?
+        `;
 
-    db.run(sql, [idNumber, lastName, firstName, middleName, yearLevel, course, email, address, profileImage, oldIdNumber], function(err) {
-        if (err) return res.status(500).json({ error: "Database error" });
-        if (this.changes === 0) return res.status(400).json({ error: "No user found with that ID" });
-        res.json({ success: true, image: profileImage, message: "Profile updated successfully!" });
-    });
+        db.run(sql, [idNumber, lastName, firstName, middleName, yearLevel, course, email, address, profileImage, oldIdNumber], function(err) {
+            if (err) {
+                console.error("Database update-profile error:", err);
+                return res.status(500).json({ error: "Database error" });
+            }
+            if (this.changes === 0) return res.status(400).json({ error: "No user found with that ID" });
+            res.json({ success: true, image: profileImage, message: "Profile updated successfully!" });
+        });
+    };
+
+    if (idNumber && idNumber !== oldIdNumber) {
+        db.get("SELECT id FROM users WHERE idNumber = ?", [idNumber], (err, row) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            if (row) return res.status(400).json({ error: "ID Number is already taken" });
+            performUpdate();
+        });
+    } else {
+        performUpdate();
+    }
 });
 
 // make reservation
@@ -240,6 +265,7 @@ app.get(["/student/:idNumber", "/get-student/:idNumber"], (req, res) => {
 
                 res.json({
                     ...user,
+                    profilePhoto: user.profileImage,
                     timeIn:  active ? active.timeIn  : null,
                     timeOut: active ? active.timeOut : null
                 });
@@ -467,6 +493,14 @@ app.get("/api/announcements", (req, res) => {
     });
 });
 
+// delete announcement
+app.delete("/api/announcements/:id", (req, res) => {
+    db.run(`DELETE FROM announcements WHERE id = ?`, [req.params.id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Announcement deleted successfully!" });
+    });
+});
+
 // ─── LEADERBOARD ─────────────────────────────────────────────────────────────
 app.get("/admin/leaderboard", (req, res) => {
     const sql = `
@@ -543,7 +577,9 @@ app.post("/admin/reset-all-points", (req, res) => {
 
 // ─── DASHBOARD SUMMARY DATA ───────────────────────────────────────────────────
 app.get("/admin/dashboard-data", (req, res) => {
-    db.get(`SELECT COUNT(*) AS registered FROM users`, (err, r1) => {
+    const today = new Date().toISOString().split("T")[0];
+
+    db.get(`SELECT COUNT(*) AS registered FROM users WHERE idNumber != 'Admin'`, (err, r1) => {
         if (err) return res.status(500).json({ error: err.message });
 
         db.get(`SELECT COUNT(*) AS totalSitin FROM reservations WHERE status = 'Accepted'`, (err, r2) => {
@@ -553,11 +589,21 @@ app.get("/admin/dashboard-data", (req, res) => {
                 `SELECT COUNT(*) AS currentSitin FROM reservations WHERE status = 'Accepted' AND timeOut IS NULL`,
                 (err, r3) => {
                     if (err) return res.status(500).json({ error: err.message });
-                    res.json({
-                        registered:   r1.registered,
-                        totalSitin:   r2.totalSitin,
-                        currentSitin: r3.currentSitin
-                    });
+
+                    db.get(
+                        `SELECT COUNT(*) AS totalSitinToday FROM reservations WHERE status = 'Accepted' AND date = ?`,
+                        [today],
+                        (err, r4) => {
+                            if (err) return res.status(500).json({ error: err.message });
+
+                            res.json({
+                                registered:      r1.registered,
+                                totalSitin:      r2.totalSitin,
+                                currentSitin:    r3.currentSitin,
+                                totalSitinToday: r4.totalSitinToday
+                            });
+                        }
+                    );
                 }
             );
         });

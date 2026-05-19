@@ -65,8 +65,8 @@
             ? _announcements.map(a => `
                 <div onclick="markOneRead(${a.id})" style="padding:12px 14px; border-bottom:1px solid #eee;
                     cursor:pointer; background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
-                    <div style="font-size:11px; color:#888;">${a.author} | ${a.date}</div>
-                    <div style="font-size:13px; color:#222; margin-top:3px;">${a.content}</div>
+                    <div style="font-size:11px; color:#888;">${a.createdAt}</div>
+                    <div style="font-size:13px; color:#222; margin-top:3px;">${a.message}</div>
                 </div>`).join('')
             : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
     }
@@ -127,8 +127,8 @@
             html += `
                 <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;
                     background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
-                    <div style="font-size:14px;color:#888;">${a.author} | ${a.date}</div>
-                    <div style="font-size:14px;color:#222;margin-top:3px; font-family: 'Sora', sans-serif;">${a.content}</div>
+                    <div style="font-size:14px;color:#888;">${a.createdAt}</div>
+                    <div style="font-size:14px;color:#222;margin-top:3px; font-family: 'Sora', sans-serif;">${a.message}</div>
                 </div>`;
         });
 

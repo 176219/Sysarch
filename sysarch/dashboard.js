@@ -65,8 +65,8 @@ function renderNotifs() {
         ? _announcements.map(a => `
             <div onclick="markOneRead(${a.id})" style="padding:12px 14px; border-bottom:1px solid #eee;
                 cursor:pointer; background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
-                <div style="font-size:11px; color:#888;">${a.author} | ${a.date}</div>
-                <div style="font-size:13px; color:#222; margin-top:3px;">${a.content}</div>
+                <div style="font-size:11px; color:#888;">${a.createdAt}</div>
+                <div style="font-size:13px; color:#222; margin-top:3px;">${a.message}</div>
             </div>`).join('')
         : '<p style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No announcements yet.</p>';
 }
@@ -125,8 +125,8 @@ function renderCombinedNotifs() {
         html += `
             <div onclick="markOneRead(${a.id})" style="padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;
                 background:${!readIds.includes(a.id) ? '#eaf3fb' : 'white'}">
-                <div style="font-size:14px;color:#888;">${a.author} | ${a.date}</div>
-                <div style="font-size:14px;color:#222;margin-top:3px;font-family:'Sora',sans-serif;">${a.content}</div>
+                <div style="font-size:14px;color:#888;">${a.createdAt}</div>
+                <div style="font-size:14px;color:#222;margin-top:3px;font-family:'Sora',sans-serif;">${a.message}</div>
             </div>`;
     });
 
@@ -213,8 +213,8 @@ async function loadAnnouncements() {
 
         list.innerHTML = announcements.map(a => `
             <div class="announcement-item">
-                <medium style="color: #4e73df; font-weight: bold; font-family: 'Sora', sans-serif;">${a.author} | ${a.date}</medium>
-                <p style="margin-top: 15px; font-family: 'Sora', sans-serif;">${a.content}</p>
+                <medium style="color: #4e73df; font-weight: bold; font-family: 'Sora', sans-serif;">${a.createdAt}</medium>
+                <p style="margin-top: 15px; font-family: 'Sora', sans-serif;">${a.message}</p>
             </div>
         `).join('');
     } catch (err) {

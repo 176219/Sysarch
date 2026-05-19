@@ -266,6 +266,50 @@
         [data-theme="dark"] #announcementText::placeholder { color: #8892a4 !important; }
         /* ── Left and right panes ── */
         [data-theme="dark"] .left-pane, [data-theme="dark"] .right-pane { background: transparent !important; }
+        /* ── SEARCH DROPDOWN AUTOCOMPLETE ── */
+        .sit-drop-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-inner);
+            transition: background 0.15s, transform 0.1s;
+        }
+        .sit-drop-item:last-child { border-bottom: none; }
+        .sit-drop-item:hover {
+            background: var(--bg-card-alt);
+            transform: translateX(2px);
+        }
+        .sit-drop-avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: #4e73df;
+            color: #fff;
+            font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sit-drop-info  { flex: 1; min-width: 0; }
+        .sit-drop-name  {
+            font-weight: 700; font-size: 13px;
+            color: var(--text-main);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sit-drop-meta  {
+            font-size: 11px; color: var(--text-muted);
+            margin-top: 2px; display: flex; gap: 6px;
+        }
+        .sit-drop-sessions {
+            font-size: 12px; font-weight: 800;
+            color: #1cc88a; flex-shrink: 0;
+        }
+        .sit-drop-empty {
+            padding: 16px; font-size: 13px;
+            color: var(--text-muted); text-align: center;
+        }
+        [data-theme="dark"] .sit-drop-item:hover { background: var(--bg-table-hover); }
+        [data-theme="dark"] .sit-drop-avatar { background: #2c4aad; }
     </style>
 </head>
 <body>
@@ -295,16 +339,32 @@
     </nav>
 
 
+    <!-- SEARCH MODAL -->
     <div id="searchModal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content" style="overflow: visible;">
             <div class="modal-header">
                 <h2><i class="fa fa-search"></i> Search Student</h2>
                 <button class="close-btn" onclick="closeModal('searchModal')" style="color:white;">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="position:relative;">
                 <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
                     style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
-                    onkeydown="if(event.key==='Enter') executeSearch(event)">
+                    oninput="searchModalAutoFill()"
+                    onkeydown="if(event.key==='Enter') executeSearch(event)"
+                    autocomplete="off">
+                <div id="searchModalDropdown" style="
+                    display:none;
+                    position:absolute;
+                    top:calc(100% - 6px);
+                    left:0; right:0;
+                    background:var(--bg-card);
+                    border:1px solid var(--border-color);
+                    border-radius:6px;
+                    box-shadow:0 6px 20px rgba(0,0,0,0.15);
+                    z-index:99999;
+                    max-height:240px;
+                    overflow-y:auto;">
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('searchModal')">Cancel</button>

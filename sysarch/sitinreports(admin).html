@@ -409,7 +409,167 @@
         [data-theme="dark"] #announcementText { background: #252839 !important; color: #e0e6f0 !important; border-color: #3a3f5c !important; }
         [data-theme="dark"] #announcementText::placeholder { color: #8892a4 !important; }
         /* ── Left and right panes ── */
-        [data-theme="dark"] .left-pane, [data-theme="dark"] .right-pane { background: transparent !important; }
+        /* ── SEARCH DROPDOWN AUTOCOMPLETE ── */
+        .sit-drop-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-inner);
+            transition: background 0.15s, transform 0.1s;
+        }
+        .sit-drop-item:last-child { border-bottom: none; }
+        .sit-drop-item:hover {
+            background: var(--bg-card-alt);
+            transform: translateX(2px);
+        }
+        .sit-drop-avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: #4e73df;
+            color: #fff;
+            font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sit-drop-info  { flex: 1; min-width: 0; }
+        .sit-drop-name  {
+            font-weight: 700; font-size: 13px;
+            color: var(--text-main);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sit-drop-meta  {
+            font-size: 11px; color: var(--text-muted);
+            margin-top: 2px; display: flex; gap: 6px;
+        }
+        .sit-drop-sessions {
+            font-size: 12px; font-weight: 800;
+            color: #1cc88a; flex-shrink: 0;
+        }
+        .sit-drop-empty {
+            padding: 16px; font-size: 13px;
+            color: var(--text-muted); text-align: center;
+        }
+        [data-theme="dark"] .sit-drop-item:hover { background: var(--bg-table-hover); }
+        [data-theme="dark"] .sit-drop-avatar { background: #2c4aad; }
+
+        /* ── PRINT-ONLY STYLES ── */
+        .print-header {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Plus Jakarta Sans', sans-serif !important;
+                margin: 1.6cm 1.2cm 1.6cm 1.2cm !important;
+                padding: 0 !important;
+            }
+
+            .navbar, .controls, .theme-toggle-btn, .modal-overlay, button, .close-btn, center, h1 {
+                display: none !important;
+            }
+
+            .reports-container {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+
+            .print-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 2px solid #2c3e70;
+                padding-bottom: 12px;
+                margin-bottom: 25px;
+            }
+
+            .print-brand {
+                text-align: left;
+            }
+
+            .print-brand-title {
+                font-family: 'Sora', sans-serif;
+                font-weight: 700;
+                font-size: 16px;
+                color: #2c3e70;
+                letter-spacing: 0.5px;
+            }
+
+            .print-brand-subtitle {
+                font-size: 11px;
+                color: #555;
+                font-weight: 500;
+                margin-top: 2px;
+            }
+
+            .print-doc {
+                text-align: right;
+            }
+
+            .print-doc-title {
+                font-family: 'Sora', sans-serif;
+                font-weight: 700;
+                font-size: 14px;
+                color: #333;
+            }
+
+            .print-doc-meta {
+                font-size: 11px;
+                color: #666;
+                margin-top: 3px;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            th, td {
+                padding: 10px 12px !important;
+                font-size: 11px !important;
+                border-bottom: 1px solid #ddd !important;
+                border-right: 1px solid #eee !important;
+                color: #000000 !important;
+                text-align: left !important;
+            }
+
+            th:last-child, td:last-child {
+                border-right: none !important;
+            }
+
+            th {
+                background-color: #2c3e70 !important;
+                color: #ffffff !important;
+                font-weight: 700 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            @page {
+                size: auto;
+                margin: 0 !important;
+            }
+
+            a[href]:after {
+                content: none !important;
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -440,15 +600,30 @@
 
 
     <div id="searchModal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content" style="overflow: visible;">
             <div class="modal-header">
                 <h2><i class="fa fa-search"></i> Search Student</h2>
                 <button class="close-btn" onclick="closeModal('searchModal')" style="color:white;">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="position:relative;">
                 <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
                     style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
-                    onkeydown="if(event.key==='Enter') executeSearch(event)">
+                    oninput="searchModalAutoFill()"
+                    onkeydown="if(event.key==='Enter') executeSearch(event)"
+                    autocomplete="off">
+                <div id="searchModalDropdown" style="
+                    display:none;
+                    position:absolute;
+                    top:calc(100% - 6px);
+                    left:0; right:0;
+                    background:var(--bg-card);
+                    border:1px solid var(--border-color);
+                    border-radius:6px;
+                    box-shadow:0 6px 20px rgba(0,0,0,0.15);
+                    z-index:99999;
+                    max-height:240px;
+                    overflow-y:auto;">
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="closeModal('searchModal')">Cancel</button>
@@ -474,6 +649,18 @@
 
 
     <div class="reports-container">
+        <!-- PRINT HEADER -->
+        <div class="print-header">
+            <div class="print-brand">
+                <div class="print-brand-title">COLLEGE OF COMPUTER STUDIES</div>
+                <div class="print-brand-subtitle">CCS Sit-in Monitoring System</div>
+            </div>
+            <div class="print-doc">
+                <div class="print-doc-title">SIT-IN MONITORING REPORT</div>
+                <div class="print-doc-meta" id="printReportMeta">Generated on: --/--/---- --:--</div>
+            </div>
+        </div>
+
         <center><h1 style="margin-bottom: 20px">Sit-in Reports</h1></center>
         
         <div class="controls">
@@ -481,7 +668,7 @@
             <div class="filter-group">
                 <input type="date" id="dateFilter">
                 <button class="btn-submit-ann" style="margin-top:0;" onclick="loadReports()">Filter Date</button>
-                <button class="btn-print" onclick="window.print()"><i class="fa fa-print"></i> Print PDF</button>
+                <button class="btn-print" onclick="printReports()"><i class="fa fa-print"></i> Print PDF</button>
             </div>
             <input type="text" id="reportSearch" placeholder="Search by name or ID..." onkeyup="filterTable()">
         </div>
