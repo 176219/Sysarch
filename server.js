@@ -103,6 +103,11 @@ db.run(`ALTER TABLE users ADD COLUMN manualPoints INTEGER DEFAULT 0`, () => {});
 //           ROUTES                   //
 
 
+// redirect root and index.html to login.html
+app.get(["/", "/index.html"], (req, res) => {
+    res.redirect("/login.html");
+});
+
 // register route
 app.post("/register", (req, res) => {
     console.log("DATA RECEIVED", req.body);

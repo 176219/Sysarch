@@ -1,4 +1,5 @@
     const BASE = 'http://localhost:3000';
+    let myChart = null;
 
     /* ══════════════════════════════════════
     DARK / LIGHT MODE
@@ -53,8 +54,6 @@
         const saved = localStorage.getItem('ccs_theme') || 'light';
         applyTheme(saved);
     })();
-
-    let myChart = null;
 
     async function loadDashboardStats() {
         try {
@@ -278,53 +277,137 @@ function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     // ── Search ──────────────────────────────────────────────
 let _searchModalTimer;
+let _searchResults = [];
+let _highlightedIndex = -1;
 
 function openSearchModal() {
+    const input = document.getElementById('modalSearchInput');
+    const drop = document.getElementById('searchModalDropdown');
+    if (input) {
+        input.value = '';
+    }
+    if (drop) {
+        drop.style.display = 'none';
+        drop.innerHTML = '';
+    }
+    _searchResults = [];
+    _highlightedIndex = -1;
     openModal('searchModal');
-    document.getElementById('modalSearchInput').focus();
+    setTimeout(() => {
+        if (input) input.focus();
+    }, 100);
 }
 
 async function searchModalAutoFill() {
     const id   = document.getElementById('modalSearchInput').value.trim();
     const drop = document.getElementById('searchModalDropdown');
 
-    if (!id) { drop.style.display = 'none'; return; }
+    if (!id) { 
+        drop.style.display = 'none'; 
+        _searchResults = [];
+        _highlightedIndex = -1;
+        return; 
+    }
 
     clearTimeout(_searchModalTimer);
     _searchModalTimer = setTimeout(async () => {
         drop.innerHTML = `<div class="sit-drop-empty"><i class="fa fa-spinner fa-spin"></i> Searching...</div>`;
         drop.style.display = 'block';
+        _highlightedIndex = -1;
 
         try {
             const res  = await fetch(`${BASE}/search-students?q=${encodeURIComponent(id)}`);
             const data = await res.json();
 
             if (!res.ok || !data.length) {
+                _searchResults = [];
                 drop.innerHTML = `<div class="sit-drop-empty">No students found for "<b>${id}</b>".</div>`;
                 return;
             }
 
-            drop.innerHTML = data.map(s => `
-                <div class="sit-drop-item" onclick="selectSearchModalStudent(${JSON.stringify(s).replace(/"/g, '&quot;')})">
-                    <div class="sit-drop-avatar">${s.firstName[0]}${s.lastName[0]}</div>
-                    <div class="sit-drop-info">
-                        <div class="sit-drop-name">${s.firstName} ${s.lastName}</div>
-                        <div class="sit-drop-meta">${s.idNumber} · ${s.course || ''} ${s.yearLevel || ''}</div>
-                    </div>
-                    <div class="sit-drop-sessions">${s.remainingSession ?? 30} sessions</div>
-                </div>`).join('');
+            _searchResults = data;
+            drop.innerHTML = data.map((s, index) => {
+                const init1 = s.firstName ? s.firstName[0] : '';
+                const init2 = s.lastName ? s.lastName[0] : '';
+                const initials = (init1 + init2).toUpperCase() || '?';
+                return `
+                    <div class="sit-drop-item" onclick="selectSearchModalStudentByIndex(${index})">
+                        <div class="sit-drop-avatar">${initials}</div>
+                        <div class="sit-drop-info">
+                            <div class="sit-drop-name">${s.firstName} ${s.lastName}</div>
+                            <div class="sit-drop-meta">${s.idNumber} · ${s.course || ''} ${s.yearLevel || ''}</div>
+                        </div>
+                        <div class="sit-drop-sessions">${s.remainingSession ?? 30} sessions</div>
+                    </div>`;
+            }).join('');
 
         } catch (e) {
+            _searchResults = [];
             drop.innerHTML = `<div class="sit-drop-empty" style="color:#dc3545;"><i class="fa fa-exclamation-circle"></i> Server error.</div>`;
         }
     }, 200);
 }
 
+function selectSearchModalStudentByIndex(index) {
+    const s = _searchResults[index];
+    if (s) {
+        selectSearchModalStudent(s);
+    }
+}
+
 function selectSearchModalStudent(s) {
     document.getElementById('modalSearchInput').value = s.idNumber;
     document.getElementById('searchModalDropdown').style.display = 'none';
+    _highlightedIndex = -1;
     executeSearch();
 }
+
+function handleSearchInputKeydown(event) {
+    const drop = document.getElementById('searchModalDropdown');
+    const items = drop.getElementsByClassName('sit-drop-item');
+    
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (items.length === 0) return;
+        _highlightedIndex = (_highlightedIndex + 1) % items.length;
+        updateHighlightedItem(items);
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (items.length === 0) return;
+        _highlightedIndex = (_highlightedIndex - 1 + items.length) % items.length;
+        updateHighlightedItem(items);
+    } else if (event.key === 'Enter') {
+        if (_highlightedIndex >= 0 && _highlightedIndex < items.length) {
+            event.preventDefault();
+            selectSearchModalStudentByIndex(_highlightedIndex);
+        } else {
+            executeSearch(event);
+        }
+    } else if (event.key === 'Escape') {
+        event.preventDefault();
+        closeModal('searchModal');
+    }
+}
+
+function updateHighlightedItem(items) {
+    for (let i = 0; i < items.length; i++) {
+        if (i === _highlightedIndex) {
+            items[i].classList.add('highlighted');
+            items[i].scrollIntoView({ block: 'nearest' });
+        } else {
+            items[i].classList.remove('highlighted');
+        }
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    const drop = document.getElementById('searchModalDropdown');
+    const input = document.getElementById('modalSearchInput');
+    if (drop && input && e.target !== input && !drop.contains(e.target)) {
+        drop.style.display = 'none';
+    }
+});
 
 async function executeSearch(event) {
     if (event) event.preventDefault();

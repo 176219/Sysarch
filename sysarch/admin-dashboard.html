@@ -609,6 +609,12 @@
         }
         [data-theme="dark"] .sit-drop-item:hover { background: var(--bg-table-hover); }
         [data-theme="dark"] .sit-drop-avatar { background: #2c4aad; }
+        .sit-drop-item.highlighted,
+        .sit-drop-item:active {
+            background: var(--bg-table-hover) !important;
+            transform: translateX(4px);
+            border-left: 3px solid #4e73df;
+        }
     </style>
 </head>
 <body>
@@ -648,7 +654,7 @@
                 <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
                     style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
                     oninput="searchModalAutoFill()"
-                    onkeydown="if(event.key==='Enter') executeSearch(event)"
+                    onkeydown="handleSearchInputKeydown(event)"
                     autocomplete="off">
                 <div id="searchModalDropdown" style="
                     display:none;
@@ -730,7 +736,7 @@
         </div>
     </div>
 
-<script src="admin-dashboard.js?v=2.1">
+<script src="admin-dashboard.js?v=2.2">
 </script>
 </body>
 </html>

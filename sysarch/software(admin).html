@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
     <link rel="stylesheet" href="software(admin).css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <style>
         /* ── PAGE LAYOUT ── */
         .software-container {
@@ -25,8 +28,10 @@
             align-items: center;
             gap: 10px;
         }
- 
-        .page-title i { color: #f6c23e; }
+
+        .page-title i {
+            color: #f6c23e;
+        }
 
         .software-grid {
             display: grid;
@@ -40,7 +45,7 @@
             background: #fff;
             border: 1px solid #e3e6f0;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -64,7 +69,9 @@
             gap: 8px;
         }
 
-        .card-body { padding: 20px; }
+        .card-body {
+            padding: 20px;
+        }
 
         /* ── DROPZONE ── */
         .dropzone {
@@ -78,7 +85,8 @@
             margin-bottom: 15px;
         }
 
-        .dropzone:hover, .dropzone.dragover {
+        .dropzone:hover,
+        .dropzone.dragover {
             border-color: #2c3e70;
             background: #eef0f8;
         }
@@ -118,7 +126,10 @@
             font-weight: 600;
         }
 
-        .file-preview i { color: #f6c23e; font-size: 18px; }
+        .file-preview i {
+            color: #f6c23e;
+            font-size: 18px;
+        }
 
         .file-preview .file-remove {
             margin-left: auto;
@@ -128,7 +139,9 @@
             transition: 0.2s;
         }
 
-        .file-preview .file-remove:hover { color: #c0392b; }
+        .file-preview .file-remove:hover {
+            color: #c0392b;
+        }
 
         /* ── FORM FIELDS ── */
         .form-group {
@@ -165,7 +178,7 @@
         .form-group select:focus,
         .form-group textarea:focus {
             border-color: #2c3e70;
-            box-shadow: 0 0 0 3px rgba(44,62,112,0.08);
+            box-shadow: 0 0 0 3px rgba(44, 62, 112, 0.08);
         }
 
         .form-group textarea {
@@ -224,7 +237,7 @@
         .upload-btn:hover {
             background: #17a673;
             transform: translateY(-1px);
-            box-shadow: 0 5px 18px rgba(28,200,138,0.28);
+            box-shadow: 0 5px 18px rgba(28, 200, 138, 0.28);
         }
 
         /* ── REGISTERED SOFTWARE ── */
@@ -238,7 +251,10 @@
             padding: 0 12px;
         }
 
-        .search-bar-wrapper i { color: #aaa; font-size: 13px; }
+        .search-bar-wrapper i {
+            color: #aaa;
+            font-size: 13px;
+        }
 
         .search-bar-wrapper input {
             border: none !important;
@@ -259,8 +275,15 @@
             text-align: center;
         }
 
-        .empty-state i { font-size: 42px; margin-bottom: 10px; color: #d1d3e2; }
-        .empty-state p { font-size: 13px; }
+        .empty-state i {
+            font-size: 42px;
+            margin-bottom: 10px;
+            color: #d1d3e2;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+        }
 
         /* ── SOFTWARE LIST ITEM ── */
         .software-item {
@@ -278,7 +301,7 @@
 
         .software-item:hover {
             background: #fff;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
             transform: translateY(-1px);
         }
 
@@ -295,7 +318,9 @@
             flex-shrink: 0;
         }
 
-        .software-info { flex: 1; }
+        .software-info {
+            flex: 1;
+        }
 
         .software-info .sw-name {
             font-weight: 700;
@@ -351,7 +376,9 @@
             border-radius: 5px;
         }
 
-        .sw-delete-btn:hover { background: #fde8e7; }
+        .sw-delete-btn:hover {
+            background: #fde8e7;
+        }
 
         /* ── LAB OVERVIEW CARDS ── */
         .lab-overview-grid {
@@ -366,13 +393,13 @@
             border-radius: 12px;
             padding: 18px 14px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             transition: all 0.25s;
         }
 
         .lab-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
         }
 
         .lab-card .lab-name {
@@ -400,179 +427,204 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             z-index: 500;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
 
-        .modal-content { 
-            background: #fff; 
-            border-radius: 10px; 
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
-            overflow: hidden; 
-            animation: slideDown 0.3s ease-out; 
+        .modal-content {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            animation: slideDown 0.3s ease-out;
         }
-        .modal-header { 
+
+        .modal-header {
             background: #2c3e70;
             padding: 15px 20px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            color: white; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
         }
-        
-        .search-wrapper { 
-            display: flex; 
-            align-items: center; 
-            background: #ffffff; 
-            border: 2px solid #e3e6f0; 
-            border-radius: 10px; 
-            transition: all 0.2s; 
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 2px solid #e3e6f0;
+            border-radius: 10px;
+            transition: all 0.2s;
         }
-        .search-wrapper:focus-within { 
-            box-shadow: 0 0 8px rgba(44, 62, 112, 0.2); 
+
+        .search-wrapper:focus-within {
+            box-shadow: 0 0 8px rgba(44, 62, 112, 0.2);
         }
-        .search-wrapper input { 
-            flex: 1; border: none !important; 
-            padding: 12px; 
-            font-size: 15px; 
-            outline: none !important; 
+
+        .search-wrapper input {
+            flex: 1;
+            border: none !important;
+            padding: 12px;
+            font-size: 15px;
+            outline: none !important;
         }
 
         /* --- Search Result Card (From Image) --- */
-        #searchResultsList { 
-            margin-top: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
+        #searchResultsList {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
+
         .search-result-item {
-            display: flex; 
-            align-items: center; 
-            background: #f8f9fc; 
-            border-radius: 12px; 
-            padding: 12px; 
-            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            background: #f8f9fc;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
             transition: all 0.2s;
         }
-        .search-result-item:hover { 
-            background: #fff; 
-            transform: translateY(-2px); 
+
+        .search-result-item:hover {
+            background: #fff;
+            transform: translateY(-2px);
         }
-        
+
         .user-avatar {
-            width: 45px; 
-            height: 45px; 
-            background: #4e73df; 
-            color: white; 
+            width: 45px;
+            height: 45px;
+            background: #4e73df;
+            color: white;
             border-radius: 50%;
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            font-weight: 700; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
             margin-right: 15px;
         }
-        .user-info-text .name { 
-            display: block; 
-            font-weight: 700; 
-            color: #2c3e70; 
-            font-size: 14px; 
+
+        .user-info-text .name {
+            display: block;
+            font-weight: 700;
+            color: #2c3e70;
+            font-size: 14px;
         }
-        .user-info-text .meta { 
-            font-size: 11px; 
-            color: #858796; 
-            display: flex; 
-            gap: 8px; 
+
+        .user-info-text .meta {
+            font-size: 11px;
+            color: #858796;
+            display: flex;
+            gap: 8px;
         }
-        .user-status-badges { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: flex-end; 
-            flex: 1; 
-            font-size: 11px; 
-            font-weight: 800; 
+
+        .user-status-badges {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            flex: 1;
+            font-size: 11px;
+            font-weight: 800;
         }
-        .badge-sessions { 
-            color: #1cc88a; 
+
+        .badge-sessions {
+            color: #1cc88a;
         }
 
         /* --- Sit-in Form Styles --- */
-        .student-profile-card { 
-            background: #f8f9fc; 
-            border-left: 5px solid #2c3e70; 
-            border-radius: 8px; 
-            padding: 20px; 
-            margin: 20px; 
-        }
-        .profile-name { 
-            display: block; 
-            font-size: 1.1rem; 
-            font-weight: 600; 
-            color: #2c3e70; 
-            margin-bottom: 10px; 
-            text-transform: uppercase; 
-        }
-        .profile-meta { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; gap: 15px; 
-        }
-        .meta-item label { 
-            display: block; 
-            font-size: 10px; 
-            text-transform: uppercase; 
-            color: #858796; 
-            font-weight: 800; 
-        }
-        .meta-item span { 
-            font-weight: 600; 
-            color: #444; 
-        }
-        .modern-select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #d1d3e2; 
-            border-radius: 8px; 
-            cursor: pointer; 
-        }
-        
-        .modal-footer { 
-            padding: 15px 20px; 
-            background: #f8f9fc; 
-            border-top: 1px solid #e3e6f0; 
-            display: flex; 
-            justify-content: flex-end; 
-            gap: 10px; 
+        .student-profile-card {
+            background: #f8f9fc;
+            border-left: 5px solid #2c3e70;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px;
         }
 
-        .btn-confirm { 
-            background: #2c3e70; 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: 600; 
+        .profile-name {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e70;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
-        .btn-cancel { 
+        .profile-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .meta-item label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #858796;
+            font-weight: 800;
+        }
+
+        .meta-item span {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .modern-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d3e2;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            background: #f8f9fc;
+            border-top: 1px solid #e3e6f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-confirm {
+            background: #2c3e70;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-cancel {
             background: #858796;
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            cursor: pointer; 
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
         }
 
         .btn-confirm:hover {
@@ -586,16 +638,23 @@
         }
 
         @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         /* search-bar in card-header */
         .header-search {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 6px;
             padding: 4px 10px;
             gap: 6px;
@@ -610,14 +669,20 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        .header-search input::placeholder { color: rgba(255,255,255,0.55); }
-        .header-search i { color: rgba(255,255,255,0.6); font-size: 12px; }
+        .header-search input::placeholder {
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        .header-search i {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
 
         .theme-toggle-btn {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
             color: white;
             padding: 3px;
             border-radius: 20px;
@@ -625,13 +690,13 @@
         }
 
         .theme-toggle-btn:hover {
-            background: rgba(255,255,255,0.22);
+            background: rgba(255, 255, 255, 0.22);
             transform: translateY(-1px);
         }
 
         [data-theme="dark"] .theme-toggle-btn {
-            background: rgba(255,193,7,0.15);
-            border-color: rgba(255,193,7,0.4);
+            background: rgba(255, 193, 7, 0.15);
+            border-color: rgba(255, 193, 7, 0.4);
             color: #ffc107;
         }
 
@@ -639,74 +704,86 @@
            DARK / LIGHT MODE — CSS VARIABLES
         ══════════════════════════════════════════════ */
         :root {
-            --bg-page:        #f0f2f5;
-            --bg-card:        #ffffff;
-            --bg-card-alt:    #f8f9fc;
-            --bg-input:       #ffffff;
-            --bg-header:      #2c3e70;
-            --bg-footer:      #f8f9fc;
-            --bg-table-head:  #f0f2f5;
-            --bg-table-row:   #ffffff;
+            --bg-page: #f0f2f5;
+            --bg-card: #ffffff;
+            --bg-card-alt: #f8f9fc;
+            --bg-input: #ffffff;
+            --bg-header: #2c3e70;
+            --bg-footer: #f8f9fc;
+            --bg-table-head: #f0f2f5;
+            --bg-table-row: #ffffff;
             --bg-table-hover: #f8f9fc;
-            --text-main:      #1a1a2e;
-            --text-muted:     #858796;
-            --text-label:     #333333;
-            --text-meta:      #444444;
-            --border-color:   #e3e6f0;
-            --border-inner:   #dee2e6;
-            --shadow:         0 4px 20px rgba(0,0,0,0.08);
-            --shadow-card:    0 2px 12px rgba(0,0,0,0.07);
-            --input-border:   #d1d3e2;
-            --scrollbar-bg:   #e0e0e0;
-            --scrollbar-thumb:#b0b0b0;
+            --text-main: #1a1a2e;
+            --text-muted: #858796;
+            --text-label: #333333;
+            --text-meta: #444444;
+            --border-color: #e3e6f0;
+            --border-inner: #dee2e6;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.07);
+            --input-border: #d1d3e2;
+            --scrollbar-bg: #e0e0e0;
+            --scrollbar-thumb: #b0b0b0;
         }
- 
+
         [data-theme="dark"] {
-            --bg-page:        #0f1117;
-            --bg-card:        #1a1d27;
-            --bg-card-alt:    #1e2235;
-            --bg-input:       #252839;
-            --bg-header:      #111827;
-            --bg-footer:      #161928;
-            --bg-table-head:  #1e2235;
-            --bg-table-row:   #1a1d27;
+            --bg-page: #0f1117;
+            --bg-card: #1a1d27;
+            --bg-card-alt: #1e2235;
+            --bg-input: #252839;
+            --bg-header: #111827;
+            --bg-footer: #161928;
+            --bg-table-head: #1e2235;
+            --bg-table-row: #1a1d27;
             --bg-table-hover: #222640;
-            --text-main:      #e0e6f0;
-            --text-muted:     #8892a4;
-            --text-label:     #c8d0e0;
-            --text-meta:      #b0b8cc;
-            --border-color:   #2a2f47;
-            --border-inner:   #2e3450;
-            --shadow:         0 4px 20px rgba(0,0,0,0.4);
-            --shadow-card:    0 2px 12px rgba(0,0,0,0.35);
-            --input-border:   #3a3f5c;
-            --scrollbar-bg:   #1e2235;
-            --scrollbar-thumb:#3a3f5c;
+            --text-main: #e0e6f0;
+            --text-muted: #8892a4;
+            --text-label: #c8d0e0;
+            --text-meta: #b0b8cc;
+            --border-color: #2a2f47;
+            --border-inner: #2e3450;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.35);
+            --input-border: #3a3f5c;
+            --scrollbar-bg: #1e2235;
+            --scrollbar-thumb: #3a3f5c;
         }
- 
+
         /* ── BODY & NAVBAR ── */
         body {
             background: var(--bg-page) !important;
             color: var(--text-main) !important;
             transition: background 0.3s ease, color 0.3s ease;
         }
+
         [data-theme="dark"] .navbar {
             background: linear-gradient(to right, #0d1117, #111827) !important;
         }
- 
+
         /* ── CARDS (shared: .card, .dash-card, .table-card, .lb-card, .rw-card, .stat-card, .chart-card, .panel) ── */
-        .card, .dash-card, .table-card, .lb-card, .rw-card,
-        .stat-card, .chart-card, .panel {
+        .card,
+        .dash-card,
+        .table-card,
+        .lb-card,
+        .rw-card,
+        .stat-card,
+        .chart-card,
+        .panel {
             background: var(--bg-card);
             border-color: var(--border-color);
             box-shadow: var(--shadow-card);
             transition: background 0.3s, border-color 0.3s;
         }
-        .card-header, .lb-card-header, .rw-card-header,
-        .chart-card-header, .panel-header {
+
+        .card-header,
+        .lb-card-header,
+        .rw-card-header,
+        .chart-card-header,
+        .panel-header {
             background: var(--bg-header) !important;
             border-bottom: 1px solid var(--border-inner);
         }
+
         [data-theme="dark"] .card-body,
         [data-theme="dark"] .panel-body,
         [data-theme="dark"] .rw-card-body,
@@ -714,148 +791,440 @@
             background: var(--bg-card);
             color: var(--text-main);
         }
- 
+
         /* ── PAGE WRAPPER & TITLE ── */
-        .page-wrapper { background: var(--bg-page); }
-        .page-title   { color: var(--text-main); }
- 
+        .page-wrapper {
+            background: var(--bg-page);
+        }
+
+        .page-title {
+            color: var(--text-main);
+        }
+
         /* ── MODALS ── */
         .modal-content {
             background: var(--bg-card) !important;
             border: 1px solid var(--border-color);
         }
-        .modal-body  { background: var(--bg-card); color: var(--text-main); }
-        .modal-footer{ background: var(--bg-footer) !important; border-top: 1px solid var(--border-color); }
-        [data-theme="dark"] .modal-footer { background: var(--bg-footer) !important; }
- 
+
+        .modal-body {
+            background: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .modal-footer {
+            background: var(--bg-footer) !important;
+            border-top: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .modal-footer {
+            background: var(--bg-footer) !important;
+        }
+
         /* ── SEARCH WRAPPER & INPUTS ── */
         .search-wrapper {
             background: var(--bg-input) !important;
             border-color: var(--border-color) !important;
         }
+
         .search-wrapper input {
             background: transparent !important;
             color: var(--text-main) !important;
         }
-        .search-wrapper input::placeholder { color: var(--text-muted) !important; }
- 
-        input, select, textarea, .modern-select {
+
+        .search-wrapper input::placeholder {
+            color: var(--text-muted) !important;
+        }
+
+        input,
+        select,
+        textarea,
+        .modern-select {
+            background: transparent !important;
+            color: var(--text-main) !important;
+            border-color: var(--input-border) !important;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-muted) !important;
+        }
+
+        input[readonly],
+        input:disabled {
+            background: var(--bg-card-alt) !important;
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .form-row label {
+            color: var(--text-label) !important;
+        }
+
+        [data-theme="dark"] .form-group label {
+            color: var(--text-label) !important;
+        }
+
+        [data-theme="dark"] .control-group label {
+            color: var(--text-label) !important;
+        }
+
+        /* ── TABLES ── */
+        [data-theme="dark"] table {
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] thead tr,
+        [data-theme="dark"] .lb-table thead tr {
+            background: var(--bg-table-head) !important;
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] tbody tr {
+            background: var(--bg-table-row);
+            border-color: var(--border-inner);
+        }
+
+        [data-theme="dark"] tbody tr:hover,
+        [data-theme="dark"] .lb-table tbody tr:hover {
+            background: var(--bg-table-hover) !important;
+        }
+
+        [data-theme="dark"] th,
+        [data-theme="dark"] td {
+            border-color: var(--border-inner) !important;
+            color: var(--text-main) !important;
+        }
+
+        /* ── SEARCH RESULT CARDS ── */
+        .search-result-item {
+            background: var(--bg-card-alt) !important;
+        }
+
+        .search-result-item:hover {
+            background: var(--bg-card) !important;
+        }
+
+        .student-profile-card {
+            background: var(--bg-card-alt) !important;
+            border-left-color: #4e73df !important;
+        }
+
+        [data-theme="dark"] .student-profile-card {
+            background: var(--bg-card-alt) !important;
+        }
+
+        [data-theme="dark"] .profile-name {
+            color: #7b9cff !important;
+        }
+
+        [data-theme="dark"] .user-info-text .name {
+            color: #7b9cff !important;
+        }
+
+        [data-theme="dark"] .meta-item label {
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .meta-item span {
+            color: var(--text-main) !important;
+        }
+
+        /* ── STAT CARDS ── */
+        [data-theme="dark"] .stat-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
+        [data-theme="dark"] .stat-label {
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .stat-value {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .icon-blue {
+            background: #1e2f5a !important;
+        }
+
+        [data-theme="dark"] .icon-amber {
+            background: #2d2810 !important;
+        }
+
+        [data-theme="dark"] .icon-green {
+            background: #0e2a1e !important;
+        }
+
+        /* ── LEADERBOARD ── */
+        [data-theme="dark"] .lb-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
+        [data-theme="dark"] .student-name {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .student-id {
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .course-chip {
+            background: #1e2a50 !important;
+            color: #7b9cff !important;
+        }
+
+        [data-theme="dark"] .hours-val {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .hours-sub {
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .points-val {
+            color: #ffc107 !important;
+        }
+
+        [data-theme="dark"] .rank-1 {
+            background: #2d2810 !important;
+            color: #ffc107 !important;
+        }
+
+        [data-theme="dark"] .rank-2 {
+            background: #252839 !important;
+            color: #a0aec0 !important;
+        }
+
+        [data-theme="dark"] .rank-3 {
+            background: #2a1e10 !important;
+            color: #e0a050 !important;
+        }
+
+        [data-theme="dark"] .rank-other {
+            background: #1e2235 !important;
+            color: #8892a4 !important;
+        }
+
+        /* ── RESERVATION PANELS & CARDS ── */
+        [data-theme="dark"] .panel {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
+        [data-theme="dark"] .res-card {
+            background: var(--bg-card-alt) !important;
+            border-color: var(--border-inner) !important;
+        }
+
+        [data-theme="dark"] .res-card p {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .res-card p b {
+            color: #7b9cff !important;
+        }
+
+        [data-theme="dark"] .control-group select {
             background: var(--bg-input) !important;
             color: var(--text-main) !important;
             border-color: var(--input-border) !important;
         }
-        input::placeholder, textarea::placeholder { color: var(--text-muted) !important; }
-        input[readonly], input:disabled {
-            background: var(--bg-card-alt) !important;
+
+        [data-theme="dark"] #infoBody {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] #infoBody b {
+            color: #7b9cff !important;
+        }
+
+        /* ── ADMIN DASHBOARD (admindashboard.html) ── */
+        [data-theme="dark"] .admin-container {
+            background: var(--bg-page) !important;
+        }
+
+        [data-theme="dark"] .stats-grid .stat-item h3 {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .stats-grid .stat-item p {
             color: var(--text-muted) !important;
         }
-        [data-theme="dark"] .form-row label { color: var(--text-label) !important; }
-        [data-theme="dark"] .form-group label { color: var(--text-label) !important; }
-        [data-theme="dark"] .control-group label { color: var(--text-label) !important; }
- 
-        /* ── TABLES ── */
-        [data-theme="dark"] table { color: var(--text-main); border-color: var(--border-color); }
-        [data-theme="dark"] thead tr,
-        [data-theme="dark"] .lb-table thead tr { background: var(--bg-table-head) !important; color: var(--text-muted) !important; }
-        [data-theme="dark"] tbody tr { background: var(--bg-table-row); border-color: var(--border-inner); }
-        [data-theme="dark"] tbody tr:hover,
-        [data-theme="dark"] .lb-table tbody tr:hover { background: var(--bg-table-hover) !important; }
-        [data-theme="dark"] th, [data-theme="dark"] td { border-color: var(--border-inner) !important; color: var(--text-main) !important; }
- 
-        /* ── SEARCH RESULT CARDS ── */
-        .search-result-item { background: var(--bg-card-alt) !important; }
-        .search-result-item:hover { background: var(--bg-card) !important; }
-        .student-profile-card { background: var(--bg-card-alt) !important; border-left-color: #4e73df !important; }
-        [data-theme="dark"] .student-profile-card { background: var(--bg-card-alt) !important; }
-        [data-theme="dark"] .profile-name { color: #7b9cff !important; }
-        [data-theme="dark"] .user-info-text .name { color: #7b9cff !important; }
-        [data-theme="dark"] .meta-item label { color: var(--text-muted) !important; }
-        [data-theme="dark"] .meta-item span  { color: var(--text-main) !important; }
- 
-        /* ── STAT CARDS ── */
-        [data-theme="dark"] .stat-card { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
-        [data-theme="dark"] .stat-label { color: var(--text-muted) !important; }
-        [data-theme="dark"] .stat-value { color: var(--text-main) !important; }
-        [data-theme="dark"] .icon-blue  { background: #1e2f5a !important; }
-        [data-theme="dark"] .icon-amber { background: #2d2810 !important; }
-        [data-theme="dark"] .icon-green { background: #0e2a1e !important; }
- 
-        /* ── LEADERBOARD ── */
-        [data-theme="dark"] .lb-card { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
-        [data-theme="dark"] .student-name { color: var(--text-main) !important; }
-        [data-theme="dark"] .student-id   { color: var(--text-muted) !important; }
-        [data-theme="dark"] .course-chip  { background: #1e2a50 !important; color: #7b9cff !important; }
-        [data-theme="dark"] .hours-val    { color: var(--text-main) !important; }
-        [data-theme="dark"] .hours-sub    { color: var(--text-muted) !important; }
-        [data-theme="dark"] .points-val   { color: #ffc107 !important; }
-        [data-theme="dark"] .rank-1  { background: #2d2810 !important; color: #ffc107 !important; }
-        [data-theme="dark"] .rank-2  { background: #252839 !important; color: #a0aec0 !important; }
-        [data-theme="dark"] .rank-3  { background: #2a1e10 !important; color: #e0a050 !important; }
-        [data-theme="dark"] .rank-other { background: #1e2235 !important; color: #8892a4 !important; }
- 
-        /* ── RESERVATION PANELS & CARDS ── */
-        [data-theme="dark"] .panel { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
-        [data-theme="dark"] .res-card { background: var(--bg-card-alt) !important; border-color: var(--border-inner) !important; }
-        [data-theme="dark"] .res-card p { color: var(--text-main) !important; }
-        [data-theme="dark"] .res-card p b { color: #7b9cff !important; }
-        [data-theme="dark"] .control-group select { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
-        [data-theme="dark"] #infoBody { color: var(--text-main) !important; }
-        [data-theme="dark"] #infoBody b { color: #7b9cff !important; }
- 
-        /* ── ADMIN DASHBOARD (admindashboard.html) ── */
-        [data-theme="dark"] .admin-container { background: var(--bg-page) !important; }
-        [data-theme="dark"] .stats-grid .stat-item h3 { color: var(--text-main) !important; }
-        [data-theme="dark"] .stats-grid .stat-item p  { color: var(--text-muted) !important; }
-        [data-theme="dark"] .announcement-item { border-color: var(--border-inner) !important; color: var(--text-main) !important; }
- 
+
+        [data-theme="dark"] .announcement-item {
+            border-color: var(--border-inner) !important;
+            color: var(--text-main) !important;
+        }
+
         /* ── SOFTWARE ── */
-        [data-theme="dark"] .software-container { background: var(--bg-page) !important; }
-        [data-theme="dark"] .dropzone { background: var(--bg-card-alt) !important; border-color: var(--input-border) !important; }
-        [data-theme="dark"] .dropzone:hover, [data-theme="dark"] .dropzone.dragover { background: #1e2a50 !important; border-color: #4e73df !important; }
-        [data-theme="dark"] .dropzone p { color: var(--text-muted) !important; }
-        [data-theme="dark"] .file-preview { background: var(--bg-card-alt) !important; border-color: var(--input-border) !important; }
- 
+        [data-theme="dark"] .software-container {
+            background: var(--bg-page) !important;
+        }
+
+        [data-theme="dark"] .dropzone {
+            background: var(--bg-card-alt) !important;
+            border-color: var(--input-border) !important;
+        }
+
+        [data-theme="dark"] .dropzone:hover,
+        [data-theme="dark"] .dropzone.dragover {
+            background: #1e2a50 !important;
+            border-color: #4e73df !important;
+        }
+
+        [data-theme="dark"] .dropzone p {
+            color: var(--text-muted) !important;
+        }
+
+        [data-theme="dark"] .file-preview {
+            background: var(--bg-card-alt) !important;
+            border-color: var(--input-border) !important;
+        }
+
         /* ── REWARDS ── */
-        [data-theme="dark"] .rw-card { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
+        [data-theme="dark"] .rw-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
         [data-theme="dark"] .form-group input,
         [data-theme="dark"] .form-group select,
-        [data-theme="dark"] .form-group textarea { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
+        [data-theme="dark"] .form-group textarea {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            border-color: var(--input-border) !important;
+        }
+
         [data-theme="dark"] .form-group input::placeholder,
-        [data-theme="dark"] .form-group textarea::placeholder { color: var(--text-muted) !important; }
- 
+        [data-theme="dark"] .form-group textarea::placeholder {
+            color: var(--text-muted) !important;
+        }
+
         /* ── ANALYTICS CHARTS ── */
-        [data-theme="dark"] .chart-card { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
- 
+        [data-theme="dark"] .chart-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
         /* ── TABLE-PAGES (sitin, viewsitin, sitinreports, studentlist, feedback) ── */
-        [data-theme="dark"] .table-card { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
-        [data-theme="dark"] .table-controls { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
-        [data-theme="dark"] .entries-control select { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
-        [data-theme="dark"] .search-control input  { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
-        [data-theme="dark"] .search-box { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
-        .badge-active  { background: #d4edda; color: #155724; }
-        .badge-timeout { background: #f8d7da; color: #721c24; }
-        [data-theme="dark"] .badge-active  { background: #0e2a1e !important; color: #48c78e !important; }
-        [data-theme="dark"] .badge-timeout { background: #2a0e0e !important; color: #f87171 !important; }
-        [data-theme="dark"] .no-data { color: var(--text-muted) !important; }
- 
+        [data-theme="dark"] .table-card {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
+        [data-theme="dark"] .table-controls {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
+        [data-theme="dark"] .entries-control select {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            border-color: var(--input-border) !important;
+        }
+
+        [data-theme="dark"] .search-control input {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            border-color: var(--input-border) !important;
+        }
+
+        [data-theme="dark"] .search-box {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            border-color: var(--input-border) !important;
+        }
+
+        .badge-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-timeout {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        [data-theme="dark"] .badge-active {
+            background: #0e2a1e !important;
+            color: #48c78e !important;
+        }
+
+        [data-theme="dark"] .badge-timeout {
+            background: #2a0e0e !important;
+            color: #f87171 !important;
+        }
+
+        [data-theme="dark"] .no-data {
+            color: var(--text-muted) !important;
+        }
+
         /* ── SCROLLBAR ── */
-        ::-webkit-scrollbar { width: 7px; height: 7px; }
-        ::-webkit-scrollbar-track { background: var(--scrollbar-bg); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
-        [data-theme="dark"] ::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
-        [data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
- 
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-track {
+            background: var(--scrollbar-bg);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+        }
+
         /* ── NOTIFICATION DROPDOWN ── */
-        [data-theme="dark"] .notif-dropdown { background: var(--bg-card) !important; border-color: var(--border-color) !important; }
-        [data-theme="dark"] .notif-list > div { background: var(--bg-card) !important; border-color: var(--border-inner) !important; color: var(--text-main) !important; }
-        [data-theme="dark"] .notif-list > div[style*="eaf3fb"] { background: var(--bg-card-alt) !important; }
- 
+        [data-theme="dark"] .notif-dropdown {
+            background: var(--bg-card) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-theme="dark"] .notif-list>div {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .notif-list>div[style*="eaf3fb"] {
+            background: var(--bg-card-alt) !important;
+        }
+
         /* ── MISCELLANEOUS ── */
-        [data-theme="dark"] .page-title { color: var(--text-main) !important; }
-        [data-theme="dark"] .header-section h1 { color: var(--text-main) !important; }
-        [data-theme="dark"] .controls { background: var(--bg-card) !important; border-color: var(--border-inner) !important; }
-        [data-theme="dark"] .filter-group label { color: var(--text-label) !important; }
-        [data-theme="dark"] .filter-group select { background: var(--bg-input) !important; color: var(--text-main) !important; border-color: var(--input-border) !important; }
+        [data-theme="dark"] .page-title {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .header-section h1 {
+            color: var(--text-main) !important;
+        }
+
+        [data-theme="dark"] .controls {
+            background: var(--bg-card) !important;
+            border-color: var(--border-inner) !important;
+        }
+
+        [data-theme="dark"] .filter-group label {
+            color: var(--text-label) !important;
+        }
+
+        [data-theme="dark"] .filter-group select {
+            background: var(--bg-input) !important;
+            color: var(--text-main) !important;
+            border-color: var(--input-border) !important;
+        }
+
         /* ── Cards ── */
         [data-theme="dark"] .card {
             background: #1a1d27 !important;
@@ -940,52 +1309,86 @@
             border-bottom: 1px solid var(--border-inner);
             transition: background 0.15s, transform 0.1s;
         }
-        .sit-drop-item:last-child { border-bottom: none; }
+
+        .sit-drop-item:last-child {
+            border-bottom: none;
+        }
+
         .sit-drop-item:hover {
             background: var(--bg-card-alt);
             transform: translateX(2px);
         }
+
         .sit-drop-avatar {
-            width: 38px; height: 38px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: #4e73df;
             color: #fff;
-            font-size: 12px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-shrink: 0;
         }
-        .sit-drop-info  { flex: 1; min-width: 0; }
-        .sit-drop-name  {
-            font-weight: 700; font-size: 13px;
+
+        .sit-drop-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sit-drop-name {
+            font-weight: 700;
+            font-size: 13px;
             color: var(--text-main);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .sit-drop-meta  {
-            font-size: 11px; color: var(--text-muted);
-            margin-top: 2px; display: flex; gap: 6px;
+
+        .sit-drop-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            gap: 6px;
         }
+
         .sit-drop-sessions {
-            font-size: 12px; font-weight: 800;
-            color: #1cc88a; flex-shrink: 0;
+            font-size: 12px;
+            font-weight: 800;
+            color: #1cc88a;
+            flex-shrink: 0;
         }
+
         .sit-drop-empty {
-            padding: 16px; font-size: 13px;
-            color: var(--text-muted); text-align: center;
+            padding: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
         }
-        [data-theme="dark"] .sit-drop-item:hover { background: var(--bg-table-hover); }
-        [data-theme="dark"] .sit-drop-avatar { background: #2c4aad; }
+
+        [data-theme="dark"] .sit-drop-item:hover {
+            background: var(--bg-table-hover);
+        }
+
+        [data-theme="dark"] .sit-drop-avatar {
+            background: #2c4aad;
+        }
     </style>
 </head>
+
 <body>
 
-<!-- ── NAVBAR ── -->
+    <!-- ── NAVBAR ── -->
     <nav class="navbar">
         <div class="logo-text"><i class="fa-solid fa-user-shield"></i> College of Computer Studies Admin</div>
         <ul class="nav-links">
             <li><a href="admin-dashboard.html"><i class="fa fa-home"></i> Home</a></li>
             <li><a href="javascript:void(0)" onclick="openSearchModal()"><i class="fa fa-search"></i> Search</a></li>
             <li><a href="students(admin).html"><i class="fa fa-users"></i> Students</a></li>
-            <li><a href="sitin(admin).html"><i class="fa fa-laptop"></i>  Sit-in</a></li>
+            <li><a href="sitin(admin).html"><i class="fa fa-laptop"></i> Sit-in</a></li>
             <li><a href="viewsitin(admin).html"><i class="fa fa-list-alt"></i> View Sit-in Records</a></li>
             <li><a href="sitinreports(admin).html"><i class="fa fa-bar-chart"></i> Sit-in Reports</a></li>
             <li><a href="feedbackreports(admin).html"><i class="fa fa-comments"></i> Feedback Reports</a></li>
@@ -999,10 +1402,11 @@
                     <span id="themeLabel"></span>
                 </button>
             </li>
-            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log out</a></li>
+            <li><a href="javascript:void(0)" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Log
+                    out</a></li>
         </ul>
     </nav>
- 
+
     <!-- SEARCH MODAL -->
     <div id="searchModal" class="modal-overlay">
         <div class="modal-content" style="overflow: visible;">
@@ -1013,8 +1417,7 @@
             <div class="modal-body" style="position:relative;">
                 <input type="text" id="modalSearchInput" placeholder="Enter ID Number"
                     style="width:100%; padding:15px; font-size:15px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px;"
-                    oninput="searchModalAutoFill()"
-                    onkeydown="if(event.key==='Enter') executeSearch(event)"
+                    oninput="searchModalAutoFill()" onkeydown="if(event.key==='Enter') executeSearch(event)"
                     autocomplete="off">
                 <div id="searchModalDropdown" style="
                     display:none;
@@ -1051,160 +1454,161 @@
         </div>
     </div>
 
-<!-- ── MAIN ── -->
-<div class="software-container">
-    
-    <div class="page-title"><i class="fa-solid fa-cloud-arrow-up"></i> Software App Import & Upload</div>
+    <!-- ── MAIN ── -->
+    <div class="software-container">
 
-    <div class="software-grid">
+        <div class="page-title"><i class="fa-solid fa-cloud-arrow-up"></i> Software App Import & Upload</div>
 
-        <!-- LEFT: Upload Form -->
-        <div>
-            <div class="card">
-                <div class="card-header">
-                    <span><i class="fa-solid fa-cloud-arrow-up"></i> Upload Software / File</span>
-                </div>
-                <div class="card-body">
-                    <!-- Dropzone -->
-                    <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <p><strong>Drag &amp; drop files here</strong></p>
-                        <p><span>or click to browse .zip, .exe, .msi, .apk, .pdf, .docx supported</span></p>
+        <div class="software-grid">
+
+            <!-- LEFT: Upload Form -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <span><i class="fa-solid fa-cloud-arrow-up"></i> Upload Software / File</span>
                     </div>
-                    <input type="file" id="fileInput" style="display:none"
-                           accept=".zip,.exe,.msi,.apk,.pdf,.docx,.rar,.7z">
-
-                    <!-- File Preview -->
-                    <div class="file-preview" id="filePreview">
-                        <i class="fa-solid fa-file-zipper"></i>
-                        <span id="filePreviewName">filename.zip</span>
-                        <span id="filePreviewSize" style="color:#858796; font-weight:400; font-size:11px;"></span>
-                        <i class="fa-solid fa-xmark file-remove" onclick="removeFile()"></i>
-                    </div>
-
-                    <!-- Name -->
-                    <div class="form-group">
-                        <label>Software / File Name</label>
-                        <input type="text" id="swName" placeholder="e.g. Visual Studio Code 1.88">
-                    </div>
-
-                    <!-- Category -->
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="swCategory">
-                            <option value="" disabled selected>Select category</option>
-                            <option>IDE / Code Editor</option>
-                            <option>Programming Language</option>
-                            <option>Database Tool</option>
-                            <option>Design Tool</option>
-                            <option>Productivity</option>
-                            <option>Utility</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="swDesc" placeholder="Brief description of this software"></textarea>
-                    </div>
-
-                    <!-- Available Labs -->
-                    <div class="form-group">
-                        <label>Available in Labs</label>
-                        <div class="lab-check-group">
-                            <label class="lab-check-label">
-                                <input type="checkbox" value="524"> Lab 524
-                            </label>
-                            <label class="lab-check-label">
-                                <input type="checkbox" value="525"> Lab 525
-                            </label>
-                            <label class="lab-check-label">
-                                <input type="checkbox" value="525"> Lab 526
-                            </label>
-                            <label class="lab-check-label">
-                                <input type="checkbox" value="527"> Lab 527
-                            </label>
-                            <label class="lab-check-label">
-                                <input type="checkbox" value="528"> Lab 528
-                            </label>
+                    <div class="card-body">
+                        <!-- Dropzone -->
+                        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <p><strong>Drag &amp; drop files here</strong></p>
+                            <p><span>or click to browse .zip, .exe, .msi, .apk, .pdf, .docx supported</span></p>
                         </div>
-                    </div>
+                        <input type="file" id="fileInput" style="display:none"
+                            accept=".zip,.exe,.msi,.apk,.pdf,.docx,.rar,.7z">
 
-                    <button class="upload-btn" onclick="uploadSoftware()">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> Upload &amp; Register Software
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <!-- File Preview -->
+                        <div class="file-preview" id="filePreview">
+                            <i class="fa-solid fa-file-zipper"></i>
+                            <span id="filePreviewName">filename.zip</span>
+                            <span id="filePreviewSize" style="color:#858796; font-weight:400; font-size:11px;"></span>
+                            <i class="fa-solid fa-xmark file-remove" onclick="removeFile()"></i>
+                        </div>
 
-        <!-- RIGHT: Registered Software + Lab Overview -->
-        <div>
-            <!-- Registered Software -->
-            <div class="card">
-                <div class="card-header">
-                    <span><i class="fa-solid fa-boxes-stacked"></i> Registered Software</span>
-                    <div class="header-search">
-                        <i class="fa fa-search"></i>
-                        <input type="text" id="swSearch" placeholder="Search..." oninput="filterSoftware()">
+                        <!-- Name -->
+                        <div class="form-group">
+                            <label>Software / File Name</label>
+                            <input type="text" id="swName" placeholder="e.g. Visual Studio Code 1.88">
+                        </div>
+
+                        <!-- Category -->
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="swCategory">
+                                <option value="" disabled selected>Select category</option>
+                                <option>IDE / Code Editor</option>
+                                <option>Programming Language</option>
+                                <option>Database Tool</option>
+                                <option>Design Tool</option>
+                                <option>Productivity</option>
+                                <option>Utility</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="swDesc" placeholder="Brief description of this software"></textarea>
+                        </div>
+
+                        <!-- Available Labs -->
+                        <div class="form-group">
+                            <label>Available in Labs</label>
+                            <div class="lab-check-group">
+                                <label class="lab-check-label">
+                                    <input type="checkbox" value="524"> Lab 524
+                                </label>
+                                <label class="lab-check-label">
+                                    <input type="checkbox" value="525"> Lab 525
+                                </label>
+                                <label class="lab-check-label">
+                                    <input type="checkbox" value="525"> Lab 526
+                                </label>
+                                <label class="lab-check-label">
+                                    <input type="checkbox" value="527"> Lab 527
+                                </label>
+                                <label class="lab-check-label">
+                                    <input type="checkbox" value="528"> Lab 528
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="upload-btn" onclick="uploadSoftware()">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Upload &amp; Register Software
+                        </button>
                     </div>
-                </div>
-                <div class="card-body" id="swListContainer">
-                    <div class="empty-state" id="emptyState">
-                        <i class="fa-solid fa-box-open"></i>
-                        <p>No software registered yet.</p>
-                    </div>
-                    <div id="swList"></div>
                 </div>
             </div>
 
-            <!-- Lab Software Overview -->
-            <div class="card">
-                <div class="card-header">
-                    <span><i class="fa-solid fa-desktop"></i> Lab Software Overview</span>
+            <!-- RIGHT: Registered Software + Lab Overview -->
+            <div>
+                <!-- Registered Software -->
+                <div class="card">
+                    <div class="card-header">
+                        <span><i class="fa-solid fa-boxes-stacked"></i> Registered Software</span>
+                        <div class="header-search">
+                            <i class="fa fa-search"></i>
+                            <input type="text" id="swSearch" placeholder="Search..." oninput="filterSoftware()">
+                        </div>
+                    </div>
+                    <div class="card-body" id="swListContainer">
+                        <div class="empty-state" id="emptyState">
+                            <i class="fa-solid fa-box-open"></i>
+                            <p>No software registered yet.</p>
+                        </div>
+                        <div id="swList"></div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="lab-overview-grid">
-                        <div class="lab-card">
-                            <div class="lab-name">LAB 524</div>
-                            <div class="lab-count" id="count524">0</div>
-                            <div class="lab-label">Software</div>
-                        </div>
-                        <div class="lab-card">
-                            <div class="lab-name">LAB 525</div>
-                            <div class="lab-count" id="count525">0</div>
-                            <div class="lab-label">Software</div>
-                        </div>
-                        <div class="lab-card">
-                            <div class="lab-name">LAB 526</div>
-                            <div class="lab-count" id="count526">0</div>
-                            <div class="lab-label">Software</div>
-                        </div>
-                        <div class="lab-card">
-                            <div class="lab-name">LAB 527</div>
-                            <div class="lab-count" id="count527">0</div>
-                            <div class="lab-label">Software</div>
-                        </div>
-                        <div class="lab-card">
-                            <div class="lab-name">Lab 528</div>
-                            <div class="lab-count" id="count528">0</div>
-                            <div class="lab-label">Software</div>
+
+                <!-- Lab Software Overview -->
+                <div class="card">
+                    <div class="card-header">
+                        <span><i class="fa-solid fa-desktop"></i> Lab Software Overview</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="lab-overview-grid">
+                            <div class="lab-card">
+                                <div class="lab-name">LAB 524</div>
+                                <div class="lab-count" id="count524">0</div>
+                                <div class="lab-label">Software</div>
+                            </div>
+                            <div class="lab-card">
+                                <div class="lab-name">LAB 525</div>
+                                <div class="lab-count" id="count525">0</div>
+                                <div class="lab-label">Software</div>
+                            </div>
+                            <div class="lab-card">
+                                <div class="lab-name">LAB 526</div>
+                                <div class="lab-count" id="count526">0</div>
+                                <div class="lab-label">Software</div>
+                            </div>
+                            <div class="lab-card">
+                                <div class="lab-name">LAB 527</div>
+                                <div class="lab-count" id="count527">0</div>
+                                <div class="lab-label">Software</div>
+                            </div>
+                            <div class="lab-card">
+                                <div class="lab-name">Lab 528</div>
+                                <div class="lab-count" id="count528">0</div>
+                                <div class="lab-label">Software</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- ── SEARCH / SIT-IN MODAL (same as other pages) ── -->
-<div id="unifiedSitInModal" class="modal-overlay">
+    <!-- ── SEARCH / SIT-IN MODAL (same as other pages) ── -->
+    <div id="unifiedSitInModal" class="modal-overlay">
         <div class="modal-content" style="width: 450px;">
             <div class="modal-header">
                 <h3><i class="fa fa-search"></i> Find Student</h3>
-                <button onclick="closeModal('unifiedSitInModal')" style="background:none; border:none; color:white; cursor:pointer; font-size:20px;">&times;</button>
+                <button onclick="closeModal('unifiedSitInModal')"
+                    style="background:none; border:none; color:white; cursor:pointer; font-size:20px;">&times;</button>
             </div>
-            
+
             <div class="modal-body" style="padding: 10px;">
                 <div class="search-wrapper">
                     <input type="text" id="uniIdSearch" placeholder="Enter Student ID....">
@@ -1241,16 +1645,18 @@
                             </select>
                         </div>
                     </div>
-                
-                <div id="uniPCSection" style="display: none; margin-top: 12px; padding: 0 5px;">
-                    <label style="font-size: 13px; font-weight: 700; color: #4e73df;">Select PC</label>
-                    <div id="uniPCGrid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 6px; max-height: 180px; overflow-y: auto;"></div>
-                    <input type="hidden" id="uniPCNumber" value="">
+
+                    <div id="uniPCSection" style="display: none; margin-top: 12px; padding: 0 5px;">
+                        <label style="font-size: 13px; font-weight: 700; color: #4e73df;">Select PC</label>
+                        <div id="uniPCGrid"
+                            style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 6px; max-height: 180px; overflow-y: auto;">
+                        </div>
+                        <input type="hidden" id="uniPCNumber" value="">
+                    </div>
+
                 </div>
 
             </div>
-
-        </div>
 
             <div class="modal-footer" id="uniFooter" style="display: none;">
                 <button class="btn-cancel" onclick="closeModal('unifiedSitInModal')">Cancel</button>
@@ -1259,8 +1665,9 @@
         </div>
     </div>
 
-<script src="software(admin).js">
+    <script src="software(admin).js">
 
-</script>
+    </script>
 </body>
+
 </html>

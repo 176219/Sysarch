@@ -316,7 +316,7 @@ async function executeSearch(event) {
         }).then((result) => {
             if (result.isConfirmed) {
                 sessionStorage.removeItem("adminWelcomeShown");
-                window.location.href = "index.html";
+                window.location.href = "login.html";
             }
         });
     }
