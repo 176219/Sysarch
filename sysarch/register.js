@@ -30,15 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
        
         const userData = {
-            idNumber: form.idNumber.value,
-            lastName: form.lastName.value,
-            firstName: form.firstName.value,
-            middleName: form.middleName.value,
-            email: form.email.value,
+            idNumber: form.idNumber.value.trim(),
+            lastName: form.lastName.value.trim(),
+            firstName: form.firstName.value.trim(),
+            middleName: form.middleName.value.trim(),
+            email: form.email.value.trim(),
             password: password,
-            address: form.address.value,
-            course: form.course.value,
-            yearLevel: form.yearLevel.value
+            address: form.address.value.trim(),
+            course: form.course.value.trim(),
+            yearLevel: form.yearLevel.value.trim()
         };
 
         try {

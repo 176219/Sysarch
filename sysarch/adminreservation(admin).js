@@ -196,8 +196,12 @@ async function executeSearch(event) {
             requestBody.innerHTML = "";
             logBody.innerHTML     = "";
 
-            // Filter by selected lab
-            const filtered = data.filter(r => r.lab === labFilter);
+            // Filter by selected lab (normalized)
+            const labFilterClean = labFilter.replace(/\D/g, '');
+            const filtered = data.filter(r => {
+                const rLabClean = r.lab ? r.lab.replace(/\D/g, '') : '';
+                return rLabClean === labFilterClean;
+            });
 
             // Count pending for the badge
             const pendingItems = filtered.filter(r => r.status === 'Pending');
@@ -251,6 +255,9 @@ async function executeSearch(event) {
                     </div>`;
             });
 
+            // ── Render the administrative interactive PC Grid ──
+            renderAdminPCGrid(labFilter);
+
             if (!hasPending) {
                 requestBody.innerHTML = `<div class="empty-state"><i class="fa fa-check-circle"></i>No pending requests for Lab ${labFilter}</div>`;
             }
@@ -258,6 +265,118 @@ async function executeSearch(event) {
         } catch (err) {
             console.error("Load error:", err);
             Swal.fire('Error', 'Could not load reservations. Make sure server.js is running.', 'error');
+        }
+    }
+
+    // ── Render Interactive PC Grid for Admin ─────────────────
+    async function renderAdminPCGrid(lab) {
+        const pcGridEl = document.getElementById('adminPCGrid');
+        if (!pcGridEl) return;
+
+        // Fetch PC statuses
+        let statusMap = {};
+        try {
+            const res = await fetch(`http://localhost:3000/admin/pc-status/${encodeURIComponent(lab)}`);
+            if (res.ok) {
+                const rows = await res.json();
+                rows.forEach(r => { statusMap[r.pcNumber] = r.status; });
+            }
+        } catch(e) {
+            console.error("Error fetching admin PC statuses:", e);
+        }
+
+        pcGridEl.innerHTML = '';
+        let pcIndex = 1;
+
+        // 6 rows, 9 columns (6 PC columns + 3 aisle columns)
+        for (let row = 0; row < 6; row++) {
+            for (let col = 1; col <= 9; col++) {
+                if (col === 2 || col === 5 || col === 8) {
+                    const aisle = document.createElement('div');
+                    aisle.style.width = '12px';
+                    aisle.style.display = 'flex';
+                    aisle.style.justifyContent = 'center';
+                    aisle.style.alignItems = 'center';
+                    const line = document.createElement('div');
+                    line.style.width = '2px';
+                    line.style.height = '80%';
+                    line.style.background = 'var(--border-color)';
+                    line.style.opacity = '0.5';
+                    aisle.appendChild(line);
+                    pcGridEl.appendChild(aisle);
+                } else {
+                    const pcLabel = `PC${pcIndex}`;
+                    const status = statusMap[pcLabel] || 'Available';
+
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = `pc-grid-btn ${status.toLowerCase().replace(/\s+/g, '')}`;
+                    btn.title = `${pcLabel} — Status: ${status} (Click to change)`;
+
+                    if (status === 'Under Maintenance') {
+                        btn.innerHTML = `<i class="fa-solid fa-wrench" style="font-size: 11px;"></i><span>${pcLabel}</span>`;
+                    } else if (status === 'Out of Order') {
+                        btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size: 11px;"></i><span>${pcLabel}</span>`;
+                    } else {
+                        btn.innerHTML = `<span>${pcLabel}</span>`;
+                    }
+
+                    // Attach click handler to let admin toggle/set status
+                    btn.onclick = () => changePCStatusPrompt(lab, pcLabel, status);
+
+                    pcGridEl.appendChild(btn);
+                    pcIndex++;
+                }
+            }
+        }
+    }
+
+    // ── Prompt Admin to Update PC Status ─────────────────────
+    async function changePCStatusPrompt(lab, pcNumber, currentStatus) {
+        const { value: newStatus } = await Swal.fire({
+            title: `Manage ${pcNumber}`,
+            text: `Current Status: ${currentStatus}`,
+            input: 'select',
+            inputOptions: {
+                'Available': 'Available (Cleared)',
+                'Under Maintenance': 'Under Maintenance (Yellow)',
+                'Out of Order': 'Out of Order (Red)'
+            },
+            inputValue: currentStatus === 'Reserved' ? 'Available' : currentStatus,
+            showCancelButton: true,
+            confirmButtonColor: '#2c3e70',
+            confirmButtonText: 'Update Status',
+            inputValidator: (value) => {
+                return new Promise((resolve) => {
+                    resolve();
+                });
+            }
+        });
+
+        if (!newStatus) return;
+
+        try {
+            const res = await fetch('http://localhost:3000/admin/pc-status/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lab, pcNumber, status: newStatus })
+            });
+
+            if (res.ok) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Status Updated!',
+                    text: `${pcNumber} in Lab ${lab} is now set to ${newStatus}.`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                fetchReservations(); // Reload layout & grid
+            } else {
+                const data = await res.json();
+                Swal.fire('Error', data.error || 'Failed to update PC status.', 'error');
+            }
+        } catch(e) {
+            Swal.fire('Error', 'Could not connect to server.', 'error');
         }
     }
 

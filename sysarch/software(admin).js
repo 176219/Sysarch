@@ -201,9 +201,10 @@
 
     // ── LAB COUNTS ──
     function updateLabCounts() {
-        ['524','525','526','527','528'].forEach(lab => {
+        ['524','526','528','529','531'].forEach(lab => {
             const count = softwareList.filter(s => s.labs.includes(lab)).length;
-            document.getElementById('count' + lab).textContent = count;
+            const el = document.getElementById('count' + lab);
+            if (el) el.textContent = count;
         });
     }
 
@@ -310,7 +311,7 @@
             const grid = document.getElementById('uniPCGrid');
             document.getElementById('uniPCNumber').value = '';
             grid.innerHTML = '';
-            for (let i = 1; i <= 45; i++) {
+            for (let i = 1; i <= 36; i++) {
                 const pc = `PC${i}`;
                 const btn = document.createElement('button');
                 btn.textContent = pc;

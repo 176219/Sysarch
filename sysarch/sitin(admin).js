@@ -207,6 +207,137 @@ async function submitUnifiedSitIn() {
     } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
 }
 
+/* ══════════════════════════════════════════════════
+   PC GRID — fetches real statuses from the database
+══════════════════════════════════════════════════ */
+async function onLabChange() {
+    // Reset selected PC on lab change
+    document.getElementById("res-pc-number").value = "";
+    const selLabel = document.getElementById("pc-selected-label");
+    const notSelLabel = document.getElementById("pc-not-selected-label");
+    if (selLabel) selLabel.style.display = "none";
+    if (notSelLabel) notSelLabel.style.display = "block";
+
+    generatePCGrid();
+}
+
+async function generatePCGrid() {
+    const pcGrid = document.getElementById('pc-grid');
+    if (!pcGrid) return;
+
+    const labVal = document.getElementById('genLab').value;
+    const lab = labVal.replace(/\D/g, ''); // e.g. "Lab 524" -> "524"
+
+    // Reset selection
+    document.getElementById("res-pc-number").value = "";
+    const selLabel = document.getElementById("pc-selected-label");
+    const notSelLabel = document.getElementById("pc-not-selected-label");
+    if (selLabel) selLabel.style.display = "none";
+    if (notSelLabel) notSelLabel.style.display = "block";
+
+    // Show loading skeletons (6 rows, 9 columns with aisles)
+    pcGrid.innerHTML = '';
+    let pcIndex = 1;
+    for (let row = 0; row < 6; row++) {
+        for (let col = 1; col <= 9; col++) {
+            if (col === 2 || col === 5 || col === 8) {
+                const aisle = document.createElement('div');
+                aisle.style.width = '12px';
+                aisle.style.display = 'flex';
+                aisle.style.justifyContent = 'center';
+                aisle.style.alignItems = 'center';
+                const line = document.createElement('div');
+                line.style.width = '2px';
+                line.style.height = '80%';
+                line.style.background = 'var(--border-color)';
+                line.style.opacity = '0.5';
+                aisle.appendChild(line);
+                pcGrid.appendChild(aisle);
+            } else {
+                const btn = document.createElement('button');
+                btn.type      = 'button';
+                btn.innerText = `PC${pcIndex}`;
+                btn.className = 'pc-grid-btn loading-skeleton';
+                btn.disabled  = true;
+                pcGrid.appendChild(btn);
+                pcIndex++;
+            }
+        }
+    }
+
+    // Fetch statuses from server (same routing as user side / admin reservation)
+    let statusMap = {};
+    try {
+        const res  = await fetch(`${BASE_URL}/admin/pc-status/${encodeURIComponent(lab)}`);
+        const rows = await res.json();
+        rows.forEach(r => { statusMap[r.pcNumber] = r.status; });
+    } catch(e) {
+        console.warn('Could not fetch PC statuses, showing all as available');
+    }
+
+    // Build real grid
+    pcGrid.innerHTML = '';
+    pcIndex = 1;
+    for (let row = 0; row < 6; row++) {
+        for (let col = 1; col <= 9; col++) {
+            if (col === 2 || col === 5 || col === 8) {
+                const aisle = document.createElement('div');
+                aisle.style.width = '12px';
+                aisle.style.display = 'flex';
+                aisle.style.justifyContent = 'center';
+                aisle.style.alignItems = 'center';
+                const line = document.createElement('div');
+                line.style.width = '2px';
+                line.style.height = '80%';
+                line.style.background = 'var(--border-color)';
+                line.style.opacity = '0.5';
+                aisle.appendChild(line);
+                pcGrid.appendChild(aisle);
+            } else {
+                const pcLabel  = `PC${pcIndex}`;
+                const status   = statusMap[pcLabel] || 'Available';
+                const canSelect = status === 'Available';
+
+                const btn = document.createElement('button');
+                btn.type      = 'button';
+                btn.className = `pc-grid-btn ${status.toLowerCase().replace(/\s+/g, '')}`;
+                btn.disabled  = !canSelect;
+                btn.title     = canSelect ? `Select ${pcLabel}` : `${pcLabel} — ${status}`;
+
+                if (status === 'Under Maintenance') {
+                    btn.innerHTML = `<i class="fa-solid fa-wrench" style="font-size: 11px;"></i><span>${pcLabel}</span>`;
+                } else if (status === 'Out of Order') {
+                    btn.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="font-size: 11px;"></i><span>${pcLabel}</span>`;
+                } else {
+                    btn.innerHTML = `<span>${pcLabel}</span>`;
+                }
+
+                if (canSelect) {
+                    btn.onclick = function () {
+                        // Deselect all
+                        document.querySelectorAll('#pc-grid .pc-grid-btn.selected').forEach(b => {
+                            b.classList.remove('selected');
+                        });
+                        // Select this one
+                        btn.classList.add('selected');
+                        document.getElementById('res-pc-number').value = pcLabel;
+
+                        // Show selected label
+                        if (selLabel) {
+                            selLabel.style.display = 'block';
+                            document.getElementById('pc-selected-name').textContent = pcLabel;
+                        }
+                        if (notSelLabel) notSelLabel.style.display = 'none';
+                    };
+                }
+
+                pcGrid.appendChild(btn);
+                pcIndex++;
+            }
+        }
+    }
+}
+
 // ── NEW SIT-IN MODAL ──
 function openSitInModal() {
     document.getElementById('genIdNumber').value  = '';
@@ -214,8 +345,19 @@ function openSitInModal() {
     document.getElementById('genPurpose').value   = 'C Programming';
     document.getElementById('genLab').value       = '524';
     document.getElementById('genRemaining').value = '';
+    
+    // Reset selection labels
+    document.getElementById("res-pc-number").value = "";
+    const selLabel = document.getElementById("pc-selected-label");
+    const notSelLabel = document.getElementById("pc-not-selected-label");
+    if (selLabel) selLabel.style.display = "none";
+    if (notSelLabel) notSelLabel.style.display = "block";
+
     openModal('sitInModal');
     setTimeout(() => document.getElementById('genIdNumber').focus(), 100);
+    
+    // Generate PC Grid on open
+    generatePCGrid();
 }
 
 let _sitInTimer;
@@ -306,16 +448,18 @@ async function submitSitIn() {
     const purpose  = document.getElementById('genPurpose').value;
     const lab      = document.getElementById('genLab').value;
     const sessions = document.getElementById('genRemaining').value;
+    const pcNumber = document.getElementById('res-pc-number').value;
 
     if (!idNumber)               return Swal.fire('Warning', 'Please enter a student ID number.', 'warning');
     if (!sessions)               return Swal.fire('Warning', 'Student not found. Please enter a valid ID.', 'warning');
     if (parseInt(sessions) <= 0) return Swal.fire('No Sessions', 'This student has no remaining sessions.', 'error');
+    if (!pcNumber)               return Swal.fire('Warning', 'Please select an available workstation first.', 'warning');
 
     try {
         const res = await fetch(`${BASE_URL}/sit-in`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idNumber, purpose, lab })
+            body: JSON.stringify({ idNumber, purpose, lab, pcNumber })
         });
         if (res.ok) {
             await Swal.fire({ icon: 'success', title: 'Sit-in Recorded!', timer: 1500, showConfirmButton: false });
@@ -397,7 +541,7 @@ function renderTable() {
     const pageData = filteredRecords.slice(start, start + entriesPerPage);
 
     if (pageData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="no-data">No active sit-in records found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="no-data">No active sit-in records found.</td></tr>`;
         document.getElementById('paginationInfo').textContent = '';
         updatePagination(0);
         return;
@@ -407,6 +551,7 @@ function renderTable() {
         const sessions = r.remainingSession ?? 30;
         const isActive = !r.timeOut || r.timeOut === '';
         const sid      = r.sitInId ?? r.id;
+        const pc       = r.pcNumber ?? '—';
         return `
         <tr>
             <td>${sid ?? '—'}</td>
@@ -414,6 +559,7 @@ function renderTable() {
             <td>${r.firstName ?? ''} ${r.lastName ?? ''}</td>
             <td>${r.purpose}</td>
             <td>${r.lab}</td>
+            <td><b>${pc}</b></td>
             <td><span class="badge badge-session">${sessions}</span></td>
             <td>${isActive
                 ? '<span class="badge badge-active"><i class="fa fa-circle" style="font-size:8px;"></i> Active</span>'
@@ -460,7 +606,7 @@ function goToPage(p) {
     renderTable();
 }
 
-const sortKeys = ['sitInId', 'idNumber', 'lastName', 'purpose', 'lab', 'remainingSession', 'timeOut'];
+const sortKeys = ['sitInId', 'idNumber', 'lastName', 'purpose', 'lab', 'pcNumber', 'remainingSession', 'timeOut'];
 function sortTable(n) {
     const key = sortKeys[n];
     if (sortKey === key) sortAsc = !sortAsc;

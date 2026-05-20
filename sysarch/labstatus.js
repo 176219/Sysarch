@@ -32,10 +32,10 @@ const BASE = 'http://localhost:3000';
 // Labs config — add or rename as needed to match your actual lab names
 const LABS_CONFIG = [
     { name: 'Lab 524', alias: 'Laboratory 524', capacity: 40 },
-    { name: 'Lab 525', alias: 'Laboratory 525', capacity: 40 },
     { name: 'Lab 526', alias: 'Laboratory 526', capacity: 40 },
-    { name: 'Lab 527', alias: 'Laboratory 527', capacity: 40 },
     { name: 'Lab 528', alias: 'Laboratory 528', capacity: 40 },
+    { name: 'Lab 529', alias: 'Laboratory 529', capacity: 40 },
+    { name: 'Lab 531', alias: 'Laboratory 531', capacity: 40 },
 ];
 
 /* ── Default software list (also reads from software.html localStorage) ── */

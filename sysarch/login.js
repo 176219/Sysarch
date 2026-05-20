@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const idNumber = form.idNumber.value;
-        const password = form.password.value;
+        const idNumber = form.idNumber.value.trim();
+        const password = form.password.value.trim();
 
         try {
             const response = await fetch("http://localhost:3000/login", {

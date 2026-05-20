@@ -96,8 +96,27 @@ CREATE TABLE IF NOT EXISTS announcements (
     isRead INTEGER DEFAULT 0
 )`);
 
+db.run(`
+CREATE TABLE IF NOT EXISTS pc_statuses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lab TEXT,
+    pcNumber TEXT,
+    status TEXT,
+    UNIQUE(lab, pcNumber)
+)`);
+
+db.run(`
+CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    idNumber TEXT,
+    message TEXT,
+    isRead INTEGER DEFAULT 0,
+    createdAt TEXT
+)`);
+
 // Safe migration: add manualPoints column if it doesn't exist yet
 db.run(`ALTER TABLE users ADD COLUMN manualPoints INTEGER DEFAULT 0`, () => {});
+db.run(`ALTER TABLE reservations ADD COLUMN pcNumber TEXT`, () => {});
 
 
 //           ROUTES                   //
@@ -108,7 +127,6 @@ app.get(["/", "/index.html"], (req, res) => {
     res.redirect("/login.html");
 });
 
-// register route
 app.post("/register", (req, res) => {
     console.log("DATA RECEIVED", req.body);
     const {
@@ -116,12 +134,25 @@ app.post("/register", (req, res) => {
         email, password, address, course, yearLevel
     } = req.body;
 
+    const trimmedIdNumber = idNumber ? idNumber.trim() : "";
+    const trimmedLastName = lastName ? lastName.trim() : "";
+    const trimmedFirstName = firstName ? firstName.trim() : "";
+    const trimmedMiddleName = middleName ? middleName.trim() : "";
+    const trimmedEmail = email ? email.trim() : "";
+    const trimmedPassword = password ? password.trim() : "";
+    const trimmedAddress = address ? address.trim() : "";
+    const trimmedCourse = course ? course.trim() : "";
+    const trimmedYearLevel = yearLevel ? yearLevel.trim() : "";
+
     const sql = `
     INSERT INTO users (idNumber, lastName, firstName, middleName, email, password, address, course, yearLevel)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.run(sql, [idNumber, lastName, firstName, middleName, email, password, address, course, yearLevel], function(err) {
+    db.run(sql, [
+        trimmedIdNumber, trimmedLastName, trimmedFirstName, trimmedMiddleName,
+        trimmedEmail, trimmedPassword, trimmedAddress, trimmedCourse, trimmedYearLevel
+    ], function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "User registered successfully!" });
     });
@@ -130,22 +161,24 @@ app.post("/register", (req, res) => {
 // login route
 app.post("/login", (req, res) => {
     const { idNumber, password } = req.body;
+    const trimmedIdNumber = idNumber ? idNumber.trim() : "";
+    const trimmedPassword = password ? password.trim() : "";
 
-    if (idNumber === adminAccount.username) {
-        if (password !== adminAccount.password) {
+    if (trimmedIdNumber === adminAccount.username) {
+        if (trimmedPassword !== adminAccount.password) {
             return res.status(400).json({ error: "Incorrect password" });
         }
         return res.json({ role: "admin", user: adminAccount });
     }
 
     const sql = `SELECT * FROM users WHERE idNumber = ?`;
-    db.get(sql, [idNumber], (err, row) => {
+    db.get(sql, [trimmedIdNumber], (err, row) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!row) return res.status(400).json({ error: "ID Number not found" });
-        if (row.password !== password) return res.status(400).json({ error: "Incorrect password" });
+        if (row.password !== trimmedPassword) return res.status(400).json({ error: "Incorrect password" });
 
         const now = new Date().toISOString();
-        db.run(`INSERT INTO login_history (idNumber, loginTime) VALUES (?, ?)`, [idNumber, now]);
+        db.run(`INSERT INTO login_history (idNumber, loginTime) VALUES (?, ?)`, [trimmedIdNumber, now]);
 
         res.json({ role: "user", user: { ...row, profilePhoto: row.profileImage } });
     });
@@ -179,7 +212,7 @@ app.post("/update-profile", (req, res, next) => {
     if (!oldIdNumber) return res.status(400).json({ error: "oldIdNumber is required" });
 
     // Support both multipart file upload and JSON base64 string
-    const profileImage = req.file ? req.file.filename : (profilePhoto || null);
+    const profileImage = req.file ? ("/images/" + req.file.filename) : (profilePhoto || null);
 
     const performUpdate = () => {
         const sql = `
@@ -302,7 +335,7 @@ app.get("/get-sitin", (req, res) => {
     const sql = `
         SELECT r.id AS sitInId, r.idNumber, u.firstName, u.lastName,
                r.purpose, r.lab, r.timeIn, r.timeOut, r.date,
-               u.remainingSession
+               u.remainingSession, r.pcNumber
         FROM reservations r
         JOIN users u ON r.idNumber = u.idNumber
         WHERE r.status = 'Accepted'
@@ -316,7 +349,7 @@ app.get("/get-sitin", (req, res) => {
 
 // POST a new sit-in
 app.post("/sit-in", (req, res) => {
-    const { idNumber, purpose, lab } = req.body;
+    const { idNumber, purpose, lab, pcNumber } = req.body;
     const now = new Date();
     const timeIn = now.toISOString();
     const date = now.toISOString().split("T")[0];
@@ -327,8 +360,8 @@ app.post("/sit-in", (req, res) => {
         if (user.remainingSession <= 0) return res.status(400).send("No sessions left!");
 
         db.run(
-            `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, status) VALUES (?, ?, ?, ?, ?, 'Accepted')`,
-            [idNumber, purpose, lab, timeIn, date],
+            `INSERT INTO reservations (idNumber, purpose, lab, timeIn, date, pcNumber, status) VALUES (?, ?, ?, ?, ?, ?, 'Accepted')`,
+            [idNumber, purpose, lab, timeIn, date, pcNumber || null],
             function(err) {
                 if (err) return res.status(500).send(err.message);
                 db.run(`UPDATE users SET remainingSession = remainingSession - 1 WHERE idNumber = ?`, [idNumber]);
@@ -401,6 +434,13 @@ app.post("/admin/update-reservation", (req, res) => {
                     [reservation.idNumber]
                 );
             }
+
+            // Create notification for the student
+            const msg = status === "Accepted"
+                ? `✅ Your reservation for ${reservation.pcNumber} in ${reservation.lab} on ${reservation.date} was accepted.`
+                : `❌ Your reservation for ${reservation.pcNumber} in ${reservation.lab} on ${reservation.date} was denied.`;
+            const now = new Date().toISOString();
+            db.run(`INSERT INTO notifications (idNumber, message, createdAt) VALUES (?, ?, ?)`, [reservation.idNumber, msg, now]);
 
             res.json({ message: `Reservation ${status}` });
         });
@@ -620,6 +660,115 @@ app.post("/admin/reset-sessions", (req, res) => {
     db.run(`UPDATE users SET remainingSession = 30`, function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "All sessions reset to 30" });
+    });
+});
+
+// ─── PC STATUS & MAINTENANCE ROUTES ──────────────────────────────────────────
+app.get("/admin/pc-status/:lab", (req, res) => {
+    const rawLab = req.params.lab;
+    const lab = rawLab.replace(/\D/g, ''); // e.g. "Lab 524" -> "524", "524" -> "524"
+
+    // 1. Get maintenance statuses from pc_statuses table
+    db.all("SELECT pcNumber, status FROM pc_statuses WHERE lab = ?", [lab], (err, dbStatuses) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        const maintenanceMap = {};
+        dbStatuses.forEach(row => {
+            maintenanceMap[row.pcNumber] = row.status;
+        });
+
+        // 2. Get active accepted reservations (Reserved/In Use)
+        const sql = `
+            SELECT pcNumber
+            FROM reservations
+            WHERE (lab = ? OR lab = ? OR lab = ?)
+              AND status = 'Accepted'
+              AND timeOut IS NULL
+        `;
+        const labOption1 = `Lab ${lab}`;
+        const labOption2 = lab;
+        const labOption3 = rawLab;
+
+        db.all(sql, [labOption1, labOption2, labOption3], (err2, activeReservations) => {
+            if (err2) return res.status(500).json({ error: err2.message });
+
+            const activeMap = {};
+            activeReservations.forEach(row => {
+                activeMap[row.pcNumber] = true;
+            });
+
+            // Combine them for PC1 to PC36
+            const pcStatuses = [];
+            for (let i = 1; i <= 36; i++) {
+                const pcName = `PC${i}`;
+                let status = 'Available';
+
+                // Admin overrides (Maintenance / Out of Order) take precedence
+                if (maintenanceMap[pcName]) {
+                    status = maintenanceMap[pcName];
+                } else if (activeMap[pcName]) {
+                    status = 'Reserved';
+                }
+
+                pcStatuses.push({ pcNumber: pcName, status });
+            }
+
+            res.json(pcStatuses);
+        });
+    });
+});
+
+app.post("/admin/pc-status/update", (req, res) => {
+    const { lab: rawLab, pcNumber, status } = req.body;
+    if (!rawLab || !pcNumber || !status) {
+        return res.status(400).json({ error: "Missing parameters" });
+    }
+
+    const lab = rawLab.replace(/\D/g, ''); // normalize to "524", etc.
+
+    const sql = `INSERT OR REPLACE INTO pc_statuses (lab, pcNumber, status) VALUES (?, ?, ?)`;
+    db.run(sql, [lab, pcNumber, status], function(err) {
+        if (err) {
+            console.error("Error updating PC status:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ success: true, message: `PC status updated to ${status}` });
+    });
+});
+
+// ─── USER NOTIFICATION ROUTES ────────────────────────────────────────────────
+app.get("/notifications/:idNumber", (req, res) => {
+    const idNumber = req.params.idNumber;
+    db.all(
+        `SELECT * FROM notifications WHERE idNumber = ? ORDER BY id DESC LIMIT 50`,
+        [idNumber],
+        (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
+        }
+    );
+});
+
+app.post("/notifications/read/:id", (req, res) => {
+    const id = req.params.id;
+    db.run(`UPDATE notifications SET isRead = 1 WHERE id = ?`, [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.post("/notifications/read-all/:idNumber", (req, res) => {
+    const idNumber = req.params.idNumber;
+    db.run(`UPDATE notifications SET isRead = 1 WHERE idNumber = ?`, [idNumber], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+app.get("/announcements", (req, res) => {
+    db.all(`SELECT * FROM announcements ORDER BY createdAt DESC`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
     });
 });
 

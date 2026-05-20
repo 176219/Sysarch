@@ -264,28 +264,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveBtn.disabled = true;
         saveBtn.innerText = "Saving...";
 
-        const updatedUser = {
-            oldIdNumber: originalID,
-            idNumber: document.getElementById("edit-id").value,
-            lastName: document.getElementById("edit-lastName").value,
-            firstName: document.getElementById("edit-firstName").value,
-            middleName: document.getElementById("edit-middleName").value,
-            yearLevel: document.getElementById("edit-yearLevel").value,
-            course: document.getElementById("edit-course").value,
-            email: document.getElementById("edit-email").value,
-            address: document.getElementById("edit-address").value,
-            profilePhoto: selectedPhoto 
-        };
+        const formData = new FormData();
+        const idNumberVal = document.getElementById("edit-id").value.trim();
+        formData.append("oldIdNumber", originalID);
+        formData.append("idNumber", idNumberVal);
+        formData.append("lastName", document.getElementById("edit-lastName").value.trim());
+        formData.append("firstName", document.getElementById("edit-firstName").value.trim());
+        formData.append("middleName", document.getElementById("edit-middleName").value.trim());
+        formData.append("yearLevel", document.getElementById("edit-yearLevel").value.trim());
+        formData.append("course", document.getElementById("edit-course").value.trim());
+        formData.append("email", document.getElementById("edit-email").value.trim());
+        formData.append("address", document.getElementById("edit-address").value.trim());
+
+        const fileInput = document.getElementById("photoUpload");
+        if (fileInput.files.length > 0) {
+            formData.append("profileImage", fileInput.files[0]);
+        } else if (selectedPhoto) {
+            formData.append("profilePhoto", selectedPhoto);
+        }
 
         try {
             const response = await fetch("http://localhost:3000/update-profile", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedUser)
+                body: formData
             });
 
             if (response.ok) {
-                localStorage.setItem("loggedInId", updatedUser.idNumber);
+                localStorage.setItem("loggedInId", idNumberVal);
                 
                 Swal.fire({
                     icon: 'success',
