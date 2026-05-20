@@ -59,14 +59,28 @@
     async function loadDashboardStats() {
         try {
             const response = await fetch(`${BASE}/admin/dashboard-data`);
+            if (!response.ok) throw new Error("Failed to fetch dashboard statistics.");
             const data = await response.json();
             
-            document.getElementById('totalRegistered').innerText = data.registered || 0;
-            document.getElementById('currentSitIn').innerText = data.currentSitin || 0;
-            document.getElementById('totalSitInCount').innerText = data.totalSitinToday || 0;
+            const registeredVal = data.registered !== undefined ? data.registered : 0;
+            const currentVal = data.currentSitin !== undefined ? data.currentSitin : 0;
+            const todayVal = data.totalSitinToday !== undefined ? data.totalSitinToday : 0;
 
-            const ctx = document.getElementById('statsChart').getContext('2d');
-            if (myChart) myChart.destroy();
+            const regEl = document.getElementById('totalRegistered');
+            const curEl = document.getElementById('currentSitIn');
+            const todEl = document.getElementById('totalSitInCount');
+
+            if (regEl) regEl.innerText = registeredVal;
+            if (curEl) curEl.innerText = currentVal;
+            if (todEl) todEl.innerText = todayVal;
+
+            const chartEl = document.getElementById('statsChart');
+            if (!chartEl) return;
+
+            const ctx = chartEl.getContext('2d');
+            if (myChart) {
+                try { myChart.destroy(); } catch(e) {}
+            }
 
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const tickColor = isDark ? '#b0b8cc' : '#858796';
@@ -78,11 +92,7 @@
                     labels: ['Registered Students', 'Currently Sit-in', 'Total Sit-in Today'],
                     datasets: [{
                         label: 'Count',
-                        data: [
-                            data.registered || 0,
-                            data.currentSitin || 0,
-                            data.totalSitinToday || 0
-                        ],
+                        data: [registeredVal, currentVal, todayVal],
                         backgroundColor: [
                             'rgba(78, 115, 223, 0.85)',  // Blue
                             'rgba(28, 200, 138, 0.85)',  // Green
@@ -411,22 +421,21 @@ async function executeSearch(event) {
             } catch (e) { Swal.fire('Error', 'Connection failed.', 'error'); }
         }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        loadDashboardStats();
-        loadAnnouncements();
+    // Execute dashboard loading immediately
+    loadDashboardStats();
+    loadAnnouncements();
 
-        if (!sessionStorage.getItem("adminWelcomeShown")) {
-            Swal.fire({
-                title: 'Welcome, Admin!',
-                text: 'System analytics and student records are ready.',
-                icon: 'success',
-                confirmButtonColor: '#0056b3',
-                background: '#fff',
-            });
+    if (!sessionStorage.getItem("adminWelcomeShown")) {
+        Swal.fire({
+            title: 'Welcome, Admin!',
+            text: 'System analytics and student records are ready.',
+            icon: 'success',
+            confirmButtonColor: '#0056b3',
+            background: '#fff',
+        });
 
-            sessionStorage.setItem("adminWelcomeShown", "true");
-        }
-    });
+        sessionStorage.setItem("adminWelcomeShown", "true");
+    }
 
     async function logout() {
         const { isConfirmed } = await Swal.fire({
